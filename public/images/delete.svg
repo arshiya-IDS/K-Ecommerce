@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="107.703" height="107.703" viewBox="0 0 107.703 107.703">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.5" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#6984ff"/>
+      <stop offset="1" stop-color="#224aff"/>
+    </linearGradient>
+    <filter id="Path_2397" x="0" y="0" width="107.703" height="107.703" filterUnits="userSpaceOnUse">
+      <feOffset dy="10" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feFlood flood-color="#4364f7" flood-opacity="0.278"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="cross" transform="translate(30 20)">
+    <g transform="matrix(1, 0, 0, 1, -30, -20)" filter="url(#Path_2397)">
+      <path id="Path_2397-2" data-name="Path 2397" d="M23.851,0A23.851,23.851,0,1,1,0,23.851,23.851,23.851,0,0,1,23.851,0Z" transform="translate(30 20)" fill="url(#linear-gradient)"/>
+    </g>
+    <g id="cross_icon" data-name="cross icon" transform="translate(23.851 13.967) rotate(45)">
+      <line id="Line_1" data-name="Line 1" x2="14.434" transform="translate(0 7.217)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="5"/>
+      <line id="Line_2" data-name="Line 2" x2="14.434" transform="translate(7.217 0) rotate(90)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="5"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="hamburger" transform="translate(2151 -4425)">
+    <rect id="bg" width="24" height="24" transform="translate(-2151 4425)" fill="none"/>
+    <g id="Group_8310" data-name="Group 8310" transform="translate(66 -11)">
+      <path id="path" d="M.75,0h18.5c.414,0,.75.56.75,1.25s-.336,1.25-.75,1.25H.75C.336,2.5,0,1.94,0,1.25S.336,0,.75,0Z" transform="translate(-2215 4447)" fill="#f15d4c"/>
+      <path id="path-2" data-name="path" d="M1,0H11a1,1,0,0,1,1,1v.5a1,1,0,0,1-1,1H1a1,1,0,0,1-1-1V1A1,1,0,0,1,1,0Z" transform="translate(-2215 4440)" fill="#f15d4c"/>
+      <path id="path-3" data-name="path" d="M1,0H11a1,1,0,0,1,1,1v.5a1,1,0,0,1-1,1H1a1,1,0,0,1-1-1V1A1,1,0,0,1,1,0Z" transform="translate(-2207 4453)" fill="#f15d4c"/>
+    </g>
+  </g>
+</svg>
