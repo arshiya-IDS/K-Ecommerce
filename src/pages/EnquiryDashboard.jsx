@@ -1,5 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement } from 'chart.js';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  PointElement,
+  LineElement
+} from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
 import { FaChartBar, FaChartPie, FaChartLine } from 'react-icons/fa';
 
@@ -99,10 +110,19 @@ const EnquiryDashboard = () => {
     }
   ]);
 
-  // Calculate chart data
+  // ✅ Sort enquiries in descending order by createdAt
+  const sortedEnquiries = useMemo(() => {
+    return [...enquiries].sort((a, b) => {
+      const [da, ma, ya] = a.createdAt.split('-').map(Number);
+      const [db, mb, yb] = b.createdAt.split('-').map(Number);
+      return new Date(yb, mb - 1, db) - new Date(ya, ma - 1, da); // DESC
+    });
+  }, [enquiries]);
+
+  // Chart data (status)
   const statusData = useMemo(() => {
     const statusCount = {};
-    enquiries.forEach(enquiry => {
+    sortedEnquiries.forEach(enquiry => {
       statusCount[enquiry.status] = (statusCount[enquiry.status] || 0) + 1;
     });
 
@@ -126,11 +146,12 @@ const EnquiryDashboard = () => {
         }
       ]
     };
-  }, [enquiries]);
+  }, [sortedEnquiries]);
 
+  // Chart data (category)
   const categoryData = useMemo(() => {
     const categoryCount = {};
-    enquiries.forEach(enquiry => {
+    sortedEnquiries.forEach(enquiry => {
       categoryCount[enquiry.category] = (categoryCount[enquiry.category] || 0) + 1;
     });
 
@@ -154,12 +175,12 @@ const EnquiryDashboard = () => {
         }
       ]
     };
-  }, [enquiries]);
+  }, [sortedEnquiries]);
 
+  // Chart data (location)
   const locationData = useMemo(() => {
     const locationCount = {};
-    enquiries.forEach(enquiry => {
-      // Extract city from location (e.g., "Dubai, UAE" -> "Dubai")
+    sortedEnquiries.forEach(enquiry => {
       const city = enquiry.location.split(',')[0];
       locationCount[city] = (locationCount[city] || 0) + 1;
     });
@@ -186,7 +207,7 @@ const EnquiryDashboard = () => {
         }
       ]
     };
-  }, [enquiries]);
+  }, [sortedEnquiries]);
 
   // Chart options
   const pieOptions = {
@@ -233,7 +254,7 @@ const EnquiryDashboard = () => {
               </div>
               <div>
                 <p className="text-muted mb-1">Total Enquiries</p>
-                <h5 className="card-title">{enquiries.length}</h5>
+                <h5 className="card-title">{sortedEnquiries.length}</h5>
               </div>
             </div>
           </div>
@@ -247,7 +268,7 @@ const EnquiryDashboard = () => {
               <div>
                 <p className="text-muted mb-1">Resolved</p>
                 <h5 className="card-title">
-                  {enquiries.filter(e => e.status === 'Resolved').length}
+                  {sortedEnquiries.filter(e => e.status === 'Resolved').length}
                 </h5>
               </div>
             </div>
@@ -262,7 +283,7 @@ const EnquiryDashboard = () => {
               <div>
                 <p className="text-muted mb-1">Pending</p>
                 <h5 className="card-title">
-                  {enquiries.filter(e => e.status === 'Pending').length}
+                  {sortedEnquiries.filter(e => e.status === 'Pending').length}
                 </h5>
               </div>
             </div>
@@ -277,20 +298,25 @@ const EnquiryDashboard = () => {
               <div>
                 <p className="text-muted mb-1">In Progress</p>
                 <h5 className="card-title">
-                  {enquiries.filter(e => e.status === 'In Progress').length}
+                  {sortedEnquiries.filter(e => e.status === 'In Progress').length}
                 </h5>
               </div>
             </div>
           </div>
         </div>
       </div>
+
       {/* Charts */}
       <div className="row">
         <div className="col-md-6 mb-4">
           <div className="card">
             <div className="card-body">
               <h5 className="card-title">Enquiries by Status</h5>
-              <Pie data={statusData} options={pieOptions} />
+              <Pie 
+                data={statusData} 
+                options={pieOptions} 
+                style={{ height: '20px', width: '20px' }} 
+              />
             </div>
           </div>
         </div>
@@ -319,11 +345,11 @@ const EnquiryDashboard = () => {
               <h5 className="card-title">Enquiry Trends</h5>
               <Line 
                 data={{
-                  labels: enquiries.map(e => e.createdAt),
+                  labels: sortedEnquiries.map(e => e.createdAt),
                   datasets: [
                     {
                       label: 'Enquiries Over Time',
-                      data: enquiries.map((_, index) => index + 1),
+                      data: sortedEnquiries.map((_, index) => index + 1),
                       fill: false,
                       borderColor: 'rgb(75, 192, 192)',
                       tension: 0.1

@@ -4,18 +4,33 @@ import { useNavigate } from 'react-router-dom';
 import { FaPlus } from "react-icons/fa";
 import { FaArrowDownLong } from "react-icons/fa6";
 import { IoMdSettings } from "react-icons/io";
-import { MdContentCopy } from "react-icons/md";
+import { MdContentCopy, MdKeyboardArrowRight } from "react-icons/md";
+import checkIcon from "../assets/check.png";
+import { MdKeyboardArrowLeft } from "react-icons/md";
+
 
 const Enquiry = () => {
   const navigate = useNavigate();
   
+  const [copiedField, setCopiedField] = useState({ id: null, field: null });
+     const copyToClipboard = (text, id, field) => {
+    navigator.clipboard.writeText(text).then(() => {
+      // Mark which row & field is copied
+      setCopiedField({ id, field });
+  
+      // Reset after 2 seconds
+      setTimeout(() => {
+        setCopiedField({ id: null, field: null });
+      }, 2000);
+    });
+  };
   // Sample data for enquiries with the requested columns
   const [enquiries] = useState([
     {
       id: 1,
       enquiryId: 'ENQ001',
       status: 'Pending',
-      createdAt: '07-06-2022',
+      createdAt: '10-06-2022',
       fullName: 'John Doe',
       contactNo: '+91 50123 14567',
       category: 'Product Inquiry',
@@ -26,7 +41,7 @@ const Enquiry = () => {
       id: 2,
       enquiryId: 'ENQ002',
       status: 'Resolved',
-      createdAt: '08-06-2022',
+      createdAt: '09-06-2022',
       fullName: 'Jane Smith',
       contactNo: '+91 50123 14567',
       category: 'Support Request',
@@ -37,7 +52,7 @@ const Enquiry = () => {
       id: 3,
       enquiryId: 'ENQ003',
       status: 'In Progress',
-      createdAt: '09-06-2022',
+      createdAt: '08-06-2022',
       fullName: 'Robert Johnson',
       contactNo: '+91 50123 14567',
       category: 'Feedback',
@@ -48,7 +63,7 @@ const Enquiry = () => {
       id: 4,
       enquiryId: 'ENQ004',
       status: 'Pending',
-      createdAt: '10-06-2022',
+      createdAt: '07-06-2022',
       fullName: 'Sarah Wilson',
       contactNo: '+91 50123 14567',
       category: 'Product Inquiry',
@@ -58,7 +73,7 @@ const Enquiry = () => {
   ]);
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'desc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
     enquiryId: true,
@@ -70,7 +85,7 @@ const Enquiry = () => {
     location: true,
     email: true
   });
-  const [copiedField, setCopiedField] = useState({ id: null, field: null });
+  //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
   const handleView = (enquiry) => {
     // In a real app, you would fetch the full enquiry details from the backend
@@ -191,7 +206,7 @@ const Enquiry = () => {
   const handleSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+      direction = 'asc';
     }
     setSortConfig({ key, direction });
   };
@@ -211,15 +226,15 @@ const Enquiry = () => {
   };
 
   // Copy text to clipboard
-  const copyToClipboard = async (text, enquiryId, field) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedField({ id: enquiryId, field });
-      setTimeout(() => setCopiedField({ id: null, field: null }), 2000); // Reset after 2 seconds
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
+  // const copyToClipboard = async (text, enquiryId, field) => {
+  //   try {
+  //     await navigator.clipboard.writeText(text);
+  //     setCopiedField({ id: enquiryId, field });
+  //     setTimeout(() => setCopiedField({ id: null, field: null }), 2000); // Reset after 2 seconds
+  //   } catch (err) {
+  //     console.error('Failed to copy text: ', err);
+  //   }
+  // };
 
   const getColumnHeaders = () => {
     const headers = [];
@@ -304,7 +319,7 @@ const Enquiry = () => {
     <div className="container">
       <div className="row">
         <div className="category-table  pb-3 ">
-         <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: '#645959' }}>Enquiry</h4>
+         <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: 'white', background:'#236c68',border:'1px solid',marginTop:'10px',borderRadius:'6px' }}>Enquiry</h4>
           <div
             className="category-1-heading d-flex justify-content-between align-items-center bg-success rounded-top px-1 py-1"
             style={{ backgroundColor: '#198754', flexWrap: 'nowrap' }}
@@ -514,14 +529,14 @@ const Enquiry = () => {
   {columnHeaders.map(header => (
     <th
       key={header.key}
-      className={`admin-user-sub-heading pl-3 p-3 sorting sorting_asc ${
+      className={`admin-user-sub-heading pl-3 p-3 sorting sorting_desc ${
         header.key === 'action' ? 'sticky-action' : ''
       }`}
       tabIndex="0"
       aria-controls="myTable"
       rowSpan="1"
       colSpan="1"
-      aria-sort="ascending"
+      aria-sort="descending"
       aria-label={`${header.label}: activate to sort column descending`}
       style={{
         ...header.style,
@@ -554,10 +569,27 @@ const Enquiry = () => {
                     )}
                     {visibleColumns.status && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>
-                        <span className={`badge ${enquiry.status === 'Pending' ? 'bg-warning' : enquiry.status === 'Resolved' ? 'bg-success' : 'bg-primary'}`}>
-                          {enquiry.status}
-                        </span>
-                      </td>
+                       <span
+                            className={`badge ${
+                              enquiry.status === 'Pending'
+                                ? 'bg-warning'
+                                : enquiry.status === 'Resolved'
+                                ? 'bg-success'
+                                : 'bg-primary'
+                            }`}
+                            style={{
+                              minWidth: "100px",   // keeps them equal size
+                              textAlign: "center", // centers text
+                              display: "inline-block",
+                              padding: "0.5em 0",
+                              fontSize: "0.9rem",
+                              borderRadius: "12px"
+                            }}
+                          >
+                            {enquiry.status}
+                          </span>
+
+                                                </td>
                     )}
                     {visibleColumns.createdAt && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{enquiry.createdAt}</td>
@@ -567,39 +599,68 @@ const Enquiry = () => {
                         <div className="d-flex justify-content-between align-items-center">
                           <span>{enquiry.fullName}</span>
                           <div className="d-flex align-items-center">
-                            <button
-                              className="btn btn-sm ms-2 p-1"
+                            <button 
+                              className="btn btn-m ms-2 p-1"
                               onClick={() => copyToClipboard(enquiry.fullName, enquiry.id, 'fullName')}
                               title="Copy Full Name"
+                               style={{
+                  width: "28px",
+                  height: "28px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
                             >
-                              <MdContentCopy size={12} />
-                            </button>
-                            {copiedField.id === enquiry.id && copiedField.field === 'fullName' && (
-                              <span className="text-success ms-1" style={{ fontSize: '12px' }}>Copied!</span>
-                            )}
-                          </div> 
-                        </div>
-                      </td>
-                    )}
+
+
+                             {copiedField.id === enquiry.id &&
+                                             copiedField.field === "fullName" ? (
+                                               <img
+                                                 src={checkIcon}
+                                                 alt="Copied"
+                                                 style={{ width: "18px", height: "18px" }}
+                                               />
+                                             ) : (
+                                               <MdContentCopy size={15} />
+                                             )}
+                                           </button>
+                                         </div>
+                                       </div>
+                                     </td>
+                                   )}
                     {visibleColumns.contactNo && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>
                         <div className="d-flex justify-content-between align-items-center">
                           <span>{enquiry.contactNo}</span>
                           <div className="d-flex align-items-center">
                             <button
-                              className="btn btn-sm ms-2 p-1"
+                              className="btn btn-m ms-2 p-1"
                               onClick={() => copyToClipboard(enquiry.contactNo, enquiry.id, 'contactNo')}
                               title="Copy Contact Number"
+                               style={{
+                                width: "28px",
+                                height: "28px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                }}
                             >
-                              <MdContentCopy size={12} />
-                            </button>
-                            {copiedField.id === enquiry.id && copiedField.field === 'contactNo' && (
-                              <span className="text-success ms-1" style={{ fontSize: '12px' }}>Copied!</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                    )}
+  
+                           {copiedField.id === enquiry.id &&
+                                           copiedField.field === "contactNo" ? (
+                                             <img
+                                               src={checkIcon}
+                                               alt="Copied"
+                                               style={{ width: "18px", height: "18px" }}
+                                             />
+                                           ) : (
+                                             <MdContentCopy size={15} />
+                                           )}
+                                         </button>
+                                       </div>
+                                     </div>
+                                   </td>
+                                 )}
                     {visibleColumns.category && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{enquiry.category}</td>
                     )}
@@ -612,19 +673,32 @@ const Enquiry = () => {
                           <span>{enquiry.email}</span>
                           <div className="d-flex align-items-center">
                             <button
-                              className="btn btn-sm ms-2 p-1"
+                              className="btn btn-m ms-2 p-1"  
                               onClick={() => copyToClipboard(enquiry.email, enquiry.id, 'email')}
                               title="Copy Email"
+                               style={{
+                                width: "28px",
+                                height: "28px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+          }}
                             >
-                              <MdContentCopy size={12} />
-                            </button>
-                            {copiedField.id === enquiry.id && copiedField.field === 'email' && (
-                              <span className="text-success ms-1" style={{ fontSize: '12px' }}>Copied!</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                    )}
+
+                             {copiedField.id === enquiry.id && copiedField.field === "email" ? (
+                                         <img
+                                           src={checkIcon}
+                                           alt="Copied"
+                                           style={{ width: "18px", height: "18px" }}
+                                         />
+                                       ) : (
+                                         <MdContentCopy size={15} />
+                                       )}
+                                     </button>
+                                   </div>
+                                                     </div>
+                                                   </td>
+                                                 )}
                     <td className={`admin-user-option pl-3 p-3 sticky-action`} style={{
                       whiteSpace: 'nowrap', 
                       border: '1px solid #dee2e6',
@@ -677,13 +751,34 @@ const Enquiry = () => {
               <nav aria-label="Page navigation">
                 <ul className="pagination d-flex justify-content-end w-100 mt-3">
                   <li className="page-item" aria-current="page">
-                    <a className="page-link" href="#">Previous <span className="sr-only">(current)</span></a>
-                  </li>
-                  <li className="page-item active">
-                    <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="#">Next</a>
+                    
+                       {
+                       <a className="page-link" style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px", // spacing between arrow and text
+                      fontSize: "15px", // adjust this to your desired text size
+             }} href="#">
+                       <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                       <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
+                       Previous
+                       </a> }
+
+                    
+                     </li>
+                     <li className="page-item active">
+                     <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
+                     </li>
+                     <li className="page-item">
+                      <a className="page-link" style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px", // spacing between arrow and text
+                      fontSize: "15px", // adjust this to your desired text size
+                     }} href="#">Next
+                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                       <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
+                    </a>
                   </li>
                 </ul>
               </nav>

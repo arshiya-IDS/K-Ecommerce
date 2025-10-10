@@ -1037,6 +1037,10 @@ h6.login-w-icon {
     max-width: 600px;
     position: relative;
 } 
+.unbold-label {
+  font-weight: normal !important;
+}
+
 h6:before {
     content: "";
     display: block;
@@ -1560,7 +1564,7 @@ img.debit-card-image {
     margin-left: 20px;
 }
 label.form-check-labels {
-    color: #000000;
+    color:black;
     text-decoration: none;
     margin-bottom: 0px;
 }

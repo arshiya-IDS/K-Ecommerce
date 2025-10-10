@@ -30,6 +30,10 @@ body {
   position: relative;
 }
 
+.btn btn-sm ms-2 p-1
+{
+  font-size: 10px;
+}
 .login-w-icon:before {
   content: "";
   display: block;
@@ -39,6 +43,11 @@ body {
   left: 24px;
   top: 50%;
   position: absolute;
+}
+
+.enquiry-bg {
+  background-color: #236c68;
+  color: white; /* optional for better contrast */
 }
 
 .login-w-icon:after {
@@ -186,6 +195,7 @@ body {
   position: relative;
   transition: margin 0.25s ease-out;
   margin-left: -15rem;
+  margin-bottom: 20px;
 }
 
 .dashboard-sidebar.open {
@@ -505,7 +515,10 @@ body {
   filter: brightness(0) invert(1);
   transform: scaleX(-1);
 }
-
+.btn btn-m ms-2 p-1{
+        font-size: 45px;
+                                        
+}
 /* Enquiry dashboard chart icons */
 .chart-icon-container {
   transition: all 0.3s ease;
@@ -642,7 +655,7 @@ th.sticky-action {
 .admin-category-sub-heading, .admin-user-sub-heading {
   background-color: #f8f9fa;
   border: 1px solid #dee2e6;
-  font-weight: bold;
+  font-weight: normal;
   padding: 12px;
   text-align: left;
   white-space: nowrap;

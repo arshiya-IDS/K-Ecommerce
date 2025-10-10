@@ -94,8 +94,17 @@ const EnquiryDetails = () => {
             <button 
               onClick={handleBack}
               className="btn btn-primary"
+             style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "4px", // spacing between arrow and text
+              fontSize: "16px", // adjust this to your desired text size
+             }}
             >
-              <MdKeyboardArrowLeft /> BACK 
+              <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
+              <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
+
+              BACK 
             </button>
             <h2 className="text-center mb-0 text-primary flex-grow-1">{formData.enquiryId}</h2>
             <div style={{ width: '60px' }}></div> {/* Spacer to balance the layout */}
@@ -334,12 +343,19 @@ const EnquiryDetails = () => {
                     </button>
                   </>
                 ) : (
-                  <button 
-                    onClick={handleEdit}
-                    className="btn btn-success"
-                  >
-                    Edit
-                  </button>
+                    <button
+                      onClick={handleEdit}
+                      className="btn btn-success"
+                      style={{
+                        position: 'absolute',
+                        bottom: '390px',
+                        right: '10px',
+                        zIndex: 10
+                      }}
+                    >
+                      Edit
+                    </button>
+
                 )}
               </div>
             </div>

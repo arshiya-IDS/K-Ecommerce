@@ -4,9 +4,25 @@ import { FaPlus } from "react-icons/fa";
 import { FaArrowDownLong } from "react-icons/fa6";
 import { IoMdSettings } from "react-icons/io";
 import { MdContentCopy } from "react-icons/md";
+import checkIcon from "../assets/check.png";
+import { MdKeyboardArrowLeft } from "react-icons/md";
+import { MdKeyboardArrowRight } from 'react-icons/md';
 
 const Userlist = () => {
   // Sample data for users with the requested columns
+
+  const [copiedField, setCopiedField] = useState({ id: null, field: null });
+       const copyToClipboard = (text, id, field) => {
+      navigator.clipboard.writeText(text).then(() => {
+        // Mark which row & field is copied
+        setCopiedField({ id, field });
+    
+        // Reset after 2 seconds
+        setTimeout(() => {
+          setCopiedField({ id: null, field: null });
+        }, 2000);
+      });
+    };
   const [users] = useState([
     {
       id: 1,
@@ -33,7 +49,7 @@ const Userlist = () => {
     phoneNumber: true,
     createdAt: true
   });
-  const [copiedField, setCopiedField] = useState({ id: null, field: null });
+  //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
   // Filter users based on search term
   const filteredUsers = useMemo(() => {
@@ -90,15 +106,15 @@ const Userlist = () => {
   };
 
   // Copy text to clipboard
-  const copyToClipboard = async (text, userId, field) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedField({ id: userId, field });
-      setTimeout(() => setCopiedField({ id: null, field: null }), 2000); // Reset after 2 seconds
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
+  // const copyToClipboard = async (text, userId, field) => {
+  //   try {
+  //     await navigator.clipboard.writeText(text);
+  //     setCopiedField({ id: userId, field });
+  //     setTimeout(() => setCopiedField({ id: null, field: null }), 2000); // Reset after 2 seconds
+  //   } catch (err) {
+  //     console.error('Failed to copy text: ', err);
+  //   }
+  // };
 
   const getColumnHeaders = () => {
     const headers = [];
@@ -144,7 +160,8 @@ const Userlist = () => {
     <div className="container">
       <div className="row">
         <div className="category-table  pb-3 ">
-              <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: '#645959' }}>User List</h4>
+              <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: 'white', background:'#236c68',border:'1px solid',marginTop:'10px',borderRadius:'6px' }}>User List</h4>
+
           
 <div
   className="category-1-heading d-flex justify-content-between align-items-center bg-success rounded-top px-1 py-1"
@@ -254,7 +271,9 @@ const Userlist = () => {
                     checked={visibleColumns.name}
                     onChange={() => toggleColumn('name')}
                   />
-                  <label className="form-check-label" htmlFor="nameCheck">
+                  <label className="form-check-label unbold-label" htmlFor="nameCheck"
+                   style={{ fontWeight: "normal !important"}}                 
+                  >
                     Name
                   </label>
                 </div>
@@ -349,16 +368,30 @@ const Userlist = () => {
                               className="btn btn-sm ms-2 p-1"
                               onClick={() => copyToClipboard(user.name, user.id, 'name')}
                               title="Copy Name"
+                                style={{
+                              width: "28px",
+                              height: "28px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                }}
                             >
-                              <MdContentCopy size={12} />
-                            </button>
-                            {copiedField.id === user.id && copiedField.field === 'name' && (
-                              <span className="text-success ms-1" style={{ fontSize: '12px' }}>Copied!</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                    )}
+          
+                             {copiedField.id === user.id  &&
+                                                                         copiedField.field === "name" ? (
+                                                                           <img
+                                                                             src={checkIcon}
+                                                                             alt="Copied"
+                                                                             style={{ width: "18px", height: "18px" }}
+                                                                           />
+                                                                         ) : (
+                                                                           <MdContentCopy size={15} />
+                                                                         )}
+                                                                       </button>
+                                                                     </div>
+                                                                   </div>
+                                                                 </td>
+                                                               )}
                     {visibleColumns.email && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>
                         <div className="d-flex justify-content-between align-items-center">
@@ -368,16 +401,29 @@ const Userlist = () => {
                               className="btn btn-sm ms-2 p-1"
                               onClick={() => copyToClipboard(user.email, user.id, 'email')}
                               title="Copy Email"
-                            >
-                              <MdContentCopy size={12} />
-                            </button>
-                            {copiedField.id === user.id && copiedField.field === 'email' && (
-                              <span className="text-success ms-1" style={{ fontSize: '12px' }}>Copied!</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                    )}
+                               style={{
+                                width: "28px",
+                                height: "28px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+          }}
+                          >
+             
+                              {copiedField.id === user.id && copiedField.field === "email" ? (
+                                                                      <img
+                                                                        src={checkIcon}
+                                                                        alt="Copied"
+                                                                        style={{ width: "18px", height: "18px" }}
+                                                                      />
+                                                                    ) : (
+                                                                      <MdContentCopy size={15} />
+                                                                    )}
+                                                                  </button>
+                                                                </div>
+                                                                                  </div>
+                                                                                </td>
+                                                                              )}
                     {visibleColumns.phoneNumber && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>
                         <div className="d-flex justify-content-between align-items-center">
@@ -387,16 +433,30 @@ const Userlist = () => {
                               className="btn btn-sm ms-2 p-1"
                               onClick={() => copyToClipboard(user.phoneNumber, user.id, 'phoneNumber')}
                               title="Copy Phone Number"
+                              style={{
+                                width: "28px",
+                                height: "28px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                }}
                             >
-                              <MdContentCopy size={12} />
-                            </button>
-                            {copiedField.id === user.id && copiedField.field === 'phoneNumber' && (
-                              <span className="text-success ms-1" style={{ fontSize: '12px' }}>Copied!</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                    )}
+
+                              {copiedField.id === user.id &&
+                                                                            copiedField.field === "phoneNumber" ? (
+                                                                              <img
+                                                                                src={checkIcon}
+                                                                                alt="Copied"
+                                                                                style={{ width: "18px", height: "18px" }}
+                                                                              />
+                                                                            ) : (
+                                                                              <MdContentCopy size={15} />
+                                                                            )}
+                                                                          </button>
+                                                                        </div>
+                                                                      </div>
+                                                                    </td>
+                                                                  )}
                     {visibleColumns.createdAt && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.createdAt}</td>
                     )}
@@ -416,14 +476,39 @@ const Userlist = () => {
               <nav aria-label="Page navigation">
                 <ul className="pagination d-flex justify-content-end w-100 mt-3">
                   <li className="page-item" aria-current="page">
-                    <a className="page-link" href="#">Previous <span className="sr-only">(current)</span></a>
+                    <a className="page-link"
+
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px", // spacing between arrow and text
+                      fontSize: "15px", // adjust this to your desired text size
+             }}
+                    
+                    href="#">
+
+                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
+                                             Previous
+                    
+
+
+                    </a>
                   </li>
                   <li className="page-item active">
                     <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
                   </li>
                   <li className="page-item">
-                    <a className="page-link" href="#">Next</a>
-                  </li>
+                  <a className="page-link" style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px", // spacing between arrow and text
+                      fontSize: "15px", // adjust this to your desired text size
+                     }} href="#">Next
+                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                       <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
+                    </a>               
+                       </li>
                 </ul>
               </nav>
             </div>

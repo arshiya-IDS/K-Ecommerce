@@ -9,15 +9,18 @@ const EnquiryForm = () => {
     return (
         <div className="container-fluid px-0 mt-0 p-3">
             <div className='d-flex justify-content-between align-items-center mb-1'>
-                <button onClick={handleBack} className="btn btn-primary">
-                    <IoIosArrowBack />
+                <button onClick={handleBack} className="btn btn-primary d-flex align-items-center">
+                <IoIosArrowBack style={{ marginRight: "-10px" }} />
+                <IoIosArrowBack className="me-1" />
+                <span>Back</span>
                 </button>
+
                 <h4 className='title-for-main-head mb-0 mt-0 d-flex justify-content-center w-100'>
                     New Enquiry Form
                 </h4>
             </div>
 
-            <div className='p-3' style={{ border: '1px solid #dee2e6', backgroundColor: 'white', borderRadius: '8px' }}>
+            <div className='p-3' style={{ border: '1px solid #dee2e6', backgroundColor: 'white', borderRadius: '8px', marginTop:'10px' }}>
                 <form>
                     {/* Full Name & Contact */}
                     <div className="row mb-3">
@@ -103,9 +106,8 @@ const EnquiryForm = () => {
                     </div>
 
                     {/* Submit */}
-                    <button type="submit" className="btn btn-primary mt-3">
-                        Submit Enquiry
-                    </button>
+                   <button type="submit" className="btn btn-primary mt-3"> Submit Enquiry </button>
+
                 </form>
             </div>
         </div>
