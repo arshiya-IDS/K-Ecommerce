@@ -429,14 +429,14 @@ body {
 }
 
 .btn-outline-success {
-  color: #28a745;
-  border-color: #28a745;
+  color: black;
+  border-color: #FEC200 ;
 }
 
 .btn-outline-success:hover {
   color: #fff;
-  background-color: #28a745;
-  border-color: #28a745;
+  background-color: #FEC200 ;
+  border-color:#FEC200 ;
 }
 
 .btn-outline-danger {
@@ -468,14 +468,14 @@ body {
 }
 
 .logout:hover {
-  background: #236c68;
+  background: black;
   color: white !important;
   text-decoration: none;
   border-radius: 6px;
 }
 
 .logout.active {
-  background: #236c68;
+  background:black;
   color: white !important;
 }
 
@@ -486,7 +486,7 @@ body {
 
 .logout-item {
   text-decoration: none;
-  color: #747574;
+  color:black;
   transition: color 0.3s ease;
   margin-left: 0px;
   display: block;
@@ -605,13 +605,13 @@ body {
 }
 
 .btn-outline-success {
-  color: #28a745;
-  border-color: #28a745;
+  color: black;
+  border-color: #FEC200 ;
 }
 
 .btn-outline-success:hover {
-  background-color: #28a745;
-  border-color: #28a745;
+  background-color: #FEC200 ;
+  border-color: black;
 }
 
 .btn-outline-danger {

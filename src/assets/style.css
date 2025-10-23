@@ -4,6 +4,18 @@
     
     
 }
+.logout.active{
+    background-color:black;
+}
+.logout.active :hover{
+    background-color: #000 !important;
+    color: white;
+}
+/* custom.css — load after bootstrap */
+.category-1-heading {
+  background-color: #FEC200 !important; /* your red */
+}
+
 body{
     overflow-x: hidden;
 }

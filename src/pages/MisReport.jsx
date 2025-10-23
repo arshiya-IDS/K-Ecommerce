@@ -247,7 +247,7 @@ const MisReport = () => {
     <div className="container ">
       <div className="row">
         <div className="category-table  pb-3 ">
-              <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: 'white', background:'#236c68',border:'1px solid',marginTop:'10px',borderRadius:'6px' }}>MIS Reports</h4>
+              <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: 'white', background:'#FEC200',border:'1px solid',marginTop:'10px',borderRadius:'6px' }}>MIS Reports</h4>
 <div
   className="category-1-heading d-flex justify-content-between align-items-center bg-success rounded-top px-1 py-1"
   style={{ backgroundColor: '#198754', flexWrap: 'nowrap' }}

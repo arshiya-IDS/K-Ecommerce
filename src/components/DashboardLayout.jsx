@@ -61,20 +61,66 @@ const DashboardLayout = () => {
         <div className="sidebar-heading border-bottom bg-light">
           <Link to="/">
             <img 
-              src="\images\logo/Admin-Login-Page.png" 
+              src="\images\logo/Admin-Login-Page.webp" 
               className="sidebar-logo"
               alt="Logo" 
+                style={{ width: "265px", height: "90px", background:'#FEC200', transform:'translateX(-50px)' }} 
+
             />
           </Link>
         </div>
 
-        <div className="list-group list-group-flush sidebar-menu p-3">
+        <div className="list-group list-group-flush sidebar-menu p-3"
+
+        style={{background:'#FEC200',height:'1000px' }} 
+        
+        >
+          
           <Link className="logout-item" to="/">
-            <div className={`logout mt-0 ${isActiveLink('/') ? 'active' : ''}`}>
+            <div className={`logout mt-0 ${isActiveLink('/dashboard') ? 'active' : ''}`}>
               <img src="/images/icons/dashboard.png" width="20" height="20" alt="Dashboard" className="menu-icon" />
               <span>Dashboard</span>
             </div>
           </Link>
+
+           <Link className="logout-item" to="/product-list">
+            <div className={`logout ${isActiveLink('/product-list') ? 'active' : ''}`}>
+              <img src="/images/icons/checklist-product.png" width="20" height="20" alt="User List" className="menu-icon"
+                 style={{width:'26px',height:'28px'}}             
+
+              />
+              <span>Product List</span>
+            </div>
+          </Link>
+
+           <Link className="logout-item" to="/product-discount-list">
+            <div className={`logout ${isActiveLink('/product-discount-list') ? 'active' : ''}`}>
+              <img src="/images/icons/user-discount.png" width="20px" height="20px" alt="User List" className="menu-icon" 
+              style={{width:'24px',height:'26px'}}             
+              />
+              <span>Product Discount List</span>
+            </div>
+          </Link>
+         
+
+         <Link className="logout-item" to="/user-discount-list">
+            <div className={`logout ${isActiveLink('/user-discount-list') ? 'active' : ''}`}>
+              <img src="/images/icons/shopping-discount.png" width="20" height="20" alt="User List" className="menu-icon"
+                 style={{width:'24px',height:'26px'}}            
+              />
+              <span>User Discount List</span>
+            </div>
+          </Link>
+
+          <Link className="logout-item" to="/shipping-charges-list">
+            <div className={`logout ${isActiveLink('/shipping-charges-list') ? 'active' : ''}`}>
+              <img src="/images/icons/delivery-charge-icon.png" width="20" height="20" alt="User List" className="menu-icon"
+                   style={{width:'20px',height:'40px'}}               
+              />
+              <span>Shipping Charges List</span>
+            </div>
+          </Link>
+
 
           <Link className="logout-item" to="/userlist">
             <div className={`logout ${isActiveLink('/userlist') ? 'active' : ''}`}>
@@ -83,17 +129,17 @@ const DashboardLayout = () => {
             </div>
           </Link>
 
-          <Link className="logout-item" to="/enquiry">
+          {/* <Link className="logout-item" to="/enquiry">
             <div className={`logout ${isActiveLink('/enquiry') ? 'active' : ''}`}>
               <img src="/images/icons/help.png" width="20" height="20" alt="Enquiry" className="menu-icon" />
               <span>Enquiry</span>
             </div>
-          </Link>
+          </Link> */}
 
           <Link className="logout-item" to="/enquiry-dashboard">
             <div className={`logout ${isActiveLink('/enquiry-dashboard') ? 'active' : ''}`}>
               <img src="/images/icons/Enquirydashboard.png" width="20" height="20" alt="Enquiry Dashboard" className="menu-icon" />
-              <span>Enquiry Dashboard</span>
+              <span>Products Dashboard</span>
             </div>
           </Link>
 
@@ -121,7 +167,10 @@ const DashboardLayout = () => {
             <button className="btn sidebar-toggle-btn" id="sidebarToggle" onClick={toggleSidebar}>
               <img src="/images/bars.svg" alt="Toggle Sidebar" width="20" height="20" />
             </button>
-            <h2 className='admin-title'>Welcome to Tax Ustaad Admin Dashboard</h2>
+            <h2 className='admin-title'
+            style={{marginTop:'20px', marginBottom:'20px'}}
+            
+            >Welcome to K-ECommerce Admin Dashboard</h2>
             <button 
               className="navbar-toggler" 
               type="button" 
@@ -158,7 +207,9 @@ const DashboardLayout = () => {
                     aria-labelledby="navbarDropdownMenuLink"
                   >
                     <div className="subscription-icons d-flex">
-                      <img src="/images/setting.svg" className="add-icons" alt="Settings" width="20" height="20" />
+                      <img src="/images/setting.svg" className="add-icons" alt="Settings" width="20" height="20" 
+
+                      />
                       <Link className="dropdown-item" to="/login">Login</Link>
                     </div>
                     <div className="subscription-icons d-flex">

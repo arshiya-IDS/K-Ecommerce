@@ -1,37 +1,44 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/authService";
 
 const Login = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const togglePassword = () => {
-    setPasswordVisible(!passwordVisible);
-  };
+  const togglePassword = () => setPasswordVisible(!passwordVisible);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login attempt with:", formData);
-    // For now, redirect to dashboard after login
-    navigate("/");
+    setError("");
+    try {
+      const response = await loginUser(formData);
+      console.log("Login Success:", response);
+
+      // Optionally store user info in localStorage
+      localStorage.setItem("user", JSON.stringify(response));
+
+      // Redirect based on role
+      if (response.role === "Admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setError(err.message || "Login failed");
+      console.error(err);
+    }
   };
 
   return (
-    <div>
+   <div>
       {/* Navigation Bar */}
       <nav className="navbar navbar-expand-lg navbar-light p-0"></nav>
 

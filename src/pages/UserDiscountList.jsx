@@ -7,9 +7,14 @@ import { MdContentCopy } from "react-icons/md";
 import checkIcon from "../assets/check.png";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdKeyboardArrowRight } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
-const Userlist = () => {
+
+const UserDiscountList = () => {
   // Sample data for users with the requested columns
+
+  const navigate = useNavigate();
+
 
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
        const copyToClipboard = (text, id, field) => {
@@ -26,17 +31,20 @@ const Userlist = () => {
   const [users] = useState([
     {
       id: 1,
-      name: 'Tax Ustaad Admin',
-      email: 'admin@tax-ustaad.com',
-      phoneNumber: '9999999999',
-      createdAt: '14-08-2025 08:00 PM'
+      name: 'Annual Discount',
+      email: 'Percentage',
+      phoneNumber: '5000',
+      createdAt: '14-08-2025',
+      EndDate: '14-08-2026'
     },
+
     {
       id: 2,
-      name: 'Super User',
-      email: 'superuser@gmail.com',
-      phoneNumber: '7778677785',
-      createdAt: 'Invalid Date'
+      name: 'Quarterly Discount',
+      email: 'Free Shipping',
+      phoneNumber: '500',
+      createdAt: '20-10-2025',
+      EndDate: '20-02-2026'
     }
   ]);
   
@@ -122,7 +130,7 @@ const Userlist = () => {
     if (visibleColumns.name) {
       headers.push({
         key: 'name',
-        label: 'Name',
+        label: 'Discount Name',
         style: { width: '150px' }
       });
     }
@@ -130,7 +138,7 @@ const Userlist = () => {
     if (visibleColumns.email) {
       headers.push({
         key: 'email',
-        label: 'Email',
+        label: 'Discount Type',
         style: { width: '150px' }
       });
     }
@@ -138,7 +146,7 @@ const Userlist = () => {
     if (visibleColumns.phoneNumber) {
       headers.push({
         key: 'phoneNumber',
-        label: 'Phone Number',
+        label: 'Discount Value',
         style: { width: '120px' }
       });
     }
@@ -146,7 +154,14 @@ const Userlist = () => {
     if (visibleColumns.createdAt) {
       headers.push({
         key: 'createdAt',
-        label: 'Created At',
+        label: 'Start Date',
+        style: { width: '100px' }
+      });
+    }
+     if (visibleColumns.EndDate) {
+      headers.push({
+        key: 'createdAt2',
+        label: 'End Date',
         style: { width: '100px' }
       });
     }
@@ -160,12 +175,12 @@ const Userlist = () => {
     <div className="container">
       <div className="row">
         <div className="category-table  pb-3 ">
-              <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: 'white', background:'#FEC200',border:'1px solid',marginTop:'10px',borderRadius:'6px' }}>User List</h4>
+              <h4 className="py-2 pl-3 text-center p-4 mb-0" style={{ color: 'white', background:'#FEC200',border:'1px solid white',marginTop:'10px',borderRadius:'6px' }}>User Discount List</h4>
 
           
 <div
-  className="category-1-heading d-flex justify-content-between align-items-center bg-success rounded-top px-1 py-1"
-  style={{ backgroundColor: 'red', flexWrap: 'nowrap' }}
+  className="category-1-heading d-flex justify-content-between align-items-center rounded-top px-1 py-1"
+  style={{ backgroundColor: '#FEC200', flexWrap: 'nowrap'}}
 >
   {/* Left: From / To Date + Filter */}
   <div className="d-flex align-items-center">
@@ -250,8 +265,8 @@ const Userlist = () => {
     <button
                     className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
                     style={{ height: '34px', width: '34px', padding: 0 }}
-                    title="Create New Enquiry"
-                    onClick={() => navigate('/enquiry-form')}
+                    title="Create New User Discount"
+                    onClick={() => navigate('/user-discount')}
                   >
                     <FaPlus size={16} />
                   </button>
@@ -519,4 +534,5 @@ const Userlist = () => {
   );
 };
 
-export default Userlist;
+
+export default UserDiscountList
