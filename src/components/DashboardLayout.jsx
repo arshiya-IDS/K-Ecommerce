@@ -122,6 +122,45 @@ const DashboardLayout = () => {
           </Link>
 
 
+       <Link className="logout-item" to="/orders-list">
+            <div className={`logout ${isActiveLink('/orders-list') ? 'active' : ''}`}>
+              <img src="/images/icons/shopping-discount.png" width="20" height="20" alt="User List" className="menu-icon"
+                 style={{width:'24px',height:'26px'}}            
+              />
+              <span>Orders List</span>
+            </div>
+          </Link>
+
+          <Link className="logout-item" to="/category-list">
+            <div className={`logout ${isActiveLink('/category-list') ? 'active' : ''}`}>
+              <img src="/images/icons/checklist-product.png" width="20" height="20" alt="User List" className="menu-icon"
+                 style={{width:'26px',height:'28px'}}             
+
+              />
+              <span>Category List</span>
+            </div>
+          </Link>
+          
+
+           <Link className="logout-item" to="/subcategories-list">
+            <div className={`logout ${isActiveLink('/subcategories-list') ? 'active' : ''}`}>
+              <img src="/images/icons/checklist-product.png" width="20" height="20" alt="User List" className="menu-icon"
+                 style={{width:'26px',height:'28px'}}             
+
+              />
+              <span>SubCategory List</span>
+            </div>
+          </Link>
+
+          <Link className="logout-item" to="/notification-list">
+            <div className={`logout ${isActiveLink('/notification-list') ? 'active' : ''}`}>
+              <img src="/images/icons/user-discount.png" width="20px" height="20px" alt="User List" className="menu-icon" 
+              style={{width:'24px',height:'26px'}}             
+              />
+              <span>Notification List</span>
+            </div>
+          </Link>
+
           <Link className="logout-item" to="/userlist">
             <div className={`logout ${isActiveLink('/userlist') ? 'active' : ''}`}>
               <img src="/images/icons/userlist.png" width="20" height="20" alt="User List" className="menu-icon" />

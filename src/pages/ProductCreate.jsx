@@ -114,18 +114,35 @@ const ProductCreate = () => {
 
           {/* Subcategory & Product Type */}
           <div className="row">
+
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Subcategory ID</label>
+              <label className="form-label fw-semibold">Category </label>
               <input
                 type="number"
                 name="subcategory_id"
                 className="form-control"
-                placeholder="Enter subcategory ID"
+                placeholder="Enter category "
                 value={product.subcategory_id}
                 onChange={handleChange}
                 required
               />
             </div>
+            
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Subcategory </label>
+              <input
+                type="number"
+                name="subcategory_id"
+                className="form-control"
+                placeholder="Enter subcategory "
+                value={product.subcategory_id}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            
+
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Product Type</label>
               <select

@@ -34,14 +34,18 @@ const ShippingChargesList = () => {
       name: 'Full shipping',
       email: 'Flat',
       phoneNumber: '100',
-      createdAt: '4'
+      createdAt: '4',
+      formAttime:'02-10-2025',
+
     },
     {
       id: 2,
       name: 'Fast Shipping',
       email: 'Per Item',
       phoneNumber: '200',
-      createdAt: '2'
+      createdAt: '2',
+      formAttime:'02-10-2025',
+
     }
   ]);
   
@@ -52,8 +56,35 @@ const ShippingChargesList = () => {
     name: true,
     email: true,
     phoneNumber: true,
-    createdAt: true
+    createdAt: true,
+    formAttime: true,
   });
+
+  //  Handle View Product
+  const handleView = (product) => {
+    const productData = { ...product, description: "Sample product description" };
+    const productHistory = [
+      { srNo: 1, date: "21/10/2025", action: "Created", by: "Admin" },
+      { srNo: 2, date: "22/10/2025", action: "Updated", by: "Admin" }
+    ];
+
+    navigate(`/shipping-charges-details`, {
+      state: { productData, productHistory, mode: 'view' }
+    });
+  };
+
+  //  Handle Edit Product
+  const handleEdit = (product) => {
+    const productData = { ...product, description: "Sample product description" };
+    const productHistory = [
+      { srNo: 1, date: "21/10/2025", action: "Created", by: "Admin" },
+      { srNo: 2, date: "22/10/2025", action: "Updated", by: "Admin" }
+    ];
+
+    navigate(`/product-edit/${product.id}`, {
+      state: { productData, productHistory, mode: 'edit' }
+    });
+  };
   //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
   // Filter users based on search term
@@ -156,6 +187,20 @@ const ShippingChargesList = () => {
       });
     }
     
+    if (visibleColumns.formAttime) {
+      headers.push({
+        key: 'formAttime',
+        label: 'Created At',
+        style: { width: '100px' }
+      });
+    }
+
+    headers.push({
+      key: 'action',
+      label: 'Action',
+      style: { width: '100px' }
+    });
+
     return headers;
   };
 
@@ -318,6 +363,20 @@ const ShippingChargesList = () => {
                     Created At
                   </label>
                 </div>
+
+                <div className="form-check me-3">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="formAttimeCheck"
+                  checked={visibleColumns.formAttime}
+                  onChange={() => toggleColumn('formAttime')}
+                />
+                <label className="form-check-label" htmlFor="formAttimeCheck">
+                  Form At Time
+                </label>
+              </div>
+
               </div>
             </div>
           )}
@@ -465,11 +524,41 @@ const ShippingChargesList = () => {
                     {visibleColumns.createdAt && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.createdAt}</td>
                     )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+
+                    {visibleColumns.formAttime && (
+                      <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.formAttime}</td>
+                    )}
+
+                     {/* ✅ Action Column */}
+                                                            <td
+                                                              className="admin-user-option pl-3 p-3 sticky-action"
+                                                              style={{
+                                                                whiteSpace: 'nowrap',
+                                                                border: '1px solid #dee2e6',
+                                                                position: 'sticky',
+                                                                right: 0,
+                                                                backgroundColor: 'white',
+                                                                zIndex: 1
+                                                              }}
+                                                            >
+                                                              
+                                                              <button
+                                                                className="btn btn-sm btn-outline-success me-1"
+                                                                title="View"
+                                                                onClick={() => handleView(user)}
+                                                              >
+                                                                <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                                                                <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-15px" }} />
+                                                              </button>
+                                        
+                                                              
+                                                            </td>
+                                                          </tr>
+                                                        ))}
+                                                      </tbody>
+                                                    </table>
+                                                    </div>
+                 
 
           <div className="row">
             <div className="col-md-6">
