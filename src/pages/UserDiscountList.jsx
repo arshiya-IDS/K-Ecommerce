@@ -56,6 +56,7 @@ const UserDiscountList = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
+    id:true,
     name: true,
     email: true,
     phoneNumber: true,
@@ -77,18 +78,7 @@ const UserDiscountList = () => {
     });
   };
 
-  //  Handle Edit Product
-  const handleEdit = (product) => {
-    const productData = { ...product, description: "Sample product description" };
-    const productHistory = [
-      { srNo: 1, date: "21/10/2025", action: "Created", by: "Admin" },
-      { srNo: 2, date: "22/10/2025", action: "Updated", by: "Admin" }
-    ];
-
-    navigate(`/product-edit/${product.id}`, {
-      state: { productData, productHistory, mode: 'edit' }
-    });
-  };
+  
 
   //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
@@ -159,6 +149,14 @@ const UserDiscountList = () => {
 
   const getColumnHeaders = () => {
     const headers = [];
+
+    if (visibleColumns.id) {
+    headers.push({
+      key: 'id',
+      label: 'User Discount ID',
+      style: { width: '150px' }
+    });
+  }
     
     if (visibleColumns.name) {
       headers.push({
@@ -326,6 +324,22 @@ const UserDiscountList = () => {
             <div className="border p-3 mt-2 rounded">
               <h6>Customize Columns</h6>
               <div className="d-flex flex-wrap">
+
+                 <div className="form-check me-3">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="nameCheck"
+                    checked={visibleColumns.id}
+                    onChange={() => toggleColumn('id')}
+                  />
+                  <label className="form-check-label unbold-label" htmlFor="idCheck"
+                   style={{ fontWeight: "normal !important"}}                 
+                  >
+                    User Discount ID
+                  </label>
+                </div>
+
                 <div className="form-check me-3">
                   <input
                     className="form-check-input"
@@ -449,6 +463,46 @@ const UserDiscountList = () => {
               <tbody>
                 {sortedUsers.map((user, index) => (
                   <tr key={user.id} className={index % 2 === 0 ? 'even' : 'odd'}>
+
+                    {visibleColumns.id && (
+  <td
+    className="admin-user-option pl-3 p-3"
+    style={{
+      whiteSpace: 'nowrap',
+      border: '1px solid #dee2e6',
+      color: '#645959',
+    }}
+  >
+    <div className="d-flex justify-content-between align-items-center">
+      <span>{user.id}</span>
+      <div className="d-flex align-items-center">
+        <button
+          className="btn btn-sm ms-2 p-1"
+          onClick={() => copyToClipboard(user.id, user.id, 'id')}
+          title="Copy Product ID"
+          style={{
+            width: '28px',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {copiedField.id === user.id && copiedField.field === 'id' ? (
+            <img
+              src={checkIcon}
+              alt="Copied"
+              style={{ width: '18px', height: '18px' }}
+            />
+          ) : (
+            <MdContentCopy size={15} />
+          )}
+        </button>
+      </div>
+    </div>
+  </td>
+)}
+
                     {visibleColumns.name && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>
                         <div className="d-flex justify-content-between align-items-center">

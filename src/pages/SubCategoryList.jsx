@@ -32,6 +32,7 @@ const SubCategoryList = () => {
   const [categories] = useState([
     {
       id: 1,
+      subCategoryId: 'SC101',
       categoryName: 'Metal Cutting',
       subCategory: 'Laser Cutting',
       createdAt: '2025-10-01',
@@ -39,6 +40,7 @@ const SubCategoryList = () => {
     },
     {
       id: 2,
+      subCategoryId: 'SC102',
       categoryName: 'Wood Work',
       subCategory: 'CNC Engraving',
       createdAt: '2025-09-25',
@@ -50,6 +52,7 @@ const SubCategoryList = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
+    subCategoryId: true,
     categoryName: true,
     subCategory: true,
     createdAt: true,
@@ -62,18 +65,13 @@ const SubCategoryList = () => {
     });
   };
 
-  const handleEdit = (category) => {
-    navigate(`/category-edit/${category.id}`, {
-      state: { category, mode: 'edit' },
-    });
-  };
-
   const filteredCategories = useMemo(() => {
     if (!searchTerm) return categories;
     return categories.filter(
       (cat) =>
         cat.categoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cat.subCategory.toLowerCase().includes(searchTerm.toLowerCase())
+        cat.subCategory.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cat.subCategoryId.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [categories, searchTerm]);
 
@@ -110,8 +108,9 @@ const SubCategoryList = () => {
   };
 
   const columnHeaders = [
-    { key: 'categoryName', label: 'Sub-Category Name', visible: visibleColumns.categoryName },
-    { key: 'subCategory', label: 'Category Name', visible: visibleColumns.subCategory },
+    { key: 'subCategoryId', label: 'Sub-Category ID', visible: visibleColumns.subCategoryId },
+    { key: 'categoryName', label: 'Category Name', visible: visibleColumns.categoryName },
+    { key: 'subCategory', label: 'Sub-Category Name', visible: visibleColumns.subCategory },
     { key: 'createdAt', label: 'Created At', visible: visibleColumns.createdAt },
     { key: 'updatedAt', label: 'Updated At', visible: visibleColumns.updatedAt },
     { key: 'action', label: 'Action', visible: true },
@@ -130,7 +129,7 @@ const SubCategoryList = () => {
             borderRadius: '6px',
           }}
         >
-         Sub Category List
+          Sub Category List
         </h4>
 
         {/* Header controls */}
@@ -138,80 +137,49 @@ const SubCategoryList = () => {
           className="category-1-heading d-flex justify-content-between align-items-center rounded-top px-1 py-1"
           style={{ backgroundColor: '#FEC200', flexWrap: 'nowrap' }}
         >
-          {/* From/To Date */}
+          {/* Date filter */}
           <div className="d-flex align-items-center">
             <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>
               From:
             </label>
-            <input
-              type="date"
-              className="form-control form-control-sm me-2"
-              style={{ height: '34px', width: '150px' }}
-            />
+            <input type="date" className="form-control form-control-sm me-2" style={{ height: '34px', width: '150px' }} />
             <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>
               To:
             </label>
-            <input
-              type="date"
-              className="form-control form-control-sm me-2"
-              style={{ height: '34px', width: '150px' }}
-            />
-            <button
-              className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
-              style={{ height: '34px', width: '34px' }}
-              title="Apply Filter"
-            >
+            <input type="date" className="form-control form-control-sm me-2" style={{ height: '34px', width: '150px' }} />
+            <button className="btn btn-light btn-sm d-flex align-items-center justify-content-center" style={{ height: '34px', width: '34px' }}>
               <FaTelegramPlane size={14} />
             </button>
           </div>
 
-          {/* Search Bar */}
-          <div
-            className="input-group align-items-center mx-3 py-2"
-            style={{ maxWidth: '350px', width: '100%' }}
-          >
+          {/* Search */}
+          <div className="input-group align-items-center mx-3 py-2" style={{ maxWidth: '350px', width: '100%' }}>
             <input
               type="search"
-              placeholder="Search categories..."
+              placeholder="Search sub-categories..."
               className="form-control form-control-sm"
               style={{ height: '34px' }}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-             <button
-                type="button"
-                className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-                style={{ height: "34px", width: "34px" }}
-                title="Search"
-              >
-                <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-              </button>
+            <button type="button" className="btn btn-light btn-sm ms-2" style={{ height: '34px', width: '34px' }}>
+              <i className="fas fa-search" style={{ fontSize: '13px' }}></i>
+            </button>
           </div>
 
-          {/* Buttons */}
+          {/* Action buttons */}
           <div className="d-flex align-items-center">
-            <button
-              className="btn btn-light btn-sm me-2"
-              title="Customize Columns"
-              onClick={() => setShowColumnSettings(!showColumnSettings)}
-            >
+            <button className="btn btn-light btn-sm me-2" onClick={() => setShowColumnSettings(!showColumnSettings)}>
               <IoMdSettings size={16} />
             </button>
-            <button
-              className="btn btn-light btn-sm me-2"
-              title="Export PDF"
-            >
+            <button className="btn btn-light btn-sm me-2">
               <FaFilePdf size={16} />
             </button>
-            <button
-              className="btn btn-light btn-sm me-2"
-              title="Export Excel"
-            >
+            <button className="btn btn-light btn-sm me-2">
               <FaFileExcel size={16} />
             </button>
             <button
-              className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
-              title="Create Category"
+              className="btn btn-light btn-sm"
               onClick={() => navigate('/manage-subcategories')}
             >
               <FaPlus size={16} />
@@ -219,7 +187,7 @@ const SubCategoryList = () => {
           </div>
         </div>
 
-        {/* Column Settings */}
+        {/* Column settings */}
         {showColumnSettings && (
           <div className="border p-3 mt-2 rounded">
             <h6>Customize Columns</h6>
@@ -243,14 +211,8 @@ const SubCategoryList = () => {
         )}
 
         {/* Table */}
-        <div
-          className="user-align"
-          style={{ overflowX: 'auto', overflowY: 'hidden', maxHeight: '500px' }}
-        >
-          <table
-            className="table table-bordered table-striped"
-            style={{ minWidth: '1000px', borderCollapse: 'collapse' }}
-          >
+        <div style={{ overflowX: 'auto', overflowY: 'hidden', maxHeight: '500px' }}>
+          <table className="table table-bordered table-striped" style={{ minWidth: '1000px' }}>
             <thead>
               <tr>
                 {columnHeaders.map(
@@ -258,23 +220,17 @@ const SubCategoryList = () => {
                     header.visible && (
                       <th
                         key={header.key}
+                       className="admin-user-sub-heading pl-3 p-3 sorting sorting_asc"
+
                         style={{
-                          whiteSpace: 'nowrap',
                           border: '1px solid #dee2e6',
                           cursor: header.key !== 'action' ? 'pointer' : 'default',
                           color: '#07486e',
                           ...(header.key === 'action'
-                            ? {
-                                position: 'sticky',
-                                right: 0,
-                                zIndex: 10,
-                                backgroundColor: '#f8f9fa',
-                              }
+                            ? { position: 'sticky', right: 0, backgroundColor: '#f8f9fa' }
                             : {}),
                         }}
-                        onClick={() =>
-                          header.key !== 'action' && handleSort(header.key)
-                        }
+                        onClick={() => header.key !== 'action' && handleSort(header.key)}
                       >
                         {header.label} {header.key !== 'action' && getSortIcon(header.key)}
                       </th>
@@ -285,23 +241,17 @@ const SubCategoryList = () => {
             <tbody>
               {sortedCategories.map((cat) => (
                 <tr key={cat.id}>
-                  {visibleColumns.categoryName && (
+                  {/* Sub Category ID */}
+                  {visibleColumns.subCategoryId && (
                     <td>
                       <div className="d-flex justify-content-between align-items-center">
-                        <span>{cat.categoryName}</span>
+                        <span>{cat.subCategoryId}</span>
                         <button
                           className="btn btn-sm p-1"
-                          onClick={() =>
-                            copyToClipboard(cat.categoryName, cat.id, 'categoryName')
-                          }
+                          onClick={() => copyToClipboard(cat.subCategoryId, cat.id, 'subCategoryId')}
                         >
-                          {copiedField.id === cat.id &&
-                          copiedField.field === 'categoryName' ? (
-                            <img
-                              src={checkIcon}
-                              alt="Copied"
-                              style={{ width: '18px', height: '18px' }}
-                            />
+                          {copiedField.id === cat.id && copiedField.field === 'subCategoryId' ? (
+                            <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
                           ) : (
                             <MdContentCopy size={15} />
                           )}
@@ -310,100 +260,88 @@ const SubCategoryList = () => {
                     </td>
                   )}
 
-                   {/* Sub Category */}
-          {visibleColumns.subCategory && (
-            <td>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>{cat.subCategory}</span>
-                <button
-                  className="btn btn-sm p-1"
-                  onClick={() =>
-                    copyToClipboard(cat.subCategory, cat.id, 'subCategory')
-                  }
-                >
-                  {copiedField.id === cat.id &&
-                  copiedField.field === 'subCategory' ? (
-                    <img
-                      src={checkIcon}
-                      alt="Copied"
-                      style={{ width: '18px', height: '18px' }}
-                    />
-                  ) : (
-                    <MdContentCopy size={15} />
+                  {/* Category Name */}
+                  {visibleColumns.categoryName && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{cat.categoryName}</span>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() => copyToClipboard(cat.categoryName, cat.id, 'categoryName')}
+                        >
+                          {copiedField.id === cat.id && copiedField.field === 'categoryName' ? (
+                            <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
                   )}
-                </button>
-              </div>
-            </td>
-          )}
 
-                 {/* Created At */}
-          {visibleColumns.createdAt && (
-            <td>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>{cat.createdAt}</span>
-                <button
-                  className="btn btn-sm p-1"
-                  onClick={() =>
-                    copyToClipboard(cat.createdAt, cat.id, 'createdAt')
-                  }
-                >
-                  {copiedField.id === cat.id &&
-                  copiedField.field === 'createdAt' ? (
-                    <img
-                      src={checkIcon}
-                      alt="Copied"
-                      style={{ width: '18px', height: '18px' }}
-                    />
-                  ) : (
-                    <MdContentCopy size={15} />
+                  {/* Sub Category Name */}
+                  {visibleColumns.subCategory && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{cat.subCategory}</span>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() => copyToClipboard(cat.subCategory, cat.id, 'subCategory')}
+                        >
+                          {copiedField.id === cat.id && copiedField.field === 'subCategory' ? (
+                            <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
                   )}
-                </button>
-              </div>
-            </td>
-          )}
 
-                {/* Updated At */}
-          {visibleColumns.updatedAt && (
-            <td>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>{cat.updatedAt}</span>
-                <button
-                  className="btn btn-sm p-1"
-                  onClick={() =>
-                    copyToClipboard(cat.updatedAt, cat.id, 'updatedAt')
-                  }
-                >
-                  {copiedField.id === cat.id &&
-                  copiedField.field === 'updatedAt' ? (
-                    <img
-                      src={checkIcon}
-                      alt="Copied"
-                      style={{ width: '18px', height: '18px' }}
-                    />
-                  ) : (
-                    <MdContentCopy size={15} />
+                  {/* Created At */}
+                  {visibleColumns.createdAt && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{cat.createdAt}</span>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() => copyToClipboard(cat.createdAt, cat.id, 'createdAt')}
+                        >
+                          {copiedField.id === cat.id && copiedField.field === 'createdAt' ? (
+                            <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
                   )}
-                </button>
-              </div>
-            </td>
-          )}
 
-                  <td
-                    style={{
-                      position: 'sticky',
-                      right: 0,
-                      backgroundColor: 'white',
-                    }}
-                  >
-                    
-                    <button
-                      className="btn btn-sm btn-outline-success me-1"
-                      onClick={() => handleView(cat)}
-                    >
-                    <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                    <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-15px" }} />
+                  {/* Updated At */}
+                  {visibleColumns.updatedAt && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{cat.updatedAt}</span>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() => copyToClipboard(cat.updatedAt, cat.id, 'updatedAt')}
+                        >
+                          {copiedField.id === cat.id && copiedField.field === 'updatedAt' ? (
+                            <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  )}
+
+                  {/* Action */}
+                  <td style={{ position: 'sticky', right: 0, backgroundColor: 'white' }}>
+                    <button className="btn btn-sm btn-outline-success me-1" onClick={() => handleView(cat)}>
+                      <MdKeyboardArrowRight style={{ fontSize: '20px' }} />
+                      <MdKeyboardArrowRight style={{ fontSize: '20px', marginLeft: '-15px' }} />
                     </button>
-                    
                   </td>
                 </tr>
               ))}
@@ -411,13 +349,35 @@ const SubCategoryList = () => {
           </table>
         </div>
 
-        {/* Pagination footer */}
-        <div className="d-flex justify-content-between align-items-center mt-3">
-          <strong>
-            Showing 1 to {sortedCategories.length} of {sortedCategories.length} entries
-          </strong>
-          <div>
-            <MdKeyboardArrowLeft /> Previous &nbsp;|&nbsp; Next <MdKeyboardArrowRight />
+        {/* Pagination */}
+        <div className="row">
+          <div className="col-md-6 mt-3">
+            <strong>
+              Showing 1 to {sortedCategories.length} of {sortedCategories.length} entries
+            </strong>
+          </div>
+          <div className="col-md-6">
+            <nav aria-label="Page navigation">
+              <ul className="pagination d-flex justify-content-end w-100 mt-3">
+                <li className="page-item">
+                  <a className="page-link" href="#">
+                    <MdKeyboardArrowLeft style={{ fontSize: '20px' }} />
+                    <MdKeyboardArrowLeft style={{ fontSize: '20px', marginLeft: '-15px' }} /> Previous
+                  </a>
+                </li>
+                <li className="page-item active">
+                  <a className="page-link" href="#">
+                    Page 1
+                  </a>
+                </li>
+                <li className="page-item">
+                  <a className="page-link" href="#">
+                    Next <MdKeyboardArrowRight style={{ fontSize: '20px' }} />
+                    <MdKeyboardArrowRight style={{ fontSize: '20px', marginLeft: '-15px' }} />
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>

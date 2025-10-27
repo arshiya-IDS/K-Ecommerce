@@ -274,6 +274,8 @@ const NotificationTemplateList = () => {
                   {columnHeaders.map((header) => (
                     <th
                       key={header.key}
+                      className="admin-user-sub-heading pl-3 p-3 sorting sorting_asc"
+
                       style={{
                         border: "1px solid #dee2e6",
                         whiteSpace: "nowrap",
@@ -441,8 +443,8 @@ const NotificationTemplateList = () => {
                 <ul className="pagination d-flex justify-content-end w-100 mt-3">
                   <li className="page-item">
                     <a className="page-link" href="#">
-                      <MdKeyboardArrowLeft />
-                      <MdKeyboardArrowLeft />
+                       <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                        <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-15px" }} />
                       Previous
                     </a>
                   </li>
@@ -454,8 +456,8 @@ const NotificationTemplateList = () => {
                   <li className="page-item">
                     <a className="page-link" href="#">
                       Next
-                      <MdKeyboardArrowRight />
-                      <MdKeyboardArrowRight />
+                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-15px" }} />
                     </a>
                   </li>
                 </ul>

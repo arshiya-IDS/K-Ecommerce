@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdKeyboardArrowRight } from 'react-icons/md';
+import { MdKeyboardArrowLeft } from "react-icons/md";
+
 
 
 import {
@@ -91,19 +93,6 @@ const OrdersList = () => {
   });
 };
 
-
-  //  Handle Edit Product
-  const handleEdit = (product) => {
-    const productData = { ...product, description: "Sample product description" };
-    const productHistory = [
-      { srNo: 1, date: "21/10/2025", action: "Created", by: "Admin" },
-      { srNo: 2, date: "22/10/2025", action: "Updated", by: "Admin" }
-    ];
-
-    navigate(`/product-edit/${product.id}`, {
-      state: { productData, productHistory, mode: 'edit' }
-    });
-  };
 
   const filteredOrders = useMemo(() => {
     if (!searchTerm) return orders;
@@ -312,7 +301,8 @@ const OrdersList = () => {
                   {columnHeaders.map((header) => (
                     <th
                       key={header.key}
-                      className="pl-3 p-3 sorting sorting_asc"
+                      className="admin-user-sub-heading pl-3 p-3 sorting sorting_asc"
+
                       style={{
                         whiteSpace: "nowrap",
                         border: "1px solid #dee2e6",
@@ -404,14 +394,56 @@ const OrdersList = () => {
                   
 
           {/* Pagination Placeholder */}
-          <div className="mt-3 text-center">
-            <strong>
-              Showing 1 to {sortedOrders.length} of {sortedOrders.length} entries
-            </strong>
-          </div>
-        </div>
-      </div>
-    </div>
+         <div className="row">
+                     <div className="col-md-6">
+                       <div className="mt-3">
+                         <strong>Showing 1 to {sortedOrders.length} of {sortedOrders.length} entries</strong>
+                       </div>
+                     </div>
+                     <div className="col-md-6">
+                       <nav aria-label="Page navigation">
+                         <ul className="pagination d-flex justify-content-end w-100 mt-3">
+                           <li className="page-item" aria-current="page">
+                             <a className="page-link"
+         
+                             style={{
+                               display: "flex",
+                               alignItems: "center",
+                               gap: "4px", // spacing between arrow and text
+                               fontSize: "15px", // adjust this to your desired text size
+                      }}
+                             
+                             href="#">
+         
+                               <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                               <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
+                                                      Previous
+                             
+         
+         
+                             </a>
+                           </li>
+                           <li className="page-item active">
+                             <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
+                           </li>
+                           <li className="page-item">
+                           <a className="page-link" style={{
+                               display: "flex",
+                               alignItems: "center",
+                               gap: "4px", // spacing between arrow and text
+                               fontSize: "15px", // adjust this to your desired text size
+                              }} href="#">Next
+                               <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
+                                <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
+                             </a>               
+                                </li>
+                         </ul>
+                       </nav>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
   );
 };
 

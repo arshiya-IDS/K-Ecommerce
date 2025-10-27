@@ -50,6 +50,7 @@ const CategoryList = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
+    id: true, // ✅ Added Category ID as the first column
     categoryName: true,
     subCategory: true,
     createdAt: true,
@@ -59,12 +60,6 @@ const CategoryList = () => {
   const handleView = (category) => {
     navigate(`/category-details`, {
       state: { category, mode: 'view' },
-    });
-  };
-
-  const handleEdit = (category) => {
-    navigate(`/category-edit/${category.id}`, {
-      state: { category, mode: 'edit' },
     });
   };
 
@@ -110,6 +105,7 @@ const CategoryList = () => {
   };
 
   const columnHeaders = [
+    { key: 'id', label: 'Category ID', visible: visibleColumns.id }, // ✅ Added ID header
     { key: 'categoryName', label: 'Category Name', visible: visibleColumns.categoryName },
     { key: 'subCategory', label: 'Sub Category', visible: visibleColumns.subCategory },
     { key: 'createdAt', label: 'Created At', visible: visibleColumns.createdAt },
@@ -178,14 +174,14 @@ const CategoryList = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-             <button
-                type="button"
-                className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-                style={{ height: "34px", width: "34px" }}
-                title="Search"
-              >
-                <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-              </button>
+            <button
+              type="button"
+              className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
+              style={{ height: '34px', width: '34px' }}
+              title="Search"
+            >
+              <i className="fas fa-search" style={{ fontSize: '13px' }}></i>
+            </button>
           </div>
 
           {/* Buttons */}
@@ -197,16 +193,10 @@ const CategoryList = () => {
             >
               <IoMdSettings size={16} />
             </button>
-            <button
-              className="btn btn-light btn-sm me-2"
-              title="Export PDF"
-            >
+            <button className="btn btn-light btn-sm me-2" title="Export PDF">
               <FaFilePdf size={16} />
             </button>
-            <button
-              className="btn btn-light btn-sm me-2"
-              title="Export Excel"
-            >
+            <button className="btn btn-light btn-sm me-2" title="Export Excel">
               <FaFileExcel size={16} />
             </button>
             <button
@@ -258,6 +248,7 @@ const CategoryList = () => {
                     header.visible && (
                       <th
                         key={header.key}
+                        className="admin-user-sub-heading pl-3 p-3 sorting sorting_asc"
                         style={{
                           whiteSpace: 'nowrap',
                           border: '1px solid #dee2e6',
@@ -285,6 +276,30 @@ const CategoryList = () => {
             <tbody>
               {sortedCategories.map((cat) => (
                 <tr key={cat.id}>
+                  {/* ✅ Category ID Column */}
+                  {visibleColumns.id && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <strong>{cat.id}</strong>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() => copyToClipboard(cat.id, cat.id, 'id')}
+                        >
+                          {copiedField.id === cat.id && copiedField.field === 'id' ? (
+                            <img
+                              src={checkIcon}
+                              alt="Copied"
+                              style={{ width: '18px', height: '18px' }}
+                            />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  )}
+
+                  {/* Category Name */}
                   {visibleColumns.categoryName && (
                     <td>
                       <div className="d-flex justify-content-between align-items-center">
@@ -310,84 +325,85 @@ const CategoryList = () => {
                     </td>
                   )}
 
-                   {/* Sub Category */}
-          {visibleColumns.subCategory && (
-            <td>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>{cat.subCategory}</span>
-                <button
-                  className="btn btn-sm p-1"
-                  onClick={() =>
-                    copyToClipboard(cat.subCategory, cat.id, 'subCategory')
-                  }
-                >
-                  {copiedField.id === cat.id &&
-                  copiedField.field === 'subCategory' ? (
-                    <img
-                      src={checkIcon}
-                      alt="Copied"
-                      style={{ width: '18px', height: '18px' }}
-                    />
-                  ) : (
-                    <MdContentCopy size={15} />
+                  {/* Sub Category */}
+                  {visibleColumns.subCategory && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{cat.subCategory}</span>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() =>
+                            copyToClipboard(cat.subCategory, cat.id, 'subCategory')
+                          }
+                        >
+                          {copiedField.id === cat.id &&
+                          copiedField.field === 'subCategory' ? (
+                            <img
+                              src={checkIcon}
+                              alt="Copied"
+                              style={{ width: '18px', height: '18px' }}
+                            />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
                   )}
-                </button>
-              </div>
-            </td>
-          )}
 
-                 {/* Created At */}
-          {visibleColumns.createdAt && (
-            <td>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>{cat.createdAt}</span>
-                <button
-                  className="btn btn-sm p-1"
-                  onClick={() =>
-                    copyToClipboard(cat.createdAt, cat.id, 'createdAt')
-                  }
-                >
-                  {copiedField.id === cat.id &&
-                  copiedField.field === 'createdAt' ? (
-                    <img
-                      src={checkIcon}
-                      alt="Copied"
-                      style={{ width: '18px', height: '18px' }}
-                    />
-                  ) : (
-                    <MdContentCopy size={15} />
+                  {/* Created At */}
+                  {visibleColumns.createdAt && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{cat.createdAt}</span>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() =>
+                            copyToClipboard(cat.createdAt, cat.id, 'createdAt')
+                          }
+                        >
+                          {copiedField.id === cat.id &&
+                          copiedField.field === 'createdAt' ? (
+                            <img
+                              src={checkIcon}
+                              alt="Copied"
+                              style={{ width: '18px', height: '18px' }}
+                            />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
                   )}
-                </button>
-              </div>
-            </td>
-          )}
 
-                {/* Updated At */}
-          {visibleColumns.updatedAt && (
-            <td>
-              <div className="d-flex justify-content-between align-items-center">
-                <span>{cat.updatedAt}</span>
-                <button
-                  className="btn btn-sm p-1"
-                  onClick={() =>
-                    copyToClipboard(cat.updatedAt, cat.id, 'updatedAt')
-                  }
-                >
-                  {copiedField.id === cat.id &&
-                  copiedField.field === 'updatedAt' ? (
-                    <img
-                      src={checkIcon}
-                      alt="Copied"
-                      style={{ width: '18px', height: '18px' }}
-                    />
-                  ) : (
-                    <MdContentCopy size={15} />
+                  {/* Updated At */}
+                  {visibleColumns.updatedAt && (
+                    <td>
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{cat.updatedAt}</span>
+                        <button
+                          className="btn btn-sm p-1"
+                          onClick={() =>
+                            copyToClipboard(cat.updatedAt, cat.id, 'updatedAt')
+                          }
+                        >
+                          {copiedField.id === cat.id &&
+                          copiedField.field === 'updatedAt' ? (
+                            <img
+                              src={checkIcon}
+                              alt="Copied"
+                              style={{ width: '18px', height: '18px' }}
+                            />
+                          ) : (
+                            <MdContentCopy size={15} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
                   )}
-                </button>
-              </div>
-            </td>
-          )}
 
+                  {/* Action */}
                   <td
                     style={{
                       position: 'sticky',
@@ -395,15 +411,15 @@ const CategoryList = () => {
                       backgroundColor: 'white',
                     }}
                   >
-                    
                     <button
                       className="btn btn-sm btn-outline-success me-1"
                       onClick={() => handleView(cat)}
                     >
-                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-15px" }} />
+                      <MdKeyboardArrowRight style={{ fontSize: '20px', lineHeight: 1 }} />
+                      <MdKeyboardArrowRight
+                        style={{ fontSize: '20px', lineHeight: 1, marginLeft: '-15px' }}
+                      />
                     </button>
-                   
                   </td>
                 </tr>
               ))}
@@ -412,12 +428,60 @@ const CategoryList = () => {
         </div>
 
         {/* Pagination footer */}
-        <div className="d-flex justify-content-between align-items-center mt-3">
-          <strong>
-            Showing 1 to {sortedCategories.length} of {sortedCategories.length} entries
-          </strong>
-          <div>
-            <MdKeyboardArrowLeft /> Previous &nbsp;|&nbsp; Next <MdKeyboardArrowRight />
+        <div className="row">
+          <div className="col-md-6">
+            <div className="mt-3">
+              <strong>
+                Showing 1 to {sortedCategories.length} of {sortedCategories.length} entries
+              </strong>
+            </div>
+          </div>
+          <div className="col-md-6">
+            <nav aria-label="Page navigation">
+              <ul className="pagination d-flex justify-content-end w-100 mt-3">
+                <li className="page-item" aria-current="page">
+                  <a
+                    className="page-link"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontSize: '15px',
+                    }}
+                    href="#"
+                  >
+                    <MdKeyboardArrowLeft style={{ fontSize: '20px', lineHeight: 1 }} />
+                    <MdKeyboardArrowLeft
+                      style={{ fontSize: '20px', lineHeight: 1, marginLeft: '-18px' }}
+                    />
+                    Previous
+                  </a>
+                </li>
+                <li className="page-item active">
+                  <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">
+                    Page 1
+                  </a>
+                </li>
+                <li className="page-item">
+                  <a
+                    className="page-link"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      fontSize: '15px',
+                    }}
+                    href="#"
+                  >
+                    Next
+                    <MdKeyboardArrowRight style={{ fontSize: '20px', lineHeight: 1 }} />
+                    <MdKeyboardArrowRight
+                      style={{ fontSize: '20px', lineHeight: 1, marginLeft: '-18px' }}
+                    />
+                  </a>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
