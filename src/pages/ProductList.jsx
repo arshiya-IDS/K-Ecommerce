@@ -76,6 +76,27 @@ const ProductList = () => {
   };
 
 
+  // State for active/inactive toggle and confirmation popup
+const [activeStatus, setActiveStatus] = useState({});
+const [showConfirm, setShowConfirm] = useState(false);
+const [selectedUser, setSelectedUser] = useState(null);
+
+const handleToggleClick = (user) => {
+  setSelectedUser(user);
+  setShowConfirm(true);
+};
+
+const confirmDeactivation = (confirm) => {
+  if (confirm && selectedUser) {
+    setActiveStatus(prev => ({
+      ...prev,
+      [selectedUser.id]: !prev[selectedUser.id]
+    }));
+  }
+  setShowConfirm(false);
+  setSelectedUser(null);
+};
+
 
   //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
@@ -197,16 +218,20 @@ const ProductList = () => {
       });
     }
 
-   
-    
+    headers.push({
+    key: 'deactivate',
+    label: 'Deactivate',
+    style: { width: '120px' }
+});
       
-   
     headers.push({
       key: 'action',
       label: 'Action',
       style: { width: '100px' }
     });
     
+   
+
     return headers;
   };
 
@@ -591,6 +616,42 @@ const ProductList = () => {
                       {visibleColumns.formAttime && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.formAttime}</td>
                     )}
+
+                    <td
+  className="admin-user-option pl-3 p-3"
+  style={{
+    whiteSpace: 'nowrap',
+    border: '1px solid #dee2e6',
+    textAlign: 'center'
+  }}
+>
+  <div
+    onClick={() => handleToggleClick(user)}
+    style={{
+      width: '50px',
+      height: '26px',
+      borderRadius: '50px',
+      backgroundColor: activeStatus[user.id] ? '#4CAF50' : '#f44336',
+      position: 'relative',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease'
+    }}
+  >
+    <div
+      style={{
+        width: '22px',
+        height: '22px',
+        borderRadius: '50%',
+        backgroundColor: 'white',
+        position: 'absolute',
+        top: '2px',
+        left: activeStatus[user.id] ? '26px' : '2px',
+        transition: 'left 0.3s ease'
+      }}
+    ></div>
+  </div>
+</td>
+
                     {/* ✅ Action Column */}
                                         <td
                                           className="admin-user-option pl-3 p-3 sticky-action"
@@ -670,6 +731,50 @@ const ProductList = () => {
               </nav>
             </div>
           </div>
+
+          {showConfirm && (
+  <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: 'white',
+        padding: '25px',
+        borderRadius: '10px',
+        textAlign: 'center',
+        boxShadow: '0px 4px 10px rgba(0,0,0,0.3)'
+      }}
+    >
+      <h5>Are you sure to deactivate it?</h5>
+      <div className="mt-3">
+        <button
+          className="btn btn-danger me-2"
+          onClick={() => confirmDeactivation(true)}
+        >
+          Yes
+        </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => confirmDeactivation(false)}
+        >
+          No
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         </div>
       </div>
     </div>
