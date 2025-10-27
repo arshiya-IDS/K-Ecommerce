@@ -44,12 +44,12 @@ function App() {
       <Routes>
 
         {/* 🔹 Public Login Route */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Dashboard/>} />
 
         {/* 🔹 Dashboard Layout Wrapping All Internal Pages */}
         <Route element={<DashboardLayout />}>
           {/* Dashboard Home */}
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
 
           {/* Main Sections */}
           <Route path="/category" element={<Category />} />
