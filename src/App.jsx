@@ -6,7 +6,7 @@ import User from './pages/User';
 import Userlist from './pages/Userlist';
 import Product from './pages/Product';
 import UserDiscount from './pages/UserDiscount';
-import ProductCreate from './pages/productcreate';
+import ProductCreate from './pages/ProductCreate';
 import ProductDiscount from './pages/ProductDiscount';
 import ShippingCharges from './pages/ShippingCharges';
 import Auction from './pages/Auction';
