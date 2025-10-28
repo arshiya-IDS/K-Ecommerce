@@ -58,7 +58,6 @@ const SubCategoryDetails = () => {
 
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}>
-        <h5 className="fw mb-3">Subcategory Information</h5>
 
         <div className="row">
           {[

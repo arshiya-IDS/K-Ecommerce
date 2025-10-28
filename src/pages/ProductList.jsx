@@ -172,7 +172,7 @@ const confirmDeactivation = (confirm) => {
     headers.push({
       key: 'id',
       label: 'Product ID',
-      style: { width: '150px' }
+      style: { width: '100px' }
     });
   }
     
@@ -181,7 +181,7 @@ const confirmDeactivation = (confirm) => {
       headers.push({
         key: 'name',
         label: 'Product Name',
-        style: { width: '150px' }
+        style: { width: '100px' }
       });
     }
     
@@ -189,7 +189,7 @@ const confirmDeactivation = (confirm) => {
       headers.push({
         key: 'email',
         label: 'Item Price',
-        style: { width: '150px' }
+        style: { width: '100px' }
       });
     }
     
@@ -206,7 +206,7 @@ const confirmDeactivation = (confirm) => {
       headers.push({
         key: 'phoneNumber',
         label: '  Sub Category',
-        style: { width: '120px' }
+        style: { width: '100px' }
       });
     }
     
@@ -221,7 +221,7 @@ const confirmDeactivation = (confirm) => {
     headers.push({
     key: 'deactivate',
     label: 'Deactivate',
-    style: { width: '120px' }
+    style: { width: '100px' }
 });
       
     headers.push({

@@ -304,7 +304,7 @@ const NotificationTemplateList = () => {
                 {sortedTemplates.map((t, index) => (
                   <tr key={t.template_id} className={index % 2 === 0 ? "even" : "odd"}>
                     {visibleColumns.template_id && (
-                      <td>
+                      <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
 
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{t.template_id}</span>
@@ -331,7 +331,7 @@ const NotificationTemplateList = () => {
                     )}
                     
                     {visibleColumns.template_name && (
-                  <td>
+                  <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                     <span>{t.template_name}</span>
                     <button
                       className="btn btn-sm p-1 ms-2"
@@ -356,7 +356,7 @@ const NotificationTemplateList = () => {
                     
 
                     {visibleColumns.subject && (
-                      <td>
+                      <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                         <span>{t.subject}</span>
                         <button
                           className="btn btn-sm p-1 ms-2"

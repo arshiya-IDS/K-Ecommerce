@@ -28,7 +28,7 @@ const CategoryDetails = () => {
   // Toggle Edit Mode
   const handleEditToggle = () => {
     setIsEditable(!isEditable);
-    setMessage(isEditable ? "✏️ Edit mode disabled." : "✏️ Edit mode enabled.");
+    setMessage(isEditable ? " Edit mode disabled." : " Edit mode enabled.");
   };
 
   // Handle Deactivation
@@ -57,7 +57,7 @@ const CategoryDetails = () => {
 
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}>
-        <h5 className="fw mb-3">Category Information</h5>
+        {/* <h5 className="fw mb-3">Category Information</h5> */}
 
         <div className="row">
           {[

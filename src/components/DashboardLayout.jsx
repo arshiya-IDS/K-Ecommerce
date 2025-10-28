@@ -48,10 +48,11 @@ const DashboardLayout = () => {
               className="sidebar-logo"
               alt="Logo"
               style={{
-                width: "265px",
-                height: "90px",
+                width: '265px',
+                height:'90px',
                 background: '#FEC200',
-                transform: 'translateX(-50px)',
+                transform: 'translateX(-30px)',
+
               }}
             />
           </Link>

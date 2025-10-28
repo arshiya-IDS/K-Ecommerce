@@ -61,7 +61,6 @@ const ProductDetails = () => {
       {/* Card Section */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}>
         {/* Product Info */}
-        <h5 className="fw mb-3">Product Information</h5>
         <div className="row">
           {[
             ["product_id", "Product ID"],
@@ -131,7 +130,7 @@ const ProductDetails = () => {
             {isEditable ? "Save Changes" : "Edit"}
           </button>
 
-          <button
+          {/* <button
             type="button"
             onClick={handleDeactivate}
             className={`fw-bold px-4 py-2 rounded-3 btn ${
@@ -140,7 +139,7 @@ const ProductDetails = () => {
             disabled={isDeactivated}
           >
             {isDeactivated ? "Deactivated" : "Deactivate"}
-          </button>
+          </button> */}
         </div>
 
         {/* Message */}

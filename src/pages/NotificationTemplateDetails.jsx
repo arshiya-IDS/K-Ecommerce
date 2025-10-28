@@ -59,7 +59,6 @@ const NotificationTemplateDetails = () => {
 
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}>
-        <h5 className="fw mb-3">Template Information</h5>
 
         <div className="row">
           {[

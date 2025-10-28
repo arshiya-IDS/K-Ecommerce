@@ -115,9 +115,10 @@ const CategoryList = () => {
 
   return (
     <div className="container">
+      <div className="row">
       <div className="category-table pb-3">
         <h4
-          className="py-2 text-center mb-0"
+          className="py-2 pl-3 text-center p-4 mb-0"
           style={{
             color: 'white',
             background: '#FEC200',
@@ -278,7 +279,7 @@ const CategoryList = () => {
                 <tr key={cat.id}>
                   {/* ✅ Category ID Column */}
                   {visibleColumns.id && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <strong>{cat.id}</strong>
                         <button
@@ -301,7 +302,7 @@ const CategoryList = () => {
 
                   {/* Category Name */}
                   {visibleColumns.categoryName && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.categoryName}</span>
                         <button
@@ -327,7 +328,7 @@ const CategoryList = () => {
 
                   {/* Sub Category */}
                   {visibleColumns.subCategory && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.subCategory}</span>
                         <button
@@ -353,7 +354,7 @@ const CategoryList = () => {
 
                   {/* Created At */}
                   {visibleColumns.createdAt && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.createdAt}</span>
                         <button
@@ -379,7 +380,7 @@ const CategoryList = () => {
 
                   {/* Updated At */}
                   {visibleColumns.updatedAt && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.updatedAt}</span>
                         <button
@@ -485,6 +486,7 @@ const CategoryList = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

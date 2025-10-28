@@ -243,7 +243,7 @@ const SubCategoryList = () => {
                 <tr key={cat.id}>
                   {/* Sub Category ID */}
                   {visibleColumns.subCategoryId && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.subCategoryId}</span>
                         <button
@@ -262,7 +262,7 @@ const SubCategoryList = () => {
 
                   {/* Category Name */}
                   {visibleColumns.categoryName && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.categoryName}</span>
                         <button
@@ -281,7 +281,7 @@ const SubCategoryList = () => {
 
                   {/* Sub Category Name */}
                   {visibleColumns.subCategory && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.subCategory}</span>
                         <button
@@ -300,7 +300,7 @@ const SubCategoryList = () => {
 
                   {/* Created At */}
                   {visibleColumns.createdAt && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.createdAt}</span>
                         <button
@@ -319,7 +319,7 @@ const SubCategoryList = () => {
 
                   {/* Updated At */}
                   {visibleColumns.updatedAt && (
-                    <td>
+                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <span>{cat.updatedAt}</span>
                         <button
@@ -337,7 +337,7 @@ const SubCategoryList = () => {
                   )}
 
                   {/* Action */}
-                  <td style={{ position: 'sticky', right: 0, backgroundColor: 'white' }}>
+                  <td style={{ position: 'sticky', right: 0, backgroundColor: 'white',border: '1px solid #dee2e6' }}>
                     <button className="btn btn-sm btn-outline-success me-1" onClick={() => handleView(cat)}>
                       <MdKeyboardArrowRight style={{ fontSize: '20px' }} />
                       <MdKeyboardArrowRight style={{ fontSize: '20px', marginLeft: '-15px' }} />

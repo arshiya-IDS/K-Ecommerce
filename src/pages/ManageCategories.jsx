@@ -71,9 +71,9 @@ const ManageCategories = () => {
       <div className="card shadow-sm p-4">
         {/* CATEGORY FORM */}
         <form onSubmit={handleCategorySubmit}>
-          <h5 className="fw mb-3">
+          {/* <h5 className="fw mb-3">
             Add New Category
-          </h5>
+          </h5> */}
 
           <div className="mb-3">
             <label className="form-label fw-semibold">Category Name</label>

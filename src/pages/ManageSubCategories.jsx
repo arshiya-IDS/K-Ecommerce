@@ -74,9 +74,9 @@ const ManageSubCategories = () => {
 
         {/* SUBCATEGORY FORM */}
         <form onSubmit={handleSubCategorySubmit}>
-          <h5 className="fw  mb-3">
+          {/* <h5 className="fw  mb-3">
              Add New Subcategory
-          </h5>
+          </h5> */}
 
           <div className="row">
             <div className="col-md-6 mb-3">

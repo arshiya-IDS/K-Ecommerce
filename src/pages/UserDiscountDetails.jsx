@@ -58,7 +58,6 @@ const UserDiscountDetails = () => {
 
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}>
-        <h5 className="fw mb-3">Discount Information</h5>
 
         <div className="row">
           {[
