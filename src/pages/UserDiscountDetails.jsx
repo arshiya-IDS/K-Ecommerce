@@ -14,6 +14,7 @@ const UserDiscountDetails = () => {
     userDiscountIsActive: "Active",
   });
 
+  const [searchTerm, setSearchTerm,users] = useState('');
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
   const [message, setMessage] = useState("");
@@ -24,6 +25,10 @@ const UserDiscountDetails = () => {
     setDiscount({ ...discount, [name]: value });
   };
 
+  const handleSearch = (e) => {
+      e.preventDefault();
+      // Search is handled by the useMemo hook
+    };
   // Toggle edit mode
   const handleEditToggle = () => {
     setIsEditable(!isEditable);
@@ -42,22 +47,59 @@ const UserDiscountDetails = () => {
     <div className="container my-5">
       {/* Header */}
       <div
-        className="text-center py-3 mb-4 rounded"
+        className="d-flex align-items-center justify-content-between px-3 rounded"
+
         style={{
           backgroundColor: "#FEC200",
           color: "black",
-          border: "1px solid black",
           marginTop: "-35px",
           height: "45px",
         }}
       >
-        <h2 style={{ fontSize: "20px", marginTop: "-5px" }}>
+        <h2 style={{ fontSize: "20px",fontWeight:'normal',marginLeft:'420px' }}>
           User Discount Details
         </h2>
+
+          {/* Center: Search Bar */}
+    <div
+      className="input-group"
+      style={{
+        maxWidth: "350px",
+        width: "100%",
+        justifyContent: "center",
+      }}
+    >
+      <input
+        type="search"
+        placeholder="Search by ID, Name, Contact, Email, Location..."
+        className="form-control form-control-sm"
+        style={{
+          height: "30px",
+          fontFamily: "inherit",
+          fontSize: "inherit",
+        }}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <button
+        type="button"
+        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
+        style={{ height: "34px", width: "34px", padding: 0 }}
+        title="Search"
+        onClick={handleSearch}
+      >
+        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
+      </button>
+    </div>
+
       </div>
 
       {/* Card */}
-      <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}>
+      <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
+
+             style={{marginTop:"6px"}}
+
+      >
 
         <div className="row">
           {[
@@ -76,6 +118,14 @@ const UserDiscountDetails = () => {
                 type="text"
                 name={key}
                 className="form-control"
+                 style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                 value={
                   key === "userDiscountValue"
                     ? discount.userDiscountType === "percentage"
@@ -98,6 +148,14 @@ const UserDiscountDetails = () => {
           <textarea
             name="notes"
             className="form-control"
+             style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
             rows="3"
             value={
               discount.userDiscountIsActive === "Active"
@@ -119,19 +177,10 @@ const UserDiscountDetails = () => {
             className="btn btn-primary fw-bold px-4 py-2 rounded-3"
             disabled={isDeactivated}
           >
-            {isEditable ? "Save Changes" : "Edit"}
+            {isEditable ? "Submit" : "Edit"}
           </button>
 
-          <button
-            type="button"
-            onClick={handleDeactivate}
-            className={`fw-bold px-4 py-2 rounded-3 btn ${
-              isDeactivated ? "btn-secondary" : "btn-danger"
-            }`}
-            disabled={isDeactivated}
-          >
-            {isDeactivated ? "Deactivated" : "Deactivate"}
-          </button>
+         
         </div>
 
         {/* Message */}

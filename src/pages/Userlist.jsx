@@ -40,6 +40,12 @@ const Userlist = () => {
     }
   ]);
   
+const [activeStatus, setActiveStatus] = useState({});
+const [showConfirm, setShowConfirm] = useState(false);
+const [selectedUser, setSelectedUser] = useState(null);
+const [statusChoice, setStatusChoice] = useState(null);
+const protectedProductIds = [1, 2];
+
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
@@ -47,7 +53,8 @@ const Userlist = () => {
     name: true,
     email: true,
     phoneNumber: true,
-    createdAt: true
+    createdAt: true,
+     deactivate: true,
   });
 
    //  Handle View Product
@@ -62,6 +69,24 @@ const Userlist = () => {
       state: { productData, productHistory, mode: 'view' }
     });
   };
+
+  const handleToggleClick = (user) => {
+  setSelectedUser(user);
+  setStatusChoice(null);
+  setShowConfirm(true);
+};
+
+const handleSubmitStatus = () => {
+  if (selectedUser && statusChoice && protectedProductIds.includes(selectedUser.id)) {
+    setActiveStatus((prev) => ({
+      ...prev,
+      [selectedUser.id]: statusChoice === 'activate',
+    }));
+  }
+  setShowConfirm(false);
+  setSelectedUser(null);
+  setStatusChoice(null);
+};
 
   //  Handle Edit Product
   const handleEdit = (product) => {
@@ -176,6 +201,12 @@ const Userlist = () => {
         style: { width: '100px' }
       });
     }
+
+    headers.push({
+    key: 'deactivate',
+    label: 'Status',
+    style: { width: '100px' }
+});
 
     headers.push({
       key: 'action',
@@ -492,6 +523,41 @@ const Userlist = () => {
                     {visibleColumns.createdAt && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.createdAt}</td>
                     )}
+                                 <td
+                            className="admin-user-option pl-3 p-3"
+                            style={{
+                              whiteSpace: 'nowrap',
+                              border: '1px solid #dee2e6',
+                              textAlign: 'center'
+                            }}
+                          >
+                            <div
+                              onClick={() => handleToggleClick(user)}
+                              style={{
+                                width: '50px',
+                                height: '26px',
+                                borderRadius: '50px',
+                                backgroundColor: activeStatus[user.id] ? '#4CAF50' : '#f44336',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s ease'
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: '22px',
+                                  height: '22px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'white',
+                                  position: 'absolute',
+                                  top: '2px',
+                                  left: activeStatus[user.id] ? '26px' : '2px',
+                                  transition: 'left 0.3s ease'
+                                }}
+                              ></div>
+                            </div>
+                          </td>
+
 
                      {/* ✅ Action Column */}
                                                                                 <td
@@ -572,6 +638,111 @@ const Userlist = () => {
               </nav>
             </div>
           </div>
+
+            {showConfirm && (
+  <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 9999
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: 'white',
+        padding: '25px 30px',
+        borderRadius: '10px',
+        textAlign: 'center',
+        boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
+        width: '570px', // ⬅️ Matches popup size from your image
+        maxWidth: '100%',
+        height:'200px'
+      }}
+    >
+      {/* ✅ Updated Title */}
+      <h5 className="mb-3" style={{ fontWeight: '600', textAlign: 'left' }}>
+        Are you sure to change the status?
+      </h5>
+
+      {/* ✅ Side-by-side checkboxes */}
+      <div
+        className="d-flex justify-content-left mb-4"
+        style={{ gap: '30px' ,textDecoration:'none'}}
+      >
+        <div className="form-check"
+                           style={{ fontSize:'17px' }}
+
+        
+        >
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="activateCheck"
+            checked={statusChoice === 'activate'}
+            onChange={() => setStatusChoice('activate')}
+          />
+          <label className="form-check-label ms-1" htmlFor="activateCheck"
+           style={{ textDecoration: 'none', cursor: 'pointer',fontSize:'17px' }}
+          >
+            Activate
+          </label>
+        </div>
+
+        <div className="form-check"
+                   style={{ fontSize:'17px' }}
+
+        >
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="deactivateCheck"
+            checked={statusChoice === 'deactivate'}
+            onChange={() => setStatusChoice('deactivate')}
+          />
+          <label className="form-check-label ms-1" htmlFor="deactivateCheck"
+           style={{ textDecoration: 'none', cursor: 'pointer', fontSize:'17px' }}
+          >
+            Deactivate
+          </label>
+        </div>
+      </div>
+
+      {/* ✅ Buttons styled like your uploaded popup */}
+      <div className="d-flex justify-content-end gap-2 mt-2">
+        <button
+          className="btn btn-outline-secondary"
+          style={{
+            minWidth: '90px',
+            borderRadius: '6px'
+          }}
+          onClick={() => setShowConfirm(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="btn btn-danger"
+          style={{
+            minWidth: '90px',
+            borderRadius: '6px'
+          }}
+          onClick={handleSubmitStatus}
+          disabled={!statusChoice}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
         </div>
       </div>
     </div>

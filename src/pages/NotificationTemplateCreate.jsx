@@ -44,18 +44,19 @@ const NotificationTemplateCreate = () => {
         style={{
           backgroundColor: "#FEC200",
           color: "black",
-          border: "1px solid black",
-          marginTop: "-35px",
-          height: "45px",
+          marginTop: "-40px",
+          height: "50px",
         }}
       >
-        <h2 style={{ fontSize: "20px", marginTop: "-5px" }}>
+        <h2 style={{ fontSize: "20px", marginTop: "-5px",fontWeight:'normal' }}>
           Create Notification Template
         </h2>
       </div>
 
       {/* Card Section */}
-      <div className="card shadow-sm p-4">
+      <div className="card shadow-sm p-4"
+      style={{marginTop:"-18px"}}
+      >
         <form onSubmit={handleSubmit}>
           {/* Template Name */}
           <div className="mb-3">

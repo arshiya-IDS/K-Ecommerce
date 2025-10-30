@@ -43,6 +43,7 @@ const OrderDetails = () => {
     gst_amount: "230",
   });
 
+  const [searchTerm, setSearchTerm,users] = useState('');
   const [message, setMessage] = useState("");
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
@@ -55,6 +56,11 @@ const OrderDetails = () => {
     if (section === "shipping") setShipping({ ...shipping, [name]: value });
     if (section === "invoice") setInvoice({ ...invoice, [name]: value });
   };
+
+  const handleSearch = (e) => {
+      e.preventDefault();
+      // Search is handled by the useMemo hook
+    };
 
   const handleGeneratePDF = () => {
     const doc = new jsPDF();
@@ -114,21 +120,57 @@ const OrderDetails = () => {
     <div className="container my-5">
       {/* Header */}
       <div
-        className="text-center py-3 mb-4 rounded"
+        className="d-flex align-items-center justify-content-between px-3 rounded"
+
         style={{
           backgroundColor: "#FEC200",
           color: "black",
-          border: "1px solid black",
           marginTop: "-35px",
           height: "45px",
         }}
       >
-        <h2 style={{ fontSize: "20px", marginTop: "-5px" }}>
+        <h2 style={{ fontSize: "20px", fontWeight:'normal',marginLeft:'420px' }}>
           Order Details & Invoice
         </h2>
+
+          {/* Center: Search Bar */}
+    <div
+      className="input-group"
+      style={{
+        maxWidth: "350px",
+        width: "100%",
+        justifyContent: "center",
+      }}
+    >
+      <input
+        type="search"
+        placeholder="Search by ID, Name, Contact, Email, Location..."
+        className="form-control form-control-sm"
+        style={{
+          height: "30px",
+          fontFamily: "inherit",
+          fontSize: "inherit",
+        }}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <button
+        type="button"
+        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
+        style={{ height: "34px", width: "34px", padding: 0 }}
+        title="Search"
+        onClick={handleSearch}
+      >
+        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
+      </button>
+    </div>
       </div>
 
-      <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}>
+      <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
+
+                         style={{marginTop:"6px"}}
+
+      >
         {/* Order Section */}
         <h5 className="fw mb-3">Order Information</h5>
         <div className="row">
@@ -147,6 +189,14 @@ const OrderDetails = () => {
                 type="text"
                 name={key}
                 className="form-control"
+                 style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                 value={order[key]}
                 onChange={(e) => handleChange(e, "order")}
                 readOnly={!isEditable || isDeactivated}
@@ -172,6 +222,14 @@ const OrderDetails = () => {
                 type="text"
                 name={key}
                 className="form-control"
+                 style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                 value={payment[key]}
                 onChange={(e) => handleChange(e, "payment")}
                 readOnly={!isEditable || isDeactivated}
@@ -196,6 +254,14 @@ const OrderDetails = () => {
                 type="text"
                 name={key}
                 className="form-control"
+                 style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                 value={discount[key]}
                 onChange={(e) => handleChange(e, "discount")}
                 readOnly={!isEditable || isDeactivated}
@@ -219,6 +285,14 @@ const OrderDetails = () => {
                 type="text"
                 name={key}
                 className="form-control"
+                 style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                 value={shipping[key]}
                 onChange={(e) => handleChange(e, "shipping")}
                 readOnly={!isEditable || isDeactivated}
@@ -243,6 +317,14 @@ const OrderDetails = () => {
                 type="text"
                 name={key}
                 className="form-control"
+                 style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                 value={invoice[key]}
                 onChange={(e) => handleChange(e, "invoice")}
                 readOnly={!isEditable || isDeactivated}
@@ -259,19 +341,10 @@ const OrderDetails = () => {
             className="btn btn-primary fw-bold px-4 py-2 rounded-3"
             disabled={isDeactivated}
           >
-            {isEditable ? "Save Changes" : "Edit"}
+            {isEditable ? "Submit" : "Edit"}
           </button>
 
-          <button
-            type="button"
-            onClick={handleDeactivate}
-            className={`fw-bold px-4 py-2 rounded-3 btn ${
-              isDeactivated ? "btn-secondary" : "btn-danger"
-            }`}
-            disabled={isDeactivated}
-          >
-            {isDeactivated ? "Deactivated" : "Deactivate"}
-          </button>
+         
 
           <button
             type="button"

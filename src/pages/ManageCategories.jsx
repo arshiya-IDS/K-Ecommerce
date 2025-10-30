@@ -57,18 +57,19 @@ const ManageCategories = () => {
         style={{
           backgroundColor: "#FEC200",
           color: "black",
-          border: "1px solid black",
-          marginTop: "-35px",
-          height: "45px",
+          marginTop: "-40px",
+          height: "50px",
         }}
       >
-        <h2 style={{ fontSize: "20px", marginTop: "-5px" }}>
+        <h2 style={{ fontSize: "20px", marginTop: "-5px",fontWeight:'normal' }}>
           Manage Categories
         </h2>
       </div>
 
       {/* CARD */}
-      <div className="card shadow-sm p-4">
+      <div className="card shadow-sm p-4"
+      style={{marginTop:"-18px"}}
+      >
         {/* CATEGORY FORM */}
         <form onSubmit={handleCategorySubmit}>
           {/* <h5 className="fw mb-3">

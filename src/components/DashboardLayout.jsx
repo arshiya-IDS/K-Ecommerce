@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { FaPlus, FaMinus } from 'react-icons/fa';
+import { FiPlus, FiMinus } from "react-icons/fi";
+import { FaPlus, FaMinus } from "react-icons/fa";
+
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -35,7 +37,9 @@ const DashboardLayout = () => {
   const toggleNotificationMenu = () => setNotificationMenuOpen(!notificationMenuOpen);
 
   // Active link checker
-  const isActiveLink = (path) => location.pathname.includes(path);
+ // const isActiveLink = (path) => location.pathname.includes(path);
+  const isActiveLink = (path) => location.pathname === path;
+
 
   return (
     <div className="dashboard-wrapper">
@@ -77,14 +81,14 @@ const DashboardLayout = () => {
                 <img src="/images/icons/checklist-product.png" width="26" height="28" alt="Product" className="menu-icon" />
                 <span>Products</span>
               </div>
-              {productMenuOpen ? <FaMinus /> : <FaPlus />}
+              {productMenuOpen ? <FiMinus /> : <FiPlus/>}
             </div>
           </div>
 
           {productMenuOpen && (
             <div className="ms-4 mt-1">
               <Link className="logout-item" to="/product-list">
-                <div className={`logout ${isActiveLink('/product-list') ? 'active' : ''}`}>
+                <div className={`logout ${isActiveLink('/product-list') ? 'active' : ''}`}  >
                   <span>Product List</span>
                 </div>
               </Link>
@@ -125,7 +129,7 @@ const DashboardLayout = () => {
                 <img src="/images/icons/checklist-product.png" width="26" height="28" alt="Product" className="menu-icon" />
                 <span>Category</span>
               </div>
-              {categoryMenuOpen ? <FaMinus /> : <FaPlus />}
+              {categoryMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
           </div>
 
@@ -162,7 +166,7 @@ const DashboardLayout = () => {
                 <img src="/images/icons/checklist-product.png" width="26" height="28" alt="Product" className="menu-icon" />
                 <span>Sub-Category</span>
               </div>
-              {subcategoryMenuOpen ? <FaMinus /> : <FaPlus />}
+              {subcategoryMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
           </div>
 
@@ -199,7 +203,7 @@ const DashboardLayout = () => {
                 <img src="/images/icons/userlist.png" width="24" height="24" alt="Users" className="menu-icon" />
                 <span>Users</span>
               </div>
-              {userMenuOpen ? <FaMinus /> : <FaPlus />}
+              {userMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
           </div>
 
@@ -207,22 +211,22 @@ const DashboardLayout = () => {
             <div className="ms-4 mt-1">
               <Link className="logout-item" to="/userlist">
                 <div className={`logout ${isActiveLink('/userlist') ? 'active' : ''}`}>
-                  <span>User List</span>
+                  <span> User List</span>
                 </div>
               </Link>
               <Link className="logout-item" to="/user-discount-list">
                 <div className={`logout ${isActiveLink('/user-discount-list') ? 'active' : ''}`}>
-                  <span>User Discount List</span>
+                  <span> User Discount List</span>
                 </div>
               </Link>
               <Link className="logout-item" to="/user-discount">
                 <div className={`logout ${isActiveLink('/user-discount') ? 'active' : ''}`}>
-                  <span>User Discount Add</span>
+                  <span> User Discount Add</span>
                 </div>
               </Link>
               <Link className="logout-item" to="/user-discount-details">
                 <div className={`logout ${isActiveLink('/user-discount-details') ? 'active' : ''}`}>
-                  <span>User Discount Details</span>
+                  <span> User Discount Details</span>
                 </div>
               </Link>
             </div>
@@ -235,7 +239,7 @@ const DashboardLayout = () => {
                 <img src="/images/icons/delivery-charge-icon.png" width="20" height="40" alt="Shipping" className="menu-icon" />
                 <span>Shipping</span>
               </div>
-              {shippingMenuOpen ? <FaMinus /> : <FaPlus />}
+              {shippingMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
           </div>
 
@@ -243,7 +247,7 @@ const DashboardLayout = () => {
             <div className="ms-4 mt-1">
               <Link className="logout-item" to="/shipping-charges-list">
                 <div className={`logout ${isActiveLink('/shipping-charges-list') ? 'active' : ''}`}>
-                  <span>Shipping Charges List</span>
+                  <span> Shipping Charges List</span>
                 </div>
               </Link>
               <Link className="logout-item" to="/shipping-charges">
@@ -253,7 +257,7 @@ const DashboardLayout = () => {
               </Link>
               <Link className="logout-item" to="/shipping-charges-details">
                 <div className={`logout ${isActiveLink('/shipping-charges-details') ? 'active' : ''}`}>
-                  <span>Shipping Charges Details</span>
+                  <span> Shipping Charges Details</span>
                 </div>
               </Link>
             </div>
@@ -266,7 +270,7 @@ const DashboardLayout = () => {
                 <img src="/images/icons/shopping-discount.png" width="24" height="24" alt="Orders" className="menu-icon" />
                 <span>Orders</span>
               </div>
-              {ordersMenuOpen ? <FaMinus /> : <FaPlus />}
+              {ordersMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
           </div>
 
@@ -292,7 +296,7 @@ const DashboardLayout = () => {
                 <img src="/images/icons/user-discount.png" width="24" height="24" alt="Notification" className="menu-icon" />
                 <span>Notifications</span>
               </div>
-              {notificationMenuOpen ? <FaMinus /> : <FaPlus />}
+              {notificationMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
           </div>
 
@@ -305,7 +309,7 @@ const DashboardLayout = () => {
               </Link>
               <Link className="logout-item" to="/notification-template-create">
                 <div className={`logout ${isActiveLink('/notification-template-create') ? 'active' : ''}`}>
-                  <span>Notification Template Add</span>
+                  <span> Notification Template Add</span>
                 </div>
               </Link>
                <Link className="logout-item" to="/notification-template-details">
@@ -347,7 +351,7 @@ const DashboardLayout = () => {
             <button className="btn sidebar-toggle-btn" id="sidebarToggle" onClick={toggleSidebar}>
               <img src="/images/bars.svg" alt="Toggle Sidebar" width="20" height="20" />
             </button>
-            <h2 className="admin-title" style={{ marginTop: '20px', marginBottom: '20px' }}>
+            <h2 className="admin-title" style={{ marginTop: '20px', marginBottom: '20px',color:'black' }}>
               Welcome to K-ECommerce Admin Dashboard
             </h2>
             <div className="collapse navbar-collapse" id="navbarSupportedContent">

@@ -49,13 +49,15 @@ const ProductCreate = () => {
       {/* Header Section */}
       <div
         className="text-center py-3 mb-4 rounded"
-        style={{ backgroundColor: "#FEC200", color: "black", border: "1px solid black", marginTop:'-35px', height: "45px" }}
+        style={{ backgroundColor: "#FEC200", color: "black",  marginTop:'-40px', height: "50px" }}
       >
-        <h2 style={{ fontSize: "20px",marginTop:'-5px' }}>Add New Product</h2>
+        <h2 style={{ fontSize: "20px",marginTop:'-5px',fontWeight:'normal' }}>Add New Product</h2>
       </div>
 
       {/* Card Section */}
-      <div className="card shadow-sm p-4">
+      <div className="card shadow-sm p-4"
+      style={{marginTop:"-18px"}}
+      >
         <form onSubmit={handleSubmit}>
           {/* Product Name */}
           <div className="mb-3">

@@ -31,6 +31,7 @@ const ProductList = () => {
   const [users] = useState([
     {
       id: 1,
+      ids:1,
       name: 'Palm Trees',
       email: '2000',
       createdAt:'Big Tree',
@@ -41,6 +42,7 @@ const ProductList = () => {
     },
     {
       id: 2,
+      ids:2,
       name: 'Big Trees',
       email: '1000',
       createdAt:'Large Tree',
@@ -55,6 +57,7 @@ const ProductList = () => {
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
      id: true, 
+     ids:true,
     name: true,
     email: true,
     createdAt: true,
@@ -76,27 +79,32 @@ const ProductList = () => {
   };
 
 
-  // State for active/inactive toggle and confirmation popup
+  // State for active/inactive toggle and confirmation popup\
+const protectedProductIds = [1, 2];
 const [activeStatus, setActiveStatus] = useState({});
 const [showConfirm, setShowConfirm] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
+const [statusChoice, setStatusChoice] = useState(null); 
 
 const handleToggleClick = (user) => {
+   
   setSelectedUser(user);
+  setStatusChoice(null);
   setShowConfirm(true);
 };
 
-const confirmDeactivation = (confirm) => {
-  if (confirm && selectedUser) {
-    setActiveStatus(prev => ({
+// 🔧 Submit choice
+const handleSubmitStatus = () => {
+  if (selectedUser && statusChoice && protectedProductIds.includes(selectedUser.id)) {
+    setActiveStatus((prev) => ({
       ...prev,
-      [selectedUser.id]: !prev[selectedUser.id]
+      [selectedUser.id]: statusChoice === 'activate',
     }));
   }
   setShowConfirm(false);
   setSelectedUser(null);
+  setStatusChoice(null);
 };
-
 
   //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
@@ -170,7 +178,7 @@ const confirmDeactivation = (confirm) => {
     
       if (visibleColumns.id) {
     headers.push({
-      key: 'id',
+      key: 'ids',
       label: 'Product ID',
       style: { width: '100px' }
     });
@@ -220,7 +228,7 @@ const confirmDeactivation = (confirm) => {
 
     headers.push({
     key: 'deactivate',
-    label: 'Deactivate',
+    label: 'Status',
     style: { width: '100px' }
 });
       
@@ -348,11 +356,11 @@ const confirmDeactivation = (confirm) => {
                   <input
                     className="form-check-input"
                     type="checkbox"
-                    id="idCheck"
-                    checked={visibleColumns.id}
-                    onChange={() => toggleColumn('id')}
+                    id="idsCheck"
+                    checked={visibleColumns.ids}
+                    onChange={() => toggleColumn('ids')}
                   />
-                  <label className="form-check-label" htmlFor="idCheck">
+                  <label className="form-check-label" htmlFor="idsCheck">
                     Product ID
                   </label>
                 </div>
@@ -471,41 +479,41 @@ const confirmDeactivation = (confirm) => {
 
                     {visibleColumns.id && (
   <td
-    className="admin-user-option pl-3 p-3"
-    style={{
-      whiteSpace: 'nowrap',
-      border: '1px solid #dee2e6',
-      color: '#645959',
-    }}
-  >
-    <div className="d-flex justify-content-between align-items-center">
-      <span>{user.id}</span>
-      <div className="d-flex align-items-center">
-        <button
-          className="btn btn-sm ms-2 p-1"
-          onClick={() => copyToClipboard(user.id, user.id, 'id')}
-          title="Copy Product ID"
-          style={{
-            width: '28px',
-            height: '28px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {copiedField.id === user.id && copiedField.field === 'id' ? (
-            <img
-              src={checkIcon}
-              alt="Copied"
-              style={{ width: '18px', height: '18px' }}
-            />
-          ) : (
-            <MdContentCopy size={15} />
-          )}
-        </button>
-      </div>
+  className="admin-user-option pl-3 p-3"
+  style={{
+    whiteSpace: 'nowrap',
+    border: '1px solid #dee2e6',
+    textAlign: 'center',
+  }}
+>
+  {protectedProductIds.includes(user.id) ? (
+    // 🔒 Protected products — show plain ID number
+    <span style={{ fontWeight: '500', color: '#333' }}>{user.id}</span>
+  ) : (
+    // 🟢 Regular products — show status circle (A/I)
+    <div
+      onClick={() => handleToggleClick(user)}
+      style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        backgroundColor: activeStatus[user.id] ? '#4CAF50' : '#f44336',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'white',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        transition: 'all 0.3s ease',
+      }}
+      title={activeStatus[user.id] ? 'Active' : 'Inactive'}
+    >
+      {activeStatus[user.id] ? 'A' : 'I'}
     </div>
-  </td>
+  )}
+</td>
+
+
 )}
 
 
@@ -617,40 +625,41 @@ const confirmDeactivation = (confirm) => {
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.formAttime}</td>
                     )}
 
-                    <td
-  className="admin-user-option pl-3 p-3"
-  style={{
-    whiteSpace: 'nowrap',
-    border: '1px solid #dee2e6',
-    textAlign: 'center'
-  }}
->
-  <div
-    onClick={() => handleToggleClick(user)}
-    style={{
-      width: '50px',
-      height: '26px',
-      borderRadius: '50px',
-      backgroundColor: activeStatus[user.id] ? '#4CAF50' : '#f44336',
-      position: 'relative',
-      cursor: 'pointer',
-      transition: 'background-color 0.3s ease'
-    }}
-  >
-    <div
-      style={{
-        width: '22px',
-        height: '22px',
-        borderRadius: '50%',
-        backgroundColor: 'white',
-        position: 'absolute',
-        top: '2px',
-        left: activeStatus[user.id] ? '26px' : '2px',
-        transition: 'left 0.3s ease'
-      }}
-    ></div>
-  </div>
-</td>
+
+                                              <td
+                            className="admin-user-option pl-3 p-3"
+                            style={{
+                              whiteSpace: 'nowrap',
+                              border: '1px solid #dee2e6',
+                              textAlign: 'center'
+                            }}
+                          >
+                            <div
+                              onClick={() => handleToggleClick(user)}
+                              style={{
+                                width: '50px',
+                                height: '26px',
+                                borderRadius: '50px',
+                                backgroundColor: activeStatus[user.id] ? '#4CAF50' : '#f44336',
+                                position: 'relative',
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s ease'
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: '22px',
+                                  height: '22px',
+                                  borderRadius: '50%',
+                                  backgroundColor: 'white',
+                                  position: 'absolute',
+                                  top: '2px',
+                                  left: activeStatus[user.id] ? '26px' : '2px',
+                                  transition: 'left 0.3s ease'
+                                }}
+                              ></div>
+                            </div>
+                          </td>
 
                     {/* ✅ Action Column */}
                                         <td
@@ -732,7 +741,9 @@ const confirmDeactivation = (confirm) => {
             </div>
           </div>
 
-          {showConfirm && (
+{/* {confirm the deactivate links} */}
+
+       {showConfirm && (
   <div
     style={{
       position: 'fixed',
@@ -750,30 +761,91 @@ const confirmDeactivation = (confirm) => {
     <div
       style={{
         backgroundColor: 'white',
-        padding: '25px',
+        padding: '25px 30px',
         borderRadius: '10px',
         textAlign: 'center',
-        boxShadow: '0px 4px 10px rgba(0,0,0,0.3)'
+        boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
+        width: '570px', // ⬅️ Matches popup size from your image
+        maxWidth: '100%',
+        height:'200px'
       }}
     >
-      <h5>Are you sure to deactivate it?</h5>
-      <div className="mt-3">
-        <button
-          className="btn btn-danger me-2"
-          onClick={() => confirmDeactivation(true)}
+      {/* ✅ Updated Title */}
+      <h5 className="mb-3" style={{ fontWeight: '600', textAlign: 'left' }}>
+        Are you sure to change the status?
+      </h5>
+
+      {/* ✅ Side-by-side checkboxes */}
+      <div
+        className="d-flex justify-content-left mb-4"
+        style={{ gap: '30px' ,textDecoration:'none'}}
+      >
+        <div className="form-check"
+                           style={{ fontSize:'17px' }}
+
+        
         >
-          Yes
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="activateCheck"
+            checked={statusChoice === 'activate'}
+            onChange={() => setStatusChoice('activate')}
+          />
+          <label className="form-check-label ms-1" htmlFor="activateCheck"
+           style={{ textDecoration: 'none', cursor: 'pointer',fontSize:'17px' }}
+          >
+            Activate
+          </label>
+        </div>
+
+        <div className="form-check"
+                   style={{ fontSize:'17px' }}
+
+        >
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="deactivateCheck"
+            checked={statusChoice === 'deactivate'}
+            onChange={() => setStatusChoice('deactivate')}
+          />
+          <label className="form-check-label ms-1" htmlFor="deactivateCheck"
+           style={{ textDecoration: 'none', cursor: 'pointer', fontSize:'17px' }}
+          >
+            Deactivate
+          </label>
+        </div>
+      </div>
+
+      {/* ✅ Buttons styled like your uploaded popup */}
+      <div className="d-flex justify-content-end gap-2 mt-2">
+        <button
+          className="btn btn-outline-secondary"
+          style={{
+            minWidth: '90px',
+            borderRadius: '6px'
+          }}
+          onClick={() => setShowConfirm(false)}
+        >
+          Cancel
         </button>
         <button
-          className="btn btn-secondary"
-          onClick={() => confirmDeactivation(false)}
+          className="btn btn-danger"
+          style={{
+            minWidth: '90px',
+            borderRadius: '6px'
+          }}
+          onClick={handleSubmitStatus}
+          disabled={!statusChoice}
         >
-          No
+          Submit
         </button>
       </div>
     </div>
   </div>
 )}
+
 
         </div>
       </div>
