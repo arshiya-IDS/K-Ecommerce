@@ -331,7 +331,7 @@ const handleSubmitStatus = () => {
             className="user-align"
             style={{
               overflowX: "auto",
-              overflowY: "hidden",
+              overflowY: "auto",
               maxHeight: "500px",
             }}
           >

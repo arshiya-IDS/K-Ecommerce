@@ -289,7 +289,7 @@ const handleSubmitStatus = () => {
           {/* Table */}
           <div
             className="user-align"
-            style={{ overflowX: "auto", overflowY: "hidden", maxHeight: "500px" }}
+            style={{ overflowX: "auto", overflowY: "auto", maxHeight: "500px" }}
           >
             <table
               id="templateTable"

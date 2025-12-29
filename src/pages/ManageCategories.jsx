@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const ManageCategories = () => {
   // ✅ Category state
@@ -29,24 +30,47 @@ const ManageCategories = () => {
   
 
   // ✅ Handle category submission
-  const handleCategorySubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleCategorySubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    // Simulate saving
-    setTimeout(() => {
-      setLoading(false);
-      setMessage("✅ Category added successfully!");
-      console.log("New Category:", category);
-      setCategory({
-        category_name: "",
-        category_description: "",
-        parent_category_id: "",
-        category_type: "",
-        category_is_active: true,
-      });
-    }, 1500);
-  };
+  try {
+    const payload = {
+      category_Name: category.category_name,
+      category_Description: category.category_description,
+      parent_Category_Id:
+        category.parent_category_id === ""
+          ? 0
+          : Number(category.parent_category_id),
+      category_Type: category.category_type,
+      category_Is_Active: category.category_is_active,
+    };
+
+    const response = await axios.post(
+      "https://localhost:7013/api/Category",
+      payload
+    );
+
+    console.log("API Response:", response.data);
+
+    setMessage("✅ Category added successfully!");
+
+    // reset form
+    setCategory({
+      category_name: "",
+      category_description: "",
+      parent_category_id: "",
+      category_type: "",
+      category_is_active: true,
+    });
+  } catch (error) {
+    console.error(error);
+    setMessage("❌ Failed to add category");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   return (

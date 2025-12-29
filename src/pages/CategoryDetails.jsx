@@ -1,6 +1,9 @@
-import React, { useState } from "react";
 import { FaEdit, FaBan } from "react-icons/fa";
 import { MdDescription } from "react-icons/md";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+
 
 const CategoryDetails = () => {
   // Hardcoded category details
@@ -15,10 +18,15 @@ const CategoryDetails = () => {
     updated_at: "2025-10-22",
   });
 
-  const [searchTerm, setSearchTerm,users] = useState('');
+  
+
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
   const [message, setMessage] = useState("");
+  const { categoryId } = useParams();
+const [loading, setLoading] = useState(true);
+
 
   // Handle Input Change
   const handleChange = (e) => {
@@ -27,10 +35,51 @@ const CategoryDetails = () => {
   };
 
   // Toggle Edit Mode
-  const handleEditToggle = () => {
-    setIsEditable(!isEditable);
-    setMessage(isEditable ? " Edit mode disabled." : " Edit mode enabled.");
-  };
+ const handleEditToggle = async () => {
+  // ENTER EDIT MODE
+  if (!isEditable) {
+    setIsEditable(true);
+    setMessage("✏️ Edit mode enabled.");
+    return;
+  }
+
+  // SUBMIT (SAVE)
+  try {
+   const payload = {
+  category_Id: Number(category.category_Id),
+  category_Name: category.category_Name || "",
+  category_Description: category.category_Description || "",
+  parent_Category_Id: category.parent_Category_Id
+    ? Number(category.parent_Category_Id)
+    : 0, // API-safe fallback
+  category_Type: category.category_Type || "",
+  category_Is_Active:
+    category.category_Is_Active === true ||
+    category.category_Is_Active === "Active",
+  catgrs_UpdtdBy: "Admin"
+};
+
+
+    const res = await axios.put(
+      `https://localhost:7013/api/Category/${category.category_Id}`,
+      payload,
+       {
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }
+    );
+
+    // Update UI with response
+    setCategory(res.data.category);
+    setIsEditable(false);
+    setMessage("✅ Category updated successfully!");
+  } catch (error) {
+    console.error("Update failed", error);
+    setMessage("❌ Failed to update category");
+  }
+};
+
 
    const handleSearch = (e) => {
       e.preventDefault();
@@ -44,9 +93,38 @@ const CategoryDetails = () => {
     setCategory({ ...category, is_active: "Inactive" });
     setMessage("⚠️ This category has been deactivated successfully!");
   };
+  useEffect(() => {
+  fetchCategoryDetails();
+}, [categoryId]);
+
+const fetchCategoryDetails = async () => {
+  try {
+    const res = await axios.get(
+      `https://localhost:7013/api/Category/${categoryId}`
+    );
+
+    setCategory(res.data);
+  } catch (error) {
+    console.error("Failed to fetch category details", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+if (loading) {
+  return (
+    <div className="text-center my-5">
+      <div className="spinner-border text-warning" />
+      <p className="mt-2">Loading category details...</p>
+    </div>
+  );
+}
 
   return (
+    
     <div className="container my-5">
+      
+
       {/* Header */}
       <div
         className="d-flex align-items-center justify-content-between px-3 rounded"
@@ -100,38 +178,36 @@ const CategoryDetails = () => {
       >
         {/* <h5 className="fw mb-3">Category Information</h5> */}
 
-        <div className="row">
-          {[
-            ["category_id", "Category ID"],
-            ["category_name", "Category Name"],
-            ["category_of", "Category Type"],
-            ["is_active", "Status"],
-            ["parent_categoryid","Parent Category ID"],
-            ["description","Description"],
-            ["created_at", "Created At"],
-            ["updated_at", "Last Updated"],
-          ].map(([key, label]) => (
-            <div className="col-md-6 mb-3" key={key}>
-              <label className="form-label fw-semibold">{label}</label>
-              <input
-                type="text"
-                name={key}
-                className="form-control"
-                 style={{
-                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
-                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
-                        borderRadius: "8px",
-                        padding: "10px",
-                        color: "#212529",
-                        transition: "all 0.3s ease"
-                      }}
-                value={category[key]}
-                onChange={handleChange}
-                readOnly={!isEditable || isDeactivated}
-              />
-            </div>
-          ))}
-        </div>
+       <div className="row">
+            {Object.entries(category).map(([key, value]) => (
+              <div className="col-md-6 mb-3" key={key}>
+                <label className="form-label text-capitalize">
+                  {key.replace(/_/g, " ")}
+                </label>
+                <input
+                  type="text"
+                  name={key}
+                  className="form-control"
+                  value={
+                    ["catgrs_CrtdAt", "catgrs_UpdtdAt"].includes(key) && value
+                      ? new Date(value).toLocaleString()
+                      : value === null
+                        ? ""
+                        : String(value)
+                  }
+                  onChange={handleChange}
+                  readOnly={
+                    !isEditable || ["category_Id", "catgrs_CrtdAt", "catgrs_UpdtdAt"].includes(key)
+                  }
+                />
+
+
+                
+              
+              </div>
+            ))}
+          </div>
+
 
         
 

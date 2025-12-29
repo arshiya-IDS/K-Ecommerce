@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
 
 const ManageSubCategories = () => {
   // ✅ Category state
@@ -20,6 +22,7 @@ const ManageSubCategories = () => {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+const [categories, setCategories] = useState([]);
 
  
 
@@ -28,27 +31,55 @@ const ManageSubCategories = () => {
     setSubCategory({ ...subCategory, [e.target.name]: e.target.value });
   };
 
+useEffect(() => {
+  fetchCategories();
+}, []);
+
+const fetchCategories = async () => {
+  try {
+    const res = await axios.get("https://localhost:7013/api/Category");
+    setCategories(res.data);
+  } catch (error) {
+    console.error("Error loading categories", error);
+  }
+};
 
   
 
   // ✅ Handle subcategory submission
-  const handleSubCategorySubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubCategorySubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    // Simulate saving
-    setTimeout(() => {
-      setLoading(false);
-      setMessage("✅ Subcategory added successfully!");
-      console.log("New Subcategory:", subCategory);
-      setSubCategory({
-        category_id: "",
-        sub_category_name: "",
-        sub_category_description: "",
-        sub_category_is_active: true,
-      });
-    }, 1500);
-  };
+  try {
+    const payload = {
+      category_Id: subCategory.category_id,
+      sub_Category_Name: subCategory.sub_category_name,
+      sub_Category_Description: subCategory.sub_category_description,
+      sub_Category_Is_Active: subCategory.sub_category_is_active,
+      sb_catgrs_CrtdAt: new Date().toISOString(),
+      sb_catgrs_CrtdBy: "ADMIN"
+    };
+
+    const res = await axios.post(
+      "https://localhost:7013/api/SubCategory",
+      payload
+    );
+
+    setMessage("✅ Subcategory added successfully!");
+    setSubCategory({
+      category_id: "",
+      sub_category_name: "",
+      sub_category_description: "",
+      sub_category_is_active: true,
+    });
+  } catch (error) {
+    setMessage("❌ Failed to add subcategory");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="container my-5">
@@ -80,18 +111,24 @@ const ManageSubCategories = () => {
           </h5> */}
 
           <div className="row">
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Parent Category ID</label>
-              <input
-                type="number"
+           <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Parent Category</label>
+              <select
+                className="form-select"
                 name="category_id"
-                className="form-control"
-                placeholder="Enter category ID"
                 value={subCategory.category_id}
                 onChange={handleSubCategoryChange}
                 required
-              />
+              >
+                <option value="">-- Select Category --</option>
+                {categories.map((cat) => (
+                  <option key={cat.category_Id} value={cat.category_Id}>
+                    {cat.category_Name}
+                  </option>
+                ))}
+              </select>
             </div>
+
 
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Subcategory Name</label>

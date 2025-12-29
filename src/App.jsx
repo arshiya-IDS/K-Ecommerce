@@ -63,14 +63,18 @@ function App() {
           <Route path="/product-list" element={<ProductList/>}/>
           <Route path="/orders-list" element={<OrdersList/>}/>
           <Route path="/category-list" element={<CategoryList/>}/>
-          <Route path="/product-details" element={<ProductDetails/>}/>
+          <Route path="/product-details/:id" element={<ProductDetails />} />
           <Route path="/notification-list" element={<NotificationTemplateList/>}/>
           <Route path="/order-details" element={<OrderDetails/>}/>
-          <Route path="/product-discount-details" element={<ProductDiscountDetails/>}/>
+          <Route path="/product-discount-details/:id" element={<ProductDiscountDetails/>}/>
           <Route path="/user-discount-details" element={<UserDiscountDetails/>}/>
           <Route path="/shipping-charges-details" element={<ShippingChargesDetails/>}/>
-          <Route path="/category-details" element={<CategoryDetails/>}/>
-          <Route path="/sub-categories-details" element={<SubCategoryDetails/>}/>
+          <Route path="/categories/:categoryId" element={<CategoryDetails/>}/>
+
+
+          <Route path="/subcategories/details/:id" element={<SubCategoryDetails/>}/>
+          
+
           <Route path="/notification-template-details" element={<NotificationTemplateDetails/>}/>
           <Route path="/subcategories-list" element={<SubCategoryList/>}/>
           <Route path="/manage-subcategories" element={<ManageSubCategories/>}/>

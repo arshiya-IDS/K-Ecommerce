@@ -1,20 +1,17 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { FaEdit, FaBan } from "react-icons/fa";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+
 
 const SubCategoryDetails = () => {
   // Hardcoded subcategory details
-  const [subCategory, setSubCategory] = useState({
-    sub_category_id: 1,
-    sub_category_name: "Steel Frames",
-    sub_category_description: "High-quality steel frames for industrial use.",
-    parent_category_id: 2,
-    category_type: "Metal Works",
-    is_active: "Active",
-    created_at: "2025-10-18",
-    updated_at: "2025-10-21",
-  });
+const { id } = useParams();
 
-  const [searchTerm, setSearchTerm,users] = useState('');
+const [subCategory, setSubCategory] = useState(null);
+
+
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
   const [message, setMessage] = useState("");
@@ -26,22 +23,102 @@ const SubCategoryDetails = () => {
   };
 
   // Toggle Edit Mode
-  const handleEditToggle = () => {
-    setIsEditable(!isEditable);
-    setMessage(isEditable ? "✏️ Edit mode disabled." : "✏️ Edit mode enabled.");
-  };
+  const handleEditToggle = async () => {
+  // 1️⃣ If NOT editable → enable edit mode
+  if (!isEditable) {
+    setIsEditable(true);
+    setMessage(" Edit mode enabled.");
+    return;
+  }
+
+  // 2️⃣ If editable → SUBMIT changes
+  try {
+    const payload = {
+      sub_Category_Id: subCategory.sub_category_id,
+      category_Id: subCategory.parent_category_id,
+      sub_Category_Name: subCategory.sub_category_name,
+      sub_Category_Description: subCategory.sub_category_description,
+      sub_Category_Is_Active:subCategory.sub_Category_Is_Active,
+      sb_catgrs_UpdtdBy: "System", // or logged-in user
+    };
+
+    await axios.put(
+      `https://localhost:7013/api/SubCategory/edit-SubCategory/${subCategory.sub_category_id}`,
+       payload,
+  {
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }
+    );
+
+    await fetchSubCategoryDetails();
+
+    setIsEditable(false);
+    setMessage("✅ Subcategory updated successfully!");
+
+  } catch (error) {
+    console.error("Update failed", error);
+    setMessage("❌ Failed to update subcategory");
+  }
+};
+
 
   const handleSearch = (e) => {
       e.preventDefault();
       // Search is handled by the useMemo hook
     };
   // Handle Deactivation
+
+  useEffect(() => {
+  if (id) {
+    fetchSubCategoryDetails();
+  }
+}, [id]);
+
+const fetchSubCategoryDetails = async () => {
+  try {
+    const res = await axios.get(
+      `https://localhost:7013/api/SubCategory/details/${id}`
+    );
+
+    const data = res.data;
+
+    setSubCategory({
+      sub_category_id: data.sub_Category_Id,
+      sub_category_name: data.sub_Category_Name,
+      sub_category_description: data.sub_Category_Description,
+      parent_category_id: data.category_Id,
+      category_name: data.category_Name,
+      is_active: data.sub_Category_Is_Active ? "Active" : "Inactive",
+      created_at: new Date(data.sb_catgrs_CrtdAt).toLocaleString(),
+      updated_at: data.sb_catgrs_UpdtdAt
+        ? new Date(data.sb_catgrs_UpdtdAt).toLocaleString()
+        : "—",
+      created_by: data.sb_catgrs_CrtdBy,
+      updated_by: data.sb_catgrs_UpdtdBy ?? "—",
+    });
+  } catch (error) {
+    console.error("Failed to load subcategory details", error);
+  }
+};
+
   const handleDeactivate = () => {
     setIsDeactivated(true);
     setIsEditable(false);
     setSubCategory({ ...subCategory, is_active: "Inactive" });
     setMessage("⚠️ This subcategory has been deactivated successfully!");
   };
+
+  if (!subCategory) {
+  return (
+    <div className="text-center mt-5">
+      <span className="spinner-border text-warning"></span>
+    </div>
+  );
+}
+
+
 
   return (
     <div className="container my-5">
@@ -98,14 +175,19 @@ const SubCategoryDetails = () => {
 
         <div className="row">
           {[
+            
+            
             ["sub_category_id", "Subcategory ID"],
             ["sub_category_name", "Subcategory Name"],
             ["sub_category_description", "Description"],
-            ["parent_category_id", "Parent Category ID"],
-            ["category_type", "Category Type"],
+            ["category_name", "Category Name"],
+            ["parent_category_id", "Category ID"],
             ["is_active", "Status"],
+            ["created_by", "Created By"],
             ["created_at", "Created At"],
             ["updated_at", "Last Updated"],
+
+
           ].map(([key, label]) => (
             <div className="col-md-6 mb-3" key={key}>
               <label className="form-label fw-semibold">{label}</label>
@@ -124,7 +206,12 @@ const SubCategoryDetails = () => {
                   rows="3"
                   value={subCategory[key]}
                   onChange={handleChange}
-                  readOnly={!isEditable || isDeactivated}
+                  readOnly={
+                    !isEditable ||
+                    isDeactivated ||
+                    !["sub_category_name", "sub_category_description"].includes(key)
+                  }
+
                 ></textarea>
               ) : (
                 <input

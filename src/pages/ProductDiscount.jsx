@@ -15,17 +15,27 @@ const ProductDiscount = () => {
   const [discountEndDate, setDiscountEndDate] = useState("");
   const [isActive, setIsActive] = useState(true);
 
-  // Fetch categories on mount
+  // ---------------------------
+  // 1) FETCH CATEGORIES
+  // ---------------------------
   useEffect(() => {
-    axios.get("/api/categories").then((res) => setCategories(res.data));
+    axios
+      .get("https://localhost:7013/api/Category")   
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.error("Error loading categories:", err));
   }, []);
 
-  // Fetch sub-categories when category changes
+  // ---------------------------
+  // 2) FETCH SUBCATEGORIES WHEN CATEGORY CHANGES
+  // ---------------------------
+
+ 
   useEffect(() => {
     if (selectedCategory) {
       axios
-        .get(`/api/subcategories?categoryId=${selectedCategory}`)
-        .then((res) => setSubCategories(res.data));
+        .get(`https://localhost:7013/api/Category/sub/${selectedCategory}`)
+        .then((res) => setSubCategories(res.data))
+        .catch((err) => console.error("Error loading subcategories:", err));
     } else {
       setSubCategories([]);
       setSelectedSubCategory("");
@@ -34,29 +44,41 @@ const ProductDiscount = () => {
     setSelectedProducts([]);
   }, [selectedCategory]);
 
-  // Fetch products when sub-category changes
+  // ---------------------------
+  // 3) FETCH PRODUCTS WHEN SUBCATEGORY CHANGES
+  // ---------------------------
   useEffect(() => {
     if (selectedSubCategory) {
       axios
-        .get(`/api/products?subCategoryId=${selectedSubCategory}`)
-        .then((res) => setProducts(res.data));
+        .get(`https://localhost:7013/api/Category/products/${selectedSubCategory}`)
+        .then((res) => setProducts(res.data))
+        .catch((err) => console.error("Error loading products:", err));
     } else {
       setProducts([]);
       setSelectedProducts([]);
     }
   }, [selectedSubCategory]);
 
+  // ---------------------------
+  // HANDLE MULTI PRODUCT SELECT
+  // ---------------------------
   const handleProductSelect = (e) => {
     const options = e.target.options;
     const selected = [];
+
     for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) selected.push(options[i].value);
+      if (options[i].selected) selected.push(parseInt(options[i].value));
     }
+
     setSelectedProducts(selected);
   };
 
+  // ---------------------------
+  // SUBMIT DISCOUNT
+  // ---------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!discountName || !discountValue || selectedProducts.length === 0) {
       alert("Please fill all required fields.");
       return;
@@ -68,12 +90,14 @@ const ProductDiscount = () => {
       discountStartDate,
       discountEndDate,
       isActive,
-      products: selectedProducts,
+      products: selectedProducts
     };
 
     try {
-      await axios.post("/api/product-discounts", payload);
-      alert("Discounts applied successfully!");
+      await axios.post("https://localhost:7013/api/ProductDiscount", payload);
+
+      alert("Discount created successfully!");
+
       // Reset form
       setDiscountName("");
       setDiscountValue("");
@@ -85,26 +109,26 @@ const ProductDiscount = () => {
       setIsActive(true);
     } catch (error) {
       console.error(error);
-      alert("Error applying discounts.");
+      alert("Error creating discount.");
     }
   };
 
   return (
     <div className="container my-5">
+
       <div
         className="text-center py-3 mb-4 rounded"
-        style={{ backgroundColor: "#FEC200", color: "black", marginTop:'-40px', height: "50px" }}
+        style={{ backgroundColor: "#FEC200", color: "black", marginTop: "-40px", height: "50px" }}
       >
-        <h2
-        style={{fontSize: "20px",marginTop:'-5px',fontWeight:'normal'}}
-        >Product Discount Management</h2>
+        <h2 style={{ fontSize: "20px", marginTop: "-5px", fontWeight: "normal" }}>
+          Product Discount Management
+        </h2>
       </div>
 
-      <div className="card shadow-sm p-4"
-      style={{marginTop:"-18px"}}
-      >
+      <div className="card shadow-sm p-4" style={{ marginTop: "-18px" }}>
         <form onSubmit={handleSubmit}>
-          {/* Discount Name */}
+
+          {/* DISCOUNT NAME */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Discount Name</label>
             <input
@@ -117,7 +141,7 @@ const ProductDiscount = () => {
             />
           </div>
 
-          {/* Discount Value */}
+          {/* DISCOUNT VALUE */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Discount Value (%)</label>
             <input
@@ -132,67 +156,72 @@ const ProductDiscount = () => {
             />
           </div>
 
-          {/* Category */}
+          {/* CATEGORY SELECT */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Category</label>
-            <select
-              className="form-select"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              required
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat.category_id} value={cat.category_id}>
-                  {cat.category_name}
-                </option>
-              ))}
-            </select>
+           <select
+            className="form-select"
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            required
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat.category_Id} value={cat.category_Id}>
+                {cat.category_Name}
+              </option>
+            ))}
+          </select>
+
           </div>
 
-          {/* Sub-Category */}
+          {/* SUB CATEGORY SELECT */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Sub-Category</label>
             <select
-              className="form-select"
-              value={selectedSubCategory}
-              onChange={(e) => setSelectedSubCategory(e.target.value)}
-              required
-              disabled={!subCategories.length}
-            >
-              <option value="">Select Sub-Category</option>
-              {subCategories.map((sub) => (
-                <option key={sub.sub_category_id} value={sub.sub_category_id}>
-                  {sub.sub_category_name}
-                </option>
-              ))}
-            </select>
+                className="form-select"
+                value={selectedSubCategory}
+                onChange={(e) => setSelectedSubCategory(e.target.value)}
+                required
+                disabled={!subCategories.length}
+              >
+                <option value="">Select Sub-Category</option>
+                {subCategories.map((sub) => (
+                  <option key={sub.sub_category_Id} value={sub.sub_category_Id}>
+                    {sub.sub_category_Name}
+                  </option>
+                ))}
+              </select>
+
           </div>
 
-          {/* Products */}
+          {/* PRODUCT MULTI SELECT */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Products</label>
+
             <select
-              multiple
-              className="form-select"
-              value={selectedProducts}
-              onChange={handleProductSelect}
-              required
-              disabled={!products.length}
-              size={Math.min(5, products.length)}
-            >
-              {products.map((prod) => (
-                <option key={prod.product_id} value={prod.product_id}>
-                  {prod.product_name} - ${prod.product_actual_price}
-                </option>
-              ))}
-            </select>
+                multiple
+                className="form-select"
+                value={selectedProducts}
+                onChange={handleProductSelect}
+                required
+                disabled={!products.length}
+                size={Math.min(5, products.length)}
+              >
+                {products.map((prod) => (
+                  <option key={prod.product_id} value={prod.product_id}>
+                    {prod.product_name} — ₹{prod.product_actual_price}
+                  </option>
+                ))}
+              </select>
+
+
             <small className="form-text text-muted">
               Hold Ctrl (Cmd on Mac) to select multiple products.
             </small>
           </div>
 
-          {/* Start Date */}
+          {/* START DATE */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Start Date</label>
             <input
@@ -204,7 +233,7 @@ const ProductDiscount = () => {
             />
           </div>
 
-          {/* End Date */}
+          {/* END DATE */}
           <div className="mb-3">
             <label className="form-label fw-semibold">End Date</label>
             <input
@@ -216,7 +245,7 @@ const ProductDiscount = () => {
             />
           </div>
 
-          {/* Is Active */}
+          {/* ACTIVE CHECKBOX */}
           <div className="mb-4 form-check">
             <input
               type="checkbox"
@@ -230,7 +259,7 @@ const ProductDiscount = () => {
             </label>
           </div>
 
-          <button type="submit" className="btn btn-warning text-black fw-bold  float-end">
+          <button type="submit" className="btn btn-warning text-black fw-bold float-end">
             Apply Discount
           </button>
         </form>

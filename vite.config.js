@@ -9,7 +9,7 @@ export default defineConfig({
     proxy: {
       // Proxy any request starting with /api to the .NET backend
       "/api": {
-        target: "https://localhost:7018",
+        target: "https://localhost:7031",
         changeOrigin: true,
         secure: false    // allow self-signed cert on backend
       }

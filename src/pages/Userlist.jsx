@@ -7,6 +7,9 @@ import { MdContentCopy } from "react-icons/md";
 import checkIcon from "../assets/check.png";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdKeyboardArrowRight } from 'react-icons/md';
+import { useEffect } from "react";
+import axios from "axios";
+
 
 const Userlist = () => {
   // Sample data for users with the requested columns
@@ -23,22 +26,31 @@ const Userlist = () => {
         }, 2000);
       });
     };
-  const [users] = useState([
-    {
-      id: 1,
-      name: 'Tax Ustaad Admin',
-      email: 'admin@tax-ustaad.com',
-      phoneNumber: '9999999999',
-      createdAt: '14-08-2025 08:00 PM'
-    },
-    {
-      id: 2,
-      name: 'Super User',
-      email: 'superuser@gmail.com',
-      phoneNumber: '7778677785',
-      createdAt: 'Invalid Date'
-    }
-  ]);
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+  fetchUsers();
+}, []);
+
+const fetchUsers = async () => {
+  try {
+    const res = await axios.get("https://localhost:7013/api/users");
+
+    const mappedUsers = res.data.map((u) => ({
+      id: u.userId,
+      name: u.userName,
+      email: u.email,
+      phoneNumber: u.phoneNumber ?? "—",
+      role: u.role,
+      createdAt: new Date(u.createdAt).toLocaleString()
+    }));
+
+    setUsers(mappedUsers);
+  } catch (error) {
+    console.error("Failed to load users", error);
+  }
+};
+
   
 const [activeStatus, setActiveStatus] = useState({});
 const [showConfirm, setShowConfirm] = useState(false);
@@ -50,12 +62,14 @@ const protectedProductIds = [1, 2];
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
-    name: true,
-    email: true,
-    phoneNumber: true,
-    createdAt: true,
-     deactivate: true,
-  });
+  name: true,
+  email: true,
+  phoneNumber: true,
+  role: true,          // ✅ ADD
+  createdAt: true,
+  deactivate: true,
+});
+
 
    //  Handle View Product
   const handleView = (product) => {
@@ -109,10 +123,13 @@ const handleSubmitStatus = () => {
     return users.filter(user => 
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.phoneNumber.includes(searchTerm) ||
       user.createdAt.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [users, searchTerm]);
+
+ 
 
   // Sort users based on sort configuration
   const sortedUsers = useMemo(() => {
@@ -193,6 +210,15 @@ const handleSubmitStatus = () => {
         style: { width: '120px' }
       });
     }
+    
+    if (visibleColumns.role) {
+  headers.push({
+    key: "role",
+    label: "Role",
+    style: { width: "100px" }
+  });
+}
+
     
     if (visibleColumns.createdAt) {
       headers.push({
@@ -380,7 +406,7 @@ const handleSubmitStatus = () => {
             </div>
           )}
 
-          <div className="user-align" style={{overflowX: 'auto', overflowY: 'hidden', maxHeight: '500px'}}>
+          <div className="user-align" style={{overflowX: 'auto', overflowY: 'auto', maxHeight: '500px'}}>
             <table id="myTable" className="table table-bordered table-striped dataTable no-footer" aria-describedby="myTable_info" style={{minWidth: '1100px', borderCollapse: 'collapse'}}>
               <thead className="thead-dark">
                <tr>
@@ -416,6 +442,9 @@ const handleSubmitStatus = () => {
       {header.label} {header.key !== 'action' && getSortIcon(header.key)}
     </th>
   ))}
+
+  
+
 </tr>
 
               </thead>
@@ -520,6 +549,28 @@ const handleSubmitStatus = () => {
                                                                       </div>
                                                                     </td>
                                                                   )}
+
+                            {visibleColumns.role && (
+                            <td
+                              className="admin-user-option pl-3 p-3"
+                              style={{
+                                whiteSpace: "nowrap",
+                                border: "1px solid #dee2e6",
+                                color: "#645959",
+                                textTransform: "capitalize",
+                                textAlign: "center"
+                              }}
+                            >
+                              <span
+                                className={`badge ${
+                                  user.role === "admin" ? "bg-danger" : "bg-primary"
+                                }`}
+                              >
+                                {user.role}
+                              </span>
+                            </td>
+                          )}
+
                     {visibleColumns.createdAt && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.createdAt}</td>
                     )}

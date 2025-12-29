@@ -48,7 +48,7 @@ const DashboardLayout = () => {
         <div className="sidebar-heading border-bottom bg-light">
           <Link to="/">
             <img
-              src="\images\logo\Admin-Login-Page.webp"
+              src="\images\logo\Logo_K.jpg"
               className="sidebar-logo"
               alt="Logo"
               style={{
@@ -98,11 +98,7 @@ const DashboardLayout = () => {
                   <span>Products Add</span>
                 </div>
               </Link>
-              <Link className="logout-item" to="/product-details">
-                <div className={`logout ${isActiveLink('/product-details') ? 'active' : ''}`}>
-                  <span>Product Details</span>
-                </div>
-              </Link>
+              
 
               <Link className="logout-item" to="/product-discount-list">
                 <div className={`logout ${isActiveLink('/product-discount-list') ? 'active' : ''}`}>
@@ -114,11 +110,7 @@ const DashboardLayout = () => {
                   <span>Products Discount Add</span>
                 </div>
               </Link>
-              <Link className="logout-item" to="/product-discount-details">
-                <div className={`logout ${isActiveLink('/product-discount-details') ? 'active' : ''}`}>
-                  <span>Product Discount Details</span>
-                </div>
-              </Link>
+             
             </div>
           )}
 
@@ -149,11 +141,7 @@ const DashboardLayout = () => {
                 </div>
               </Link>   
 
-               <Link className="logout-item" to="/category-details">
-                <div className={`logout ${isActiveLink('/category-details') ? 'active' : ''}`}>
-                  <span>Category Details</span>
-                </div>
-              </Link>   
+              
             </div>
 
            
@@ -186,11 +174,7 @@ const DashboardLayout = () => {
                 </div>
               </Link>   
 
-               <Link className="logout-item" to="/sub-categories-details">
-                <div className={`logout ${isActiveLink('/sub-categories-details') ? 'active' : ''}`}>
-                  <span>Sub-Category Details</span>
-                </div>
-              </Link>   
+               
             </div>
 
            
@@ -224,11 +208,7 @@ const DashboardLayout = () => {
                   <span> User Discount Add</span>
                 </div>
               </Link>
-              <Link className="logout-item" to="/user-discount-details">
-                <div className={`logout ${isActiveLink('/user-discount-details') ? 'active' : ''}`}>
-                  <span> User Discount Details</span>
-                </div>
-              </Link>
+             
             </div>
           )}
 
@@ -255,11 +235,7 @@ const DashboardLayout = () => {
                   <span>Shipping Charges Add</span>
                 </div>
               </Link>
-              <Link className="logout-item" to="/shipping-charges-details">
-                <div className={`logout ${isActiveLink('/shipping-charges-details') ? 'active' : ''}`}>
-                  <span> Shipping Charges Details</span>
-                </div>
-              </Link>
+             
             </div>
           )}
 
@@ -312,11 +288,7 @@ const DashboardLayout = () => {
                   <span> Notification Template Add</span>
                 </div>
               </Link>
-               <Link className="logout-item" to="/notification-template-details">
-                <div className={`logout ${isActiveLink('/notification-template-details') ? 'active' : ''}`}>
-                  <span>Notification Template Details</span>
-                </div>        
-              </Link>
+              
             </div>
           )}
 

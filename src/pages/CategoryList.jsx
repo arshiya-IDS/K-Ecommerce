@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo,useEffect } from 'react';
 import {
   FaEdit,
   FaEye,
@@ -15,6 +15,14 @@ import { IoMdSettings } from 'react-icons/io';
 import { MdContentCopy, MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import checkIcon from '../assets/check.png';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const API_CATEGORY = "https://localhost:7013/api/Category";
+
+
 
 const CategoryList = () => {
   const navigate = useNavigate();
@@ -29,28 +37,44 @@ const CategoryList = () => {
     });
   };
 
-  const [categories] = useState([
-    {
-      id: 1,
-      categoryName: 'Metal Cutting',
-      subCategory: 'Laser Cutting',
-      createdAt: '2025-10-01',
-      updatedAt: '2025-10-15',
-    },
-    {
-      id: 2,
-      categoryName: 'Wood Work',
-      subCategory: 'CNC Engraving',
-      createdAt: '2025-09-25',
-      updatedAt: '2025-10-10',
-    },
-  ]);
-
+  const [page, setPage] = useState(1);
+   const [pageSize, setPageSize] = useState(10);
 const [activeStatus, setActiveStatus] = useState({});
 const [showConfirm, setShowConfirm] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
 const [statusChoice, setStatusChoice] = useState(null);
 const protectedProductIds = [1, 2];
+
+
+const [fromDate, setFromDate] = useState("");
+const [toDate, setToDate] = useState("");
+
+
+const [categories, setCategories] = useState([]);
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState(null);
+
+ const exportCSV = () => {
+    window.open(`${API_CATEGORY}/export?format=csv`, "_blank");
+  };
+  const exportPDF = () => {
+    window.open(`${API_CATEGORY}/export?format=pdf`, "_blank");
+  };
+
+const applyDateFilter = () => {
+  setPage(1);
+  fetchCategories(); // instead of fetchProducts
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  const day = d.getDate().toString().padStart(2, "0");
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -64,29 +88,105 @@ const protectedProductIds = [1, 2];
      deactivate: true,
   });
 
-  const handleToggleClick = (user) => {
-  setSelectedUser(user);
-  setStatusChoice(null);
-  setShowConfirm(true);
-};
+ 
+
+
+  const toggleStatusApi = async (id) => {
+      try {
+        const resp = await axios.patch(`${API_CATEGORY}/${id}/status`);
+        return resp.data;
+      } catch (err) {
+        console.error("toggleStatusApi:", err);
+        throw err;
+      }
+    };
 
   const handleView = (category) => {
-    navigate(`/category-details`, {
+    navigate(`/categories/${category.id}`, {
       state: { category, mode: 'view' },
     });
   };
 
-  const handleSubmitStatus = () => {
-  if (selectedUser && statusChoice && protectedProductIds.includes(selectedUser.id)) {
-    setActiveStatus((prev) => ({
-      ...prev,
-      [selectedUser.id]: statusChoice === 'activate',
+ const fetchCategories = async () => {
+  try {
+    setLoading(true);
+
+     const params = {
+        search: searchTerm || null,
+        page,
+        pageSize,
+        fromDate: fromDate || null,
+        toDate: toDate || null,
+        sortKey: sortConfig.key,
+        sortDir: sortConfig.direction,
+      };
+    setError(null);
+
+    const response = await axios.get(
+      'https://localhost:7013/api/Category'
+    );
+
+    // Map API response to UI-friendly format
+    const mappedData = response.data.map((item) => ({
+      id: item.category_Id,
+      categoryName: item.category_Name,
+      subCategory: item.category_Description, // using description as sub category
+      createdAt: item.catgrs_CrtdAt, // API does not provide these
+      updatedAt: item.catgrs_UpdtdAt,
     }));
+
+    setCategories(mappedData);
+  } catch (err) {
+    console.error('Error fetching categories:', err);
+    setError('Failed to load categories');
+  } finally {
+    setLoading(false);
   }
-  setShowConfirm(false);
-  setSelectedUser(null);
-  setStatusChoice(null);
 };
+
+
+useEffect(() => {
+  fetchCategories();
+},[page, pageSize, searchTerm, fromDate, toDate, sortConfig]);
+
+useEffect(() => {
+  const statusMap = {};
+  categories.forEach((cat) => {
+    statusMap[cat.id] = cat.isActive;
+  });
+  setActiveStatus(statusMap);
+}, [categories]);
+
+//   const handleSubmitStatus = () => {
+//   if (selectedUser && statusChoice && protectedProductIds.includes(selectedUser.id)) {
+//     setActiveStatus((prev) => ({
+//       ...prev,
+//       [selectedUser.id]: statusChoice === 'activate',
+//     }));
+//   }
+//   setShowConfirm(false);
+//   setSelectedUser(null);
+//   setStatusChoice(null);
+// };
+
+ const handleSubmitStatus = async () => {
+    if (!selectedUser) return;
+    // optionally ensure protected ids logic
+    if (!protectedProductIds.includes(selectedUser.id)) {
+      // proceed normally
+    }
+    try {
+      const result = await toggleStatusApi(selectedUser.id);
+      toast.success(result?.message ?? "Status updated");
+      // refresh
+      await fetchDiscounts();
+    } catch (err) {
+      toast.error("Failed to update status");
+    }
+    setShowConfirm(false);
+    setSelectedUser(null);
+    setStatusChoice(null);
+  };
 
   const filteredCategories = useMemo(() => {
     if (!searchTerm) return categories;
@@ -129,19 +229,29 @@ const protectedProductIds = [1, 2];
     setVisibleColumns((prev) => ({ ...prev, [column]: !prev[column] }));
   };
 
+   const handleToggleClick = (row) => {
+    setSelectedUser(row);
+    setStatusChoice(null);
+    setShowConfirm(true);
+  };
   const columnHeaders = [
     { key: 'id', label: 'Category ID', visible: visibleColumns.id }, // ✅ Added ID header
     { key: 'categoryName', label: 'Category Name', visible: visibleColumns.categoryName },
-    { key: 'subCategory', label: 'Sub Category', visible: visibleColumns.subCategory },
+    { key: 'subCategory', label: 'Description', visible: visibleColumns.subCategory },
     { key: 'createdAt', label: 'Created At', visible: visibleColumns.createdAt },
     { key: 'updatedAt', label: 'Updated At', visible: visibleColumns.updatedAt },
-    { key: 'deactivate', label: 'Status', visible: visibleColumns.deactivate },
+    { key: 'status', label: 'Status', visible: visibleColumns.deactivate },
     { key: 'action', label: 'Action', visible: true },
+
+   
   ];
 
   return (
     <div className="container">
       <div className="row">
+      {loading && <div className="text-center mt-3">Loading categories...</div>}
+{error && <div className="text-danger text-center mt-3">{error}</div>}
+
       <div className="category-table pb-3">
         <h4
           className="py-2 pl-3 text-center p-4 mb-0"
@@ -162,31 +272,40 @@ const protectedProductIds = [1, 2];
           style={{ backgroundColor: '#FEC200', flexWrap: 'nowrap' }}
         >
           {/* From/To Date */}
-          <div className="d-flex align-items-center">
-            <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>
-              From:
-            </label>
-            <input
-              type="date"
-              className="form-control form-control-sm me-2"
-              style={{ height: '34px', width: '150px' }}
-            />
-            <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>
-              To:
-            </label>
-            <input
-              type="date"
-              className="form-control form-control-sm me-2"
-              style={{ height: '34px', width: '150px' }}
-            />
-            <button
-              className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
-              style={{ height: '34px', width: '34px' }}
-              title="Apply Filter"
-            >
-              <FaTelegramPlane size={14} />
-            </button>
-          </div>
+        {/* Date Filters */}
+            <div className="d-flex align-items-center">
+              <label className="text-white me-2 mb-0" style={{ fontWeight: "500" }}>
+                From:
+              </label>
+              <input
+                type="date"
+                className="form-control form-control-sm me-2"
+                style={{ height: "34px", width: "150px" }}
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+              />
+
+              <label className="text-white me-2 mb-0" style={{ fontWeight: "500" }}>
+                To:
+              </label>
+              <input
+                type="date"
+                className="form-control form-control-sm me-2"
+                style={{ height: "34px", width: "150px" }}
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+              />
+
+              <button
+                className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
+                style={{ height: "34px", width: "34px", padding: 0 }}
+                title="Apply Filter"
+                onClick={applyDateFilter}
+              >
+                <FaTelegramPlane size={14} />
+              </button>
+            </div>
+
 
           {/* Search Bar */}
           <div
@@ -220,10 +339,10 @@ const protectedProductIds = [1, 2];
             >
               <IoMdSettings size={16} />
             </button>
-            <button className="btn btn-light btn-sm me-2" title="Export PDF">
+            <button className="btn btn-light btn-sm me-2" title="Export PDF"  onClick={exportPDF}>
               <FaFilePdf size={16} />
             </button>
-            <button className="btn btn-light btn-sm me-2" title="Export Excel">
+            <button className="btn btn-light btn-sm me-2" title="Export Excel" onClick={exportCSV}>
               <FaFileExcel size={16} />
             </button>
             <button
@@ -262,7 +381,7 @@ const protectedProductIds = [1, 2];
         {/* Table */}
         <div
           className="user-align"
-          style={{ overflowX: 'auto', overflowY: 'hidden', maxHeight: '500px' }}
+          style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '500px' }}
         >
           <table
             className="table table-bordered table-striped"
@@ -461,7 +580,9 @@ const protectedProductIds = [1, 2];
                                   backgroundColor: 'white',
                                   position: 'absolute',
                                   top: '2px',
-                                  left: activeStatus[categories.id] ? '26px' : '2px',
+                               //   left: activeStatus[categories.id] ? '26px' : '2px',
+                                  left: activeStatus[cat.id] ? '26px' : '2px',
+
                                   transition: 'left 0.3s ease'
                                 }}
                               ></div>

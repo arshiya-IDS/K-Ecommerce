@@ -1,63 +1,202 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ProductCreate = () => {
-  // State declarations
+  // Product State
   const [product, setProduct] = useState({
     product_name: "",
     product_description: "",
     product_actual_price: "",
     product_discounted_price: "",
+    category_id: "",
     subcategory_id: "",
     product_type: "",
   });
 
+  // Dynamic Categories / Subcategories
+  
+
+  const [categories, setCategories] = useState([]);
+const [subcategories, setSubcategories] = useState([]);
 
 
+
+  // Image & Media States
   const [images, setImages] = useState([null, null, null, null]);
   const [previewImages, setPreviewImages] = useState(["", "", "", ""]);
   const [media, setMedia] = useState(null);
   const [mediaPreview, setMediaPreview] = useState("");
   const [primaryIndex, setPrimaryIndex] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Handle input changes for product
+  // Fetch Categories
+  useEffect(() => {
+    fetch("https://localhost:7013/api/Category")
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch(() => console.log("Failed to load categories"));
+  }, []);
+
+  // Fetch Subcategories when category changes
+  // useEffect(() => {
+  //   if (product.category_id) {
+  //     fetch(`https://localhost:7013/api/Category/sub/${product.category_id}`)
+  //       .then((res) => res.json())
+  //       .then((data) => setSubCategories(data))
+  //       .catch(() => console.log("Failed to load subcategories"));
+  //   }
+  // }, [product.category_id]);
+
+  const fetchSubcategories = async (categoryId) => {
+  try {
+    const res = await fetch(`https://localhost:7013/api/Category/sub/${categoryId}`);
+    const data = await res.json();
+    setSubcategories(data);
+  } catch (error) {
+    console.error("Failed to fetch subcategories", error);
+  }
+};
+
+
+  // Handle Input Change
   const handleChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+  // Submit Product
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
 
-    // Simulate submission
-    setTimeout(() => {
+  //   let formData = new FormData();
+  //   formData.append("Product_Name", product.product_name);
+  //   formData.append("Product_Description", product.product_description);
+  //   formData.append("Product_Actual_Price", product.product_actual_price);
+  //   formData.append("Product_Discounted_Price", product.product_discounted_price);
+  //   formData.append("Category_Id", product.category_id);
+  //   formData.append("SubCategory_Id", product.subcategory_id);
+  //   formData.append("Product_Type", product.product_type);
+  //   formData.append("PrimaryIndex", primaryIndex);
+
+  //   // Attach Images
+  //   images.forEach((img) => {
+  //     if (img) formData.append("Images", img);
+  //   });
+
+  //   // Attach Extra Media
+  //   if (media) {
+  //     formData.append("Media", media);
+  //   }
+
+  //   await fetch("https://localhost:7013/api/Product/create", {
+
+  //     method: "POST",
+  //     body: formData,
+  //   });
+
+  //   setLoading(false);
+  //   alert("Product created successfully!");
+  // };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Basic client-side validation (immediate)
+  if (!product.product_name.trim()) return alert("Product name is required");
+  if (!product.product_description.trim()) return alert("Product description is required");
+  if (!product.product_actual_price) return alert("Actual price is required");
+  if (!product.category_id) return alert("Please select a category");
+  if (!product.subcategory_id) return alert("Please select a subcategory");
+  if (!product.product_type) return alert("Please select product type");
+
+  
+  // Ensure numbers are proper
+  const actualPrice = Number(product.product_actual_price);
+  const discountedPrice = product.product_discounted_price ? Number(product.product_discounted_price) : null;
+  if (Number.isNaN(actualPrice) || actualPrice <= 0) return alert("Actual price must be a positive number");
+  if (discountedPrice !== null && (Number.isNaN(discountedPrice) || discountedPrice < 0)) return alert("Discounted price must be a valid number");
+
+  setLoading(true);
+
+  try {
+    const formData = new FormData();
+    formData.append("Product_Name", product.product_name);
+    formData.append("Product_Description", product.product_description);
+    // Use invariant string formatting for decimals
+    formData.append("Product_Actual_Price", actualPrice.toString());
+    formData.append("Product_Discounted_Price", discountedPrice !== null ? discountedPrice.toString() : "");
+    // API expects SubCategory_Id — make sure it is a number string
+    formData.append("SubCategory_Id", String(product.subcategory_id));
+    formData.append("Product_Type", product.product_type);
+
+    // PrimaryIndex: if null, send -1 (server should tolerate -1 or you can make it nullable)
+    const primary = primaryIndex === null || primaryIndex === undefined ? -1 : primaryIndex;
+    formData.append("PrimaryIndex", String(primary));
+
+    // Append images (multiple entries with the same name)
+    images.forEach((img) => {
+      if (img) formData.append("Images", img);
+    });
+
+    // Attach media if present
+    if (media) {
+      formData.append("Media", media);
+    }
+
+    const res = await fetch("https://localhost:7013/api/Product/create", {
+      method: "POST",
+      body: formData,
+    });
+
+    // IMPORTANT: check response before success
+    if (res.ok) {
+      const json = await res.json().catch(() => null);
       setLoading(false);
-      setMessage("✅ Product created successfully!");
-      console.log({
-        product,
-        images,
-        media,
-        primaryIndex,
-      });
-    }, 1500);
-  };
+      alert(json?.message ?? "Product created successfully!");
+      // optionally clear form here
+    } else {
+      // read error body (could be JSON or text)
+      let errText = "";
+      try {
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+          const errJson = await res.json();
+          // If server returned ModelState, it will be contained here — stringify it
+          errText = JSON.stringify(errJson);
+        } else {
+          errText = await res.text();
+        }
+      } catch (ex) {
+        errText = "Unknown server error";
+      }
+
+      setLoading(false);
+      console.error("Server returned 400", errText);
+      alert("Failed to create product: " + (errText || res.statusText));
+    }
+  } catch (networkErr) {
+    console.error("Network error", networkErr);
+    setLoading(false);
+    alert("Network error while creating product");
+  }
+};
+
 
   return (
     <div className="container my-5">
-      {/* Header Section */}
+      {/* Header */}
       <div
         className="text-center py-3 mb-4 rounded"
-        style={{ backgroundColor: "#FEC200", color: "black",  marginTop:'-40px', height: "50px" }}
+        style={{ backgroundColor: "#FEC200", color: "black", marginTop: "-40px", height: "50px" }}
       >
-        <h2 style={{ fontSize: "20px",marginTop:'-5px',fontWeight:'normal' }}>Add New Product</h2>
+        <h2 style={{ fontSize: "20px", marginTop: "-5px", fontWeight: "normal" }}>
+          Add New Product
+        </h2>
       </div>
 
-      {/* Card Section */}
-      <div className="card shadow-sm p-4"
-      style={{marginTop:"-18px"}}
-      >
+      {/* Card */}
+      <div className="card shadow-sm p-4" style={{ marginTop: "-18px" }}>
         <form onSubmit={handleSubmit}>
           {/* Product Name */}
           <div className="mb-3">
@@ -101,6 +240,7 @@ const ProductCreate = () => {
                 required
               />
             </div>
+
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Discounted Price (₹)</label>
               <input
@@ -114,37 +254,116 @@ const ProductCreate = () => {
             </div>
           </div>
 
-          {/* Subcategory & Product Type */}
+          {/* Category & Subcategory */}
           <div className="row">
-
+            {/* CATEGORY DROPDOWN */}
             <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Category </label>
-              <input
-                type="number"
+              <label className="form-label fw-semibold">Category</label>
+            
+              {/* <select
+                className="form-select"
+                name="Category_Id"
+                value={product.category_Id}
+                onChange={(e) => {
+                    handleChange(e);
+                    fetchSubcategories(e.target.value);
+                }}
+              >
+                        {Array.isArray(categories) && categories.map((cat) => (
+          <option key={cat.category_Id} value={cat.category_Id}>
+            {cat.category_Name}
+          </option>
+        ))}
+
+              
+              </select> */}
+
+              <select
+                className="form-select"
+                name="category_id"
+                value={product.category_id} 
+                onChange={(e) => {
+                  handleChange(e);
+                  fetchSubcategories(e.target.value);
+                }}
+              >
+                <option value="">Select Category</option>
+
+                {categories.map((cat) => (
+                  <option key={cat.category_Id} value={cat.category_Id}>
+                    {cat.category_Name}
+                  </option>
+                ))}
+              </select>
+
+            </div>
+
+            {/* SUBCATEGORY DROPDOWN */}
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Subcategory</label>
+              {/* <select
                 name="subcategory_id"
                 className="form-control"
-                placeholder="Enter category "
                 value={product.subcategory_id}
                 onChange={handleChange}
                 required
-              />
-            </div>
-            
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Subcategory </label>
-              <input
-                type="number"
+              >
+                <option value="">Select Subcategory</option>
+
+                {subCategories.map((sub) => (
+                  <option key={sub.subCategory_Id} value={sub.subCategory_Id}>
+                    {sub.subCategory_Name}
+                  </option>
+                ))}
+              </select> */}
+              {/* <select
+                className="form-select"
+                name="Sub_Category_Id"
+                value={product.Sub_Category_Id}
+                onChange={handleChange}
+              >
+                {Array.isArray(subcategories) && subcategories.map((sub) => (
+  <option key={sub.sub_Category_Id} value={sub.sub_Category_Id}>
+    {sub.sub_Category_Name}
+  </option>
+))}
+
+              </select> */}
+
+              {/* <select
+                className="form-select"
                 name="subcategory_id"
-                className="form-control"
-                placeholder="Enter subcategory "
                 value={product.subcategory_id}
                 onChange={handleChange}
-                required
-              />
+              >
+                <option value="">Select Subcategory</option>
+
+                {subcategories.map((sub) => (
+                  <option key={sub.sub_Category_Id} value={sub.sub_Category_Id}>
+                    {sub.sub_Category_Name}
+                  </option>
+                ))}
+              </select> */}
+
+              <select
+                className="form-select"
+                name="subcategory_id"
+                value={product.subcategory_id}
+                onChange={handleChange}
+              >
+                <option value="">Select Subcategory</option>
+
+                {subcategories.map((sub) => (
+                  <option key={sub.sub_category_Id} value={sub.sub_category_Id}>
+                    {sub.sub_category_Name}
+                  </option>
+                ))}
+              </select>
+
+
             </div>
 
-            
-
+            {/* PRODUCT TYPE */}
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Product Type</label>
               <select
@@ -162,14 +381,15 @@ const ProductCreate = () => {
             </div>
           </div>
 
-          {/* Image & Media Upload Section */}
+          {/* Image & Media Upload */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Upload Product Media</label>
             <p className="text-muted small mb-3">
-              Upload up to 4 images and 1 media file (image or video). Select one as the primary display.
+              Upload up to 4 images and 1 media file (image or video). Select one as the primary
+              display.
             </p>
 
-            {/* Individual Image Inputs */}
+            {/* Image Inputs */}
             <div className="row">
               {[1, 2, 3, 4].map((num) => (
                 <div key={num} className="col-md-6 mb-3">
@@ -195,7 +415,7 @@ const ProductCreate = () => {
               ))}
             </div>
 
-            {/* Media Upload (Image or Video) */}
+            {/* Media Upload */}
             <div className="mb-3">
               <label className="form-label fw-semibold">Additional Media (Image or Video)</label>
               <input
@@ -214,6 +434,7 @@ const ProductCreate = () => {
 
             {/* Preview Section */}
             <div className="d-flex flex-wrap mt-3 gap-3">
+              {/* Images */}
               {previewImages.map((src, index) => (
                 <div
                   key={index}
@@ -291,7 +512,7 @@ const ProductCreate = () => {
           </div>
         </form>
 
-        {/* Message Section */}
+        {/* Message */}
         {message && (
           <div
             className={`alert mt-4 ${
@@ -311,4 +532,3 @@ const ProductCreate = () => {
 };
 
 export default ProductCreate;
-
