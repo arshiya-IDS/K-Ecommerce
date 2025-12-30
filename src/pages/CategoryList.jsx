@@ -20,7 +20,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_CATEGORY = "https://localhost:7013/api/Category";
+const API_CATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/Category";
 
 
 
@@ -123,7 +123,7 @@ const formatDate = (dateStr) => {
     setError(null);
 
     const response = await axios.get(
-      'https://localhost:7013/api/Category'
+      'http://ecommerce-admin-backend.i-diligence.com/api/Category'
     );
 
     // Map API response to UI-friendly format

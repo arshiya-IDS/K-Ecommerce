@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 
-const API_BASE = "https://localhost:7013/api/ProductDiscount";
+const API_BASE = "http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount";
 
 const ProductDetails = () => {
   const { id } = useParams();
