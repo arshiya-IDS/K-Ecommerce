@@ -29,14 +29,7 @@ const Dashboard = () => {
       iconBackgroundColor: '#cf9c5a',
       link: '/misreport'
     },
-    {
-      id: 'Enquiry Dashboard',
-      title: 'Enquiry Dashboard',
-      description: 'Enquiry Management',
-      backgroundColor: '#e19187',
-      iconBackgroundColor: '#e85d4c',
-      link: '/enquiry-dashboard'
-    },
+   
   ];
 
   return (

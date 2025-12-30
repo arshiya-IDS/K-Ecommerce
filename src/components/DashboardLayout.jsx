@@ -100,7 +100,7 @@ const DashboardLayout = () => {
               </Link>
               
 
-              <Link className="logout-item" to="/product-discount-list">
+              {/* <Link className="logout-item" to="/product-discount-list">
                 <div className={`logout ${isActiveLink('/product-discount-list') ? 'active' : ''}`}>
                   <span>Product Discount List</span>
                 </div>
@@ -109,7 +109,7 @@ const DashboardLayout = () => {
                 <div className={`logout ${isActiveLink('/product-discount') ? 'active' : ''}`}>
                   <span>Products Discount Add</span>
                 </div>
-              </Link>
+              </Link> */}
              
             </div>
           )}
@@ -324,7 +324,7 @@ const DashboardLayout = () => {
               <img src="/images/bars.svg" alt="Toggle Sidebar" width="20" height="20" />
             </button>
             <h2 className="admin-title" style={{ marginTop: '20px', marginBottom: '20px',color:'black' }}>
-              Welcome to K-ECommerce Admin Dashboard
+              Welcome to Kaushlya Miniatures eCommerce Admin Dashboard
             </h2>
             <div className="collapse navbar-collapse" id="navbarSupportedContent">
               <ul className="navbar-nav ms-auto mt-2 mt-lg-0">

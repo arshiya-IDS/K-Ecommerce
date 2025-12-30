@@ -3,7 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 
-const API_BASE = "https://localhost:7013/api/ProductDiscount";
+const API_BASE = "https://localhost:7013/api/Product";
+
+
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -67,7 +69,7 @@ const ProductDetails = () => {
     if (primaryImageId) formData.append("PrimaryImageId", primaryImageId);
 
     try {
-      await axios.put(`${API_BASE}/edit-discount/${id}`, formData, {
+      await axios.put(`${API_BASE}/update/${id}`, formData, {
 
         headers: { "Content-Type": "multipart/form-data" }
       });

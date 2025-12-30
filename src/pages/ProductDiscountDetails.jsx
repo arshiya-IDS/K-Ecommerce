@@ -23,6 +23,7 @@ const ProductDiscountDetails = () => {
     try {
       const res = await axios.get(
         `https://localhost:7013/api/ProductDiscount/details/${id}`
+
       );
       const d = res.data.data;
 
@@ -127,6 +128,7 @@ const ProductDiscountDetails = () => {
       // change the URL to `/edit-discount/${editProductId}` instead.
       const url = `https://localhost:7013/api/ProductDiscount/edit-discount/${id}`;
 
+
       const payload = {
         // keys used previously in your examples
         productActualPrice: actualNum,
@@ -200,7 +202,7 @@ const ProductDiscountDetails = () => {
 
       {/* Card */}
       <div
-        className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
+        className={`card shadow-sm p-4 ${isDeactivated ? "" : ""}`}
         style={{ marginTop: "6px" }}
       >
         <div className="row">
@@ -306,10 +308,12 @@ const ProductDiscountDetails = () => {
             type="button"
             onClick={handleEditToggle}
             className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-            disabled={isDeactivated}
           >
             {isEditable ? "Submit" : "Edit"}
           </button>
+
+        
+
         </div>
 
         {/* Message */}
