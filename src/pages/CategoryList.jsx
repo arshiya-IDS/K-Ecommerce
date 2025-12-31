@@ -24,6 +24,8 @@ const API_CATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/Categor
 
 
 
+
+
 const CategoryList = () => {
   const navigate = useNavigate();
 
@@ -133,6 +135,7 @@ const formatDate = (dateStr) => {
       subCategory: item.category_Description, // using description as sub category
       createdAt: item.catgrs_CrtdAt, // API does not provide these
       updatedAt: item.catgrs_UpdtdAt,
+       isActive: item.category_Is_Active
     }));
 
     setCategories(mappedData);
@@ -170,23 +173,33 @@ useEffect(() => {
 // };
 
  const handleSubmitStatus = async () => {
-    if (!selectedUser) return;
-    // optionally ensure protected ids logic
-    if (!protectedProductIds.includes(selectedUser.id)) {
-      // proceed normally
+  if (!selectedUser) return;
+
+  try {
+    const result = await toggleStatusApi(selectedUser.id);
+
+    if (result?.success) {
+      //  update toggle state instantly
+      setActiveStatus((prev) => ({
+        ...prev,
+        [result.id]: result.active,
+      }));
+
+      toast.success(
+        result.active ? "Category activated" : "Category deactivated"
+      );
+    } else {
+      toast.error("Status update failed");
     }
-    try {
-      const result = await toggleStatusApi(selectedUser.id);
-      toast.success(result?.message ?? "Status updated");
-      // refresh
-      await fetchDiscounts();
-    } catch (err) {
-      toast.error("Failed to update status");
-    }
-    setShowConfirm(false);
-    setSelectedUser(null);
-    setStatusChoice(null);
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update status");
+  }
+
+  setShowConfirm(false);
+  setSelectedUser(null);
+  setStatusChoice(null);
+};
 
   const filteredCategories = useMemo(() => {
     if (!searchTerm) return categories;

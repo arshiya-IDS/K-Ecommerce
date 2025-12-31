@@ -67,7 +67,7 @@ const ProductDetails = () => {
     if (primaryImageId) formData.append("PrimaryImageId", primaryImageId);
 
     try {
-      await axios.put(`${API_BASE}/edit-discount/${id}`, formData, {
+      await axios.put(`${API_BASE}/update/${id}`, formData, {
 
         headers: { "Content-Type": "multipart/form-data" }
       });
