@@ -1,45 +1,126 @@
 import React, { useState } from "react";
 import { FaEdit, FaBan } from "react-icons/fa";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { useEffect } from "react";
 
 const UserDiscountDetails = () => {
   // Hardcoded user discount details
-  const [discount, setDiscount] = useState({
-    user_discount_id: 101,
-    user_name: "John Doe",
-    userDiscountName: "Loyalty Bonus",
-    userDiscountType: "percentage",
-    userDiscountValue: "10",
-    userDiscountStartDate: "2025-10-10",
-    userDiscountEndDate: "2025-11-10",
-    userDiscountIsActive: "Active",
-  });
+  const { id } = useParams(); // userId
 
-  const [searchTerm, setSearchTerm,users] = useState('');
+
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
   const [message, setMessage] = useState("");
 
+
   // Handle input change during edit
+ 
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setDiscount({ ...discount, [name]: value });
-  };
+  const { name, value } = e.target;
+  setDiscount((prev) => ({ ...prev, [name]: value }));
+};
+
+ // const [discount, setDiscount] = useState({
+ 
+
+const [discount, setDiscount] = useState({
+  user_discount_id: "",
+  user_id: "",
+  user_discount_name: "",
+  user_discount_type: "",
+  user_discount_value: "",
+  user_discount_start_date: "",
+  user_discount_end_date: "",
+  user_discount_is_active: false,
+});
+
 
   const handleSearch = (e) => {
       e.preventDefault();
       // Search is handled by the useMemo hook
     };
   // Toggle edit mode
-  const handleEditToggle = () => {
-    setIsEditable(!isEditable);
-    setMessage(isEditable ? "✏️ Edit mode disabled." : "✏️ Edit mode enabled.");
+ const handleEditToggle = async () => {
+  if (!isEditable) {
+    setIsEditable(true);
+    setMessage("✏️ Edit mode enabled");
+    return;
+  }
+
+  if (!discount.user_discount_id) {
+    setMessage("❌ Discount ID missing");
+    return;
+  }
+
+  try {
+    const payload = {
+      UserDiscountID: discount.user_discount_id,
+      DiscountName: discount.user_discount_name,
+      DiscountType: discount.user_discount_type,
+      DiscountValue: discount.user_discount_value,
+      StartDate: discount.user_discount_start_date,
+      EndDate: discount.user_discount_end_date,
+      IsActive: discount.user_discount_is_active,
+    };
+
+    await axios.put(
+      `https://localhost:7013/api/UserDiscount/${discount.user_discount_id}`,
+      payload,
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    setIsEditable(false);
+    setMessage("✅ User Discount updated successfully!");
+  } catch (error) {
+    console.error("Update failed", error);
+    setMessage("❌ Failed to update User Discount Details");
+  }
+};
+
+
+
+
+useEffect(() => {
+  if (!id) return;
+
+  const fetchUserDiscount = async () => {
+    try {
+      const res = await axios.get(
+        `https://localhost:7013/api/UserDiscount/${id}`
+      );
+
+      const d = res.data;
+
+      setDiscount({
+        user_discount_id: d.user_discount_id,
+        user_id: d.user_id,
+        user_discount_name: d.user_discount_name,
+        user_discount_type: d.user_discount_type,
+        user_discount_value: d.user_discount_value,
+        user_discount_start_date: d.user_discount_start_date?.split("T")[0],
+        user_discount_end_date: d.user_discount_end_date?.split("T")[0],
+        user_discount_is_active: d.user_discount_is_active,
+      });
+    } catch (err) {
+      console.error("Discount fetch error", err);
+      setMessage("❌ Failed to load user discount details");
+    }
   };
+
+  fetchUserDiscount();
+}, [id]);
+
+
 
   // Deactivate discount
   const handleDeactivate = () => {
     setIsDeactivated(true);
     setIsEditable(false);
     setDiscount({ ...discount, userDiscountIsActive: "Inactive" });
+
     setMessage("⚠️ This user discount has been deactivated successfully!");
   };
 
@@ -102,42 +183,33 @@ const UserDiscountDetails = () => {
       >
 
         <div className="row">
-          {[
-            ["user_discount_id", "Discount ID"],
-            ["user_name", "User Name"],
-            ["userDiscountName", "Discount Name"],
-            ["userDiscountType", "Discount Type"],
-            ["userDiscountValue", "Discount Value"],
-            ["userDiscountStartDate", "Start Date"],
-            ["userDiscountEndDate", "End Date"],
-            ["userDiscountIsActive", "Status"],
-          ].map(([key, label]) => (
-            <div className="col-md-6 mb-3" key={key}>
-              <label className="form-label fw-semibold">{label}</label>
-              <input
-                type="text"
-                name={key}
-                className="form-control"
-                 style={{
-                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
-                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
-                        borderRadius: "8px",
-                        padding: "10px",
-                        color: "#212529",
-                        transition: "all 0.3s ease"
-                      }}
-                value={
-                  key === "userDiscountValue"
-                    ? discount.userDiscountType === "percentage"
-                      ? `${discount[key]} %`
-                      : `$ ${discount[key]}`
-                    : discount[key]
-                }
-                onChange={handleChange}
-                readOnly={!isEditable || isDeactivated}
-              />
-            </div>
-          ))}
+                    {[
+              ["user_discount_id", "Discount ID"],
+              ["user_id", "User ID"],
+              ["user_discount_name", "Discount Name"],
+              ["user_discount_type", "Discount Type"],
+              ["user_discount_value", "Discount Value"],
+              ["user_discount_start_date", "Start Date"],
+              ["user_discount_end_date", "End Date"],
+              ["user_discount_is_active", "Status"],
+            ].map(([key, label]) => (
+              <div className="col-md-6 mb-3" key={key}>
+                <label className="form-label fw-semibold">{label}</label>
+                <input
+                  type="text"
+                  name={key}
+                  className="form-control"
+                  value={
+                    key === "user_discount_is_active"
+                      ? discount[key] ? "Active" : "Inactive"
+                      : discount[key] ?? ""
+                  }
+                  onChange={handleChange}
+                  readOnly={!isEditable || isDeactivated}
+                />
+              </div>
+            ))}
+
         </div>
 
         <hr />

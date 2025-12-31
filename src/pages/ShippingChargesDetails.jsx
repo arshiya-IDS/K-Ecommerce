@@ -1,21 +1,23 @@
 import React, { useState } from "react";
 import { FaEdit, FaBan } from "react-icons/fa";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+
 
 const ShippingChargesDetails = () => {
+
+  const { id } = useParams(); // shipping_id
+
   // Hardcoded shipping charge details
-  const [shippingCharge, setShippingCharge] = useState({
-    charge_id: 1,
-    charge_name: "Standard Shipping",
-    charge_type: "Fixed", // Fixed or Percentage
-    charge_value: "50",
-    min_purchase_amount: "500",
-    estimated_days: "5",
-    is_active: "Active",
-  });
-  const [searchTerm, setSearchTerm,users] = useState('');
+ 
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
   const [message, setMessage] = useState("");
+
+  const [shippingCharge, setShippingCharge] = useState(null);
+
 
   // Handle field change
   const handleChange = (e) => {
@@ -28,10 +30,64 @@ const ShippingChargesDetails = () => {
       // Search is handled by the useMemo hook
     };
   // Toggle Edit Mode
-  const handleEditToggle = () => {
-    setIsEditable(!isEditable);
-    setMessage(isEditable ? "✏️ Edit mode disabled." : "✏️ Edit mode enabled.");
-  };
+ const handleEditToggle = async () => {
+  // If already editable → SUBMIT
+  if (isEditable) {
+    try {
+      const payload = {
+        chargeName: shippingCharge.charge_name,
+        chargeType: shippingCharge.charge_type,
+        chargeValue: Number(shippingCharge.charge_value),
+        chargeEstimatedDays: Number(shippingCharge.estimated_days),
+        shippingChargesIsActive: shippingCharge.is_active === "Active",
+        minAmount: Number(shippingCharge.min_purchase_amount),
+        maxAmount: Number(shippingCharge.max_purchase_amount),
+      };
+
+      await axios.put(
+        `https://localhost:7013/api/ShippingCharges/edit-User/${id}`,
+        payload
+      );
+
+      setMessage("✅ Shipping charge updated successfully!");
+      setIsEditable(false);
+    } catch (err) {
+      console.error("Edit error", err);
+      setMessage("❌ Failed to update shipping charge");
+    }
+  } 
+  // Enable edit mode
+  else {
+    setIsEditable(true);
+    setMessage("✏️ Edit mode enabled.");
+  }
+};
+
+  useEffect(() => {
+  if (!id) return;
+
+  axios
+    .get(`https://localhost:7013/api/ShippingCharges/details/${id}`)
+    .then((res) => {
+      const d = res.data;
+
+      setShippingCharge({
+        charge_id: d.shipping_id,
+        charge_name: d.charge_name,
+        charge_type: d.charge_type,
+        charge_value: d.charge_value,
+        min_purchase_amount: d.min_amount,
+        max_purchase_amount: d.max_amount,
+        estimated_days: d.charge_estimated_days,
+        is_active: d.shipping_Charges_is_active ? "Active" : "Inactive",
+      });
+    })
+    .catch((err) => {
+      console.error("Shipping charge fetch error", err);
+      setMessage("❌ Failed to load shipping charge details");
+    });
+}, [id]);
+
 
   // Deactivate Record
   const handleDeactivate = () => {
@@ -40,6 +96,16 @@ const ShippingChargesDetails = () => {
     setShippingCharge({ ...shippingCharge, is_active: "Inactive" });
     setMessage("⚠️ This shipping charge rule has been deactivated successfully!");
   };
+
+  if (!shippingCharge) {
+  return (
+    <div className="container my-5 text-center">
+      <div className="spinner-border text-warning" role="status" />
+      <p className="mt-2">Loading shipping charge details...</p>
+    </div>
+  );
+}
+
 
   return (
     <div className="container my-5">
@@ -105,6 +171,8 @@ const ShippingChargesDetails = () => {
             ["charge_type", "Charge Type"],
             ["charge_value", "Charge Value"],
             ["min_purchase_amount", "Minimum Purchase Amount ($)"],
+            ["max_purchase_amount", "Maximum Purchase Amount ($)"],
+
             ["estimated_days", "Estimated Delivery Days"],
             ["is_active", "Status"],
           ].map(([key, label]) => (
@@ -122,7 +190,12 @@ const ShippingChargesDetails = () => {
                         color: "#212529",
                         transition: "all 0.3s ease"
                       }}
-                value={shippingCharge[key]}
+                value={
+                  key === "is_active"
+                    ? shippingCharge.is_active
+                    : shippingCharge[key] ?? ""
+                }
+
                 onChange={handleChange}
                 readOnly={!isEditable || isDeactivated}
               />
@@ -145,7 +218,8 @@ const ShippingChargesDetails = () => {
                         transition: "all 0.3s ease"
                       }}
             rows="3"
-            value={`This rule applies to orders above $${shippingCharge.min_purchase_amount}. Estimated delivery time is ${shippingCharge.estimated_days} days.`}
+            value={`This rule applies to orders between ₹${shippingCharge.min_purchase_amount} and ₹${shippingCharge.max_purchase_amount}. Estimated delivery time is ${shippingCharge.estimated_days} days.`}
+
             readOnly
           ></textarea>
           <small className="text-muted">

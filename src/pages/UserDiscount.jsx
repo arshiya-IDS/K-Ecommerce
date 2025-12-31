@@ -12,10 +12,14 @@ const UserDiscount = () => {
   const [discountEndDate, setDiscountEndDate] = useState("");
   const [isActive, setIsActive] = useState(true);
 
-  // Fetch users on mount
+  
   useEffect(() => {
-    axios.get("/api/users").then((res) => setUsers(res.data));
-  }, []);
+  axios
+    .get("https://localhost:7013/api/users")
+    .then((res) => setUsers(res.data))
+    .catch(err => console.error("Users API error", err));
+}, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,18 +28,24 @@ const UserDiscount = () => {
       return;
     }
 
+    
+
     const payload = {
-      userDiscountName: discountName,
-      userDiscountType: discountType,
-      userDiscountValue: parseFloat(discountValue),
-      userDiscountStartDate: discountStartDate,
-      userDiscountEndDate: discountEndDate,
-      userDiscountIsActive: isActive,
-      userId: selectedUser,
-    };
+  discountName: discountName,
+  discountType: discountType,
+  discountValue: Number(discountValue),
+  startDate: new Date(discountStartDate).toISOString(),
+  endDate: new Date(discountEndDate).toISOString(),
+  isActive: isActive,
+  userName: selectedUser
+};
 
     try {
-      await axios.post("/api/user-discounts", payload);
+      await axios.post(
+  "https://localhost:7013/api/UserDiscount",
+  payload
+);
+
       alert("User discount applied successfully!");
       // Reset form
       setDiscountName("");
@@ -92,11 +102,12 @@ const UserDiscount = () => {
               required
             >
               <option value="">Select User</option>
-              {users.map((user) => (
-                <option key={user.user_id} value={user.user_id}>
-                  {user.user_name} - Total Purchases: ${user.annual_purchase || 0}
-                </option>
-              ))}
+             {users.map((user) => (
+            <option key={user.userId} value={user.userName}>
+              {user.userName}
+            </option>
+          ))}
+
             </select>
           </div>
 
@@ -108,8 +119,11 @@ const UserDiscount = () => {
               value={discountType}
               onChange={(e) => setDiscountType(e.target.value)}
             >
-              <option value="percentage">Percentage (%)</option>
-              <option value="fixed">Fixed Amount ($)</option>
+             
+
+                        <option value="percentage">Percentage</option>
+          <option value="fixed">Fixed</option>
+
             </select>
           </div>
 
