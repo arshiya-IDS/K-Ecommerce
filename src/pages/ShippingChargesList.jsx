@@ -1,4 +1,3 @@
-import React, { useState, useMemo } from 'react';
 import {
   FaEdit,
   FaEye,
@@ -19,6 +18,11 @@ import { MdContentCopy, MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-
 import checkIcon from "../assets/check.png";
 import { useNavigate } from 'react-router-dom';
 
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
+
+const API_PRODUCT = "https://localhost:7013/api/ShippingCharges";
+
 const ShippingChargesList = () => {
   const navigate = useNavigate();
 
@@ -33,30 +37,16 @@ const ShippingChargesList = () => {
   };
 
   // ✅ Sample Data
-  const [users] = useState([
-    {
-      shipping_id: 'SHP001',
-      name: 'Full Shipping',
-      email: 'Flat',
-      phoneNumber: '100',
-      createdAt: '4',
-      formAttime: '02-10-2025',
-    },
-    {
-      shipping_id: 'SHP002',
-      name: 'Fast Shipping',
-      email: 'Per Item',
-      phoneNumber: '200',
-      createdAt: '2',
-      formAttime: '02-10-2025',
-    }
-  ]);
-
+ 
   const [activeStatus, setActiveStatus] = useState({});
 const [showConfirm, setShowConfirm] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
 const [statusChoice, setStatusChoice] = useState(null);
 const protectedProductIds = [1, 2];
+
+const [users, setUsers] = useState([]);
+const [loading, setLoading] = useState(true);
+
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -77,31 +67,82 @@ const protectedProductIds = [1, 2];
   setShowConfirm(true);
 };
 
-const handleSubmitStatus = () => {
-  if (selectedUser && statusChoice) {
+useEffect(() => {
+  const fetchShippingCharges = async () => {
+    try {
+      const res = await axios.get(
+        "https://localhost:7013/api/ShippingCharges/list"
+      );
+
+      const mappedData = res.data.map(item => ({
+        shipping_id: item.shipping_id,
+        name: item.charge_name,
+        email: item.charge_type,
+        phoneNumber: item.charge_value,
+        createdAt: item.charge_estimated_days,
+        formAttime: item.shppng_chrgs_mstr_CrtdAt
+          ? new Date(item.shppng_chrgs_mstr_CrtdAt).toLocaleDateString()
+          : "-",
+        isActive: item.shipping_Charges_is_active
+      }));
+
+      setUsers(mappedData);
+
+      const statusMap = {};
+mappedData.forEach(item => {
+  statusMap[item.shipping_id] = item.isActive;
+});
+setActiveStatus(statusMap);
+
+    } catch (error) {
+      console.error("Failed to load shipping charges", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchShippingCharges();
+}, []);
+
+const exportCSV = () => {
+    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
+  };
+  const exportPDF = () => {
+    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
+  };
+
+const handleSubmitStatus = async () => {
+  if (!selectedUser) return;
+
+  try {
+    await axios.put(
+      `https://localhost:7013/api/ShippingCharges/toggle-status/${selectedUser.shipping_id}`
+    );
+
+    // ✅ Update UI instantly after success
     setActiveStatus((prev) => ({
       ...prev,
-      [selectedUser.shipping_id]: statusChoice === 'activate',
+      [selectedUser.shipping_id]: !prev[selectedUser.shipping_id],
     }));
+
+  } catch (error) {
+    console.error("Status toggle failed", error);
+    alert("❌ Failed to change shipping charge status");
+  } finally {
+    setShowConfirm(false);
+    setSelectedUser(null);
+    setStatusChoice(null);
   }
-  setShowConfirm(false);
-  setSelectedUser(null);
-  setStatusChoice(null);
 };
 
 
-  // View Handler
-  const handleView = (product) => {
-    const productData = { ...product, description: "Sample product description" };
-    const productHistory = [
-      { srNo: 1, date: "21/10/2025", action: "Created", by: "Admin" },
-      { srNo: 2, date: "22/10/2025", action: "Updated", by: "Admin" }
-    ];
 
-    navigate(`/shipping-charges-details`, {
-      state: { productData, productHistory, mode: 'view' }
-    });
-  };
+  // View Handler
+ 
+const handleView = (row) => {
+  // Navigate to dynamic route with product ID
+  navigate(`/shipping-charges-detail/${row.shipping_id}`);
+};
 
   // Filter and sort
   const filteredUsers = useMemo(() => {
@@ -259,11 +300,11 @@ const handleSubmitStatus = () => {
                 <IoMdSettings size={16} />
               </button>
               <button className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
-                style={{ height: '34px', width: '34px' }} title="Export to PDF">
+                style={{ height: '34px', width: '34px' }} title="Export to PDF" onClick={exportPDF}>
                 <FaFilePdf size={16} />
               </button>
               <button className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
-                style={{ height: '34px', width: '34px' }} title="Export to Excel">
+                style={{ height: '34px', width: '34px' }} title="Export to Excel"  onClick={exportCSV}>
                 <FaFileExcel size={16} />
               </button>
               <button className="btn btn-light btn-sm d-flex align-items-center justify-content-center"

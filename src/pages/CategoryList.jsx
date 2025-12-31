@@ -103,6 +103,8 @@ const formatDate = (dateStr) => {
       }
     };
 
+   
+
   const handleView = (category) => {
     navigate(`/categories/${category.id}`, {
       state: { category, mode: 'view' },
@@ -172,34 +174,46 @@ useEffect(() => {
 //   setStatusChoice(null);
 // };
 
- const handleSubmitStatus = async () => {
+const handleToggleClick = (row) => {
+  setSelectedUser(row);
+  setShowConfirm(true);
+  // Removed statusChoice — we just toggle
+};
+
+// Updated: Simple toggle confirmation
+const handleSubmitStatus = async () => {
   if (!selectedUser) return;
 
   try {
-    const result = await toggleStatusApi(selectedUser.id);
+    // Correct PATCH request with proper headers
+    await axios.patch(
+      `${API_CATEGORY}/${selectedUser.id}/status`,
+      {}, // Empty body (since backend doesn't expect one)
+      {
+        headers: {
+          'Accept': '*/*',
+          'Content-Type': 'application/json', // Good practice
+        },
+      }
+    );
 
-    if (result?.success) {
-      //  update toggle state instantly
-      setActiveStatus((prev) => ({
-        ...prev,
-        [result.id]: result.active,
-      }));
+    toast.success("Category status toggled successfully");
+    await fetchCategories(); // Refresh list
 
-      toast.success(
-        result.active ? "Category activated" : "Category deactivated"
-      );
-    } else {
-      toast.error("Status update failed");
-    }
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update status");
+  } catch (error) {
+    console.error("Failed to toggle status", error);
+    toast.error(
+      error.response?.data?.message || 
+      "Failed to update category status. Check console for details."
+    );
+  } finally {
+    setShowConfirm(false);
+    setSelectedUser(null);
   }
-
-  setShowConfirm(false);
-  setSelectedUser(null);
-  setStatusChoice(null);
 };
+
+
+
 
   const filteredCategories = useMemo(() => {
     if (!searchTerm) return categories;
@@ -242,11 +256,7 @@ useEffect(() => {
     setVisibleColumns((prev) => ({ ...prev, [column]: !prev[column] }));
   };
 
-   const handleToggleClick = (row) => {
-    setSelectedUser(row);
-    setStatusChoice(null);
-    setShowConfirm(true);
-  };
+   
   const columnHeaders = [
     { key: 'id', label: 'Category ID', visible: visibleColumns.id }, // ✅ Added ID header
     { key: 'categoryName', label: 'Category Name', visible: visibleColumns.categoryName },
@@ -685,7 +695,7 @@ useEffect(() => {
         </div>
 
 
-        {showConfirm && (
+      {showConfirm && (
   <div
     style={{
       position: 'fixed',
@@ -697,91 +707,47 @@ useEffect(() => {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: 9999
+      zIndex: 9999,
     }}
   >
     <div
       style={{
         backgroundColor: 'white',
-        padding: '25px 30px',
+        padding: '30px',
         borderRadius: '10px',
         textAlign: 'center',
-        boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
-        width: '570px', // ⬅️ Matches popup size from your image
-        maxWidth: '100%',
-        height:'200px'
+        boxShadow: '0px 4px 15px rgba(0,0,0,0.3)',
+        width: '400px',
+        maxWidth: '90%',
       }}
     >
-      {/* ✅ Updated Title */}
-      <h5 className="mb-3" style={{ fontWeight: '600', textAlign: 'left' }}>
-        Are you sure to change the status?
+      <h5 className="mb-4" style={{ fontWeight: '600' }}>
+        Toggle Status Confirmation
       </h5>
+      <p className="mb-4">
+        Are you sure you want to{' '}
+        <strong>
+          {activeStatus[selectedUser?.id] ? 'deactivate' : 'activate'}
+        </strong>{' '}
+        the category "<strong>{selectedUser?.categoryName}</strong>"?
+      </p>
 
-      {/* ✅ Side-by-side checkboxes */}
-      <div
-        className="d-flex justify-content-left mb-4"
-        style={{ gap: '30px' ,textDecoration:'none'}}
-      >
-        <div className="form-check"
-                           style={{ fontSize:'17px' }}
-
-        
-        >
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="activateCheck"
-            checked={statusChoice === 'activate'}
-            onChange={() => setStatusChoice('activate')}
-          />
-          <label className="form-check-label ms-1" htmlFor="activateCheck"
-           style={{ textDecoration: 'none', cursor: 'pointer',fontSize:'17px' }}
-          >
-            Activate
-          </label>
-        </div>
-
-        <div className="form-check"
-                   style={{ fontSize:'17px' }}
-
-        >
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="deactivateCheck"
-            checked={statusChoice === 'deactivate'}
-            onChange={() => setStatusChoice('deactivate')}
-          />
-          <label className="form-check-label ms-1" htmlFor="deactivateCheck"
-           style={{ textDecoration: 'none', cursor: 'pointer', fontSize:'17px' }}
-          >
-            Deactivate
-          </label>
-        </div>
-      </div>
-
-      {/* ✅ Buttons styled like your uploaded popup */}
-      <div className="d-flex justify-content-end gap-2 mt-2">
+      <div className="d-flex justify-content-center gap-3">
         <button
-          className="btn btn-outline-secondary"
-          style={{
-            minWidth: '90px',
-            borderRadius: '6px'
+          className="btn btn-outline-secondary px-4"
+          onClick={() => {
+            setShowConfirm(false);
+            setSelectedUser(null);
           }}
-          onClick={() => setShowConfirm(false)}
         >
           Cancel
         </button>
         <button
-          className="btn btn-danger"
-          style={{
-            minWidth: '90px',
-            borderRadius: '6px'
-          }}
+          className="btn btn-primary px-4"
+          style={{ backgroundColor: '#FEC200', border: 'none' }}
           onClick={handleSubmitStatus}
-          disabled={!statusChoice}
         >
-          Submit
+          Confirm
         </button>
       </div>
     </div>

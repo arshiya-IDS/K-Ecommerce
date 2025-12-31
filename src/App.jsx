@@ -67,8 +67,10 @@ function App() {
           <Route path="/notification-list" element={<NotificationTemplateList/>}/>
           <Route path="/order-details" element={<OrderDetails/>}/>
           <Route path="/product-discount-details/:id" element={<ProductDiscountDetails/>}/>
-          <Route path="/user-discount-details" element={<UserDiscountDetails/>}/>
-          <Route path="/shipping-charges-details" element={<ShippingChargesDetails/>}/>
+          <Route path="/user-discount-detail/:id"element={<UserDiscountDetails/>}/>
+
+          <Route path="/shipping-charges-detail/:id" element={<ShippingChargesDetails/>}/>
+
           <Route path="/categories/:categoryId" element={<CategoryDetails/>}/>
 
 

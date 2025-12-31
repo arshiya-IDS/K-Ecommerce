@@ -8,6 +8,10 @@ import checkIcon from "../assets/check.png";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { useEffect } from "react";
+
+const API_PRODUCT = "https://localhost:7013/api/UserDiscount";
 
 
 const UserDiscountList = () => {
@@ -28,29 +32,9 @@ const UserDiscountList = () => {
         }, 2000);
       });
     };
-  const [users] = useState([
-    {
-      id: 1,
-      name: 'Annual Discount',
-      email: 'Percentage',
-      phoneNumber: '5000',
-      createdAt: '14-08-2025',
-      EndDate: '14-08-2026',
-      formAttime:'02-10-2025',
+ const [users, setUsers] = useState([]);
+const [loading, setLoading] = useState(true);
 
-    },
-
-    {
-      id: 2,
-      name: 'Quarterly Discount',
-      email: 'Free Shipping',
-      phoneNumber: '500',
-      createdAt: '20-10-2025',
-      EndDate: '20-02-2026',
-      formAttime:'02-10-2025',
-
-    }
-  ]);
   
   const [activeStatus, setActiveStatus] = useState({});
 const [showConfirm, setShowConfirm] = useState(false);
@@ -78,30 +62,95 @@ const protectedProductIds = [1, 2];
   setShowConfirm(true);
 };
 
-const handleSubmitStatus = () => {
-  if (selectedUser && statusChoice && protectedProductIds.includes(selectedUser.id)) {
-    setActiveStatus((prev) => ({
-      ...prev,
-      [selectedUser.id]: statusChoice === 'activate',
-    }));
+ 
+
+
+
+const fetchUserDiscounts = async () => {
+  try {
+     const res = await axios.get(
+        "https://localhost:7013/api/UserDiscount",
+       
+      );
+
+   
+
+    const mappedData = res.data.map(item => ({
+        id: item.discountId,
+        name: item.discountName,
+        email: item.discountType,
+        phoneNumber: item.discountValue,
+        createdAt: formatDate(item.startDate),
+        EndDate: formatDate(item.endDate),
+        formAttime: formatDate(item.createdAt),
+        isActive: item.isActive
+      }));
+    setUsers(mappedData);
+
+    const statusMap = {};
+    mappedData.forEach(d => {
+      statusMap[d.id] = d.isActive;
+    });
+    setActiveStatus(statusMap);
+
+  } catch (err) {
+    console.error("User Discount API error:", err);
+  } finally {
+    setLoading(false);
   }
-  setShowConfirm(false);
-  setSelectedUser(null);
-  setStatusChoice(null);
 };
 
-  //  Handle View Product
-  const handleView = (product) => {
-    const productData = { ...product, description: "Sample product description" };
-    const productHistory = [
-      { srNo: 1, date: "21/10/2025", action: "Created", by: "Admin" },
-      { srNo: 2, date: "22/10/2025", action: "Updated", by: "Admin" }
-    ];
+useEffect(() => {
+  fetchUserDiscounts();
+}, []);
 
-    navigate(`/user-discount-details`, {
-      state: { productData, productHistory, mode: 'view' }
-    });
+
+
+const handleSubmitStatus = async () => {
+    // If it's a protected ID in design B, update local activeStatus only (keeps previous logic)
+    if (selectedUser && statusChoice.includes(selectedUser.id)) {
+      setActiveStatus((prev) => ({ ...prev, [selectedUser.id]: statusChoice === "activate" }));
+      setShowConfirm(false);
+      setSelectedUser(null);
+      setStatusChoice(null);
+      return;
+    }
+
+    // If not protected, call backend
+    if (selectedUser && statusChoice) {
+      const shouldBeActive = statusChoice === "activate";
+      try {
+        await axios.patch(`${API_PRODUCT}/${selectedUser.id}/toggle-status`, null, { params: { active: shouldBeActive } });
+        fetchUserDiscounts();
+      } catch (err) {
+        console.error("Status change failed:", err);
+        alert("Failed to update status");
+      }
+    }
+
+    setShowConfirm(false);
+    setSelectedUser(null);
+    setStatusChoice(null);
   };
+const formatDate = (dateStr) => {
+  if (!dateStr) return "-";
+  return new Date(dateStr).toLocaleDateString("en-GB");
+};
+
+const exportCSV = () => {
+    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
+  };
+  const exportPDF = () => {
+    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
+  };
+
+
+
+  //  Handle View Product
+   const handleView = (row) => {
+  // Navigate to dynamic route with product ID
+  navigate(`/user-discount-detail/${row.id}`);
+};
 
   
 
@@ -324,6 +373,7 @@ const handleSubmitStatus = () => {
       className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
       style={{ height: '34px', width: '34px', padding: 0 }}
       title="Export to PDF"
+      onClick={exportPDF}
     >
       <FaFilePdf size={16} />
     </button>
@@ -333,6 +383,7 @@ const handleSubmitStatus = () => {
       className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
       style={{ height: '34px', width: '34px', padding: 0 }}
       title="Export to Excel"
+      onClick={exportCSV}
     >
       <FaFileExcel size={16} />
     </button>

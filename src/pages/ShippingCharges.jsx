@@ -6,9 +6,16 @@ const ShippingCharges = () => {
   const [chargeName, setChargeName] = useState("");
   const [chargeType, setChargeType] = useState("fixed"); // fixed or percentage
   const [chargeValue, setChargeValue] = useState("");
-  const [purchaseAmount, setPurchaseAmount] = useState(""); // Minimum order amount for this shipping charge
   const [estimatedDays, setEstimatedDays] = useState("");
   const [isActive, setIsActive] = useState(true);
+
+   const [purchaseAmount, setPurchaseAmount] = useState("");
+
+      const [purchaseAmount2, setPurchaseAmount2] = useState("");
+
+
+  const [minAmount, setMinAmount] = useState("");
+const [maxAmount, setMaxAmount] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,17 +24,24 @@ const ShippingCharges = () => {
       return;
     }
 
+    
+
     const payload = {
-      chargeName,
-      chargeType,
-      chargeValue: parseFloat(chargeValue),
-      minPurchaseAmount: parseFloat(purchaseAmount),
-      chargeEstimatedDays: parseInt(estimatedDays),
-      shippingChargesIsActive: isActive,
-    };
+  chargeName: chargeName,
+  chargeType: chargeType,
+  chargeValue: Number(chargeValue),
+  chargeEstimatedDays: Number(estimatedDays),
+  shippingChargesIsActive: isActive,
+  minAmount: Number(minAmount),
+  maxAmount: Number(maxAmount),
+};
 
     try {
-      await axios.post("/api/shipping-charges", payload);
+      await axios.post(
+  "https://localhost:7013/api/ShippingCharges/Create",
+  payload
+);
+
       alert("Shipping charge rule added successfully!");
       // Reset form
       setChargeName("");
@@ -82,6 +96,21 @@ const ShippingCharges = () => {
               onChange={(e) => setPurchaseAmount(e.target.value)}
               min="0"
               placeholder="Enter minimum order amount for this charge"
+              required
+            />
+          
+
+          </div>
+
+            <div className="mb-3">
+            <label className="form-label fw-semibold">Maximum Purchase Amount ($)</label>
+            <input
+              type="number"
+              className="form-control"
+              value={purchaseAmount2}
+              onChange={(e) => setPurchaseAmount2(e.target.value)}
+              min="0"
+              placeholder="Enter maximum order amount for this charge"
               required
             />
           </div>
