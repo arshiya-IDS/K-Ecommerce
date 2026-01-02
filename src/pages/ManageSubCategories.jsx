@@ -37,7 +37,7 @@ useEffect(() => {
 
 const fetchCategories = async () => {
   try {
-    const res = await axios.get("https://localhost:7013/api/Category");
+    const res = await axios.get("http://ecommerce-admin-backend.i-diligence.com/api/Category");
     setCategories(res.data);
   } catch (error) {
     console.error("Error loading categories", error);
@@ -63,7 +63,7 @@ const fetchCategories = async () => {
     };
 
     const res = await axios.post(
-      "https://localhost:7013/api/SubCategory",
+      "http://ecommerce-admin-backend.i-diligence.com/api/SubCategory",
       payload
     );
 

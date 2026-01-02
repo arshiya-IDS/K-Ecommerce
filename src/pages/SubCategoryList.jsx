@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 
-const API_CATEGORY = "https://localhost:7013/api/SubCategory";
+const API_CATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/SubCategory";
 
 const SubCategoryList = () => {
   const navigate = useNavigate();
@@ -104,7 +104,7 @@ const exportCSV = () => {
         sortDir: sortConfig.direction,
       };
 
-      const res = await axios.get('https://localhost:7013/api/SubCategory/list');
+      const res = await axios.get('http://ecommerce-admin-backend.i-diligence.com/api/SubCategory/list');
 
       // 🔹 Map table data
       const mappedData = res.data.map((item) => ({
@@ -148,7 +148,7 @@ const handleSubmitStatus = async () => {
 
   try {
     await axios.put(
-      `https://localhost:7013/api/SubCategory/toggle-status/${selectedUser.id}?isActive=${isActive}`
+      `http://ecommerce-admin-backend.i-diligence.com/api/SubCategory/toggle-status/${selectedUser.id}?isActive=${isActive}`
     );
 
     // ✅ Update UI instantly

@@ -22,8 +22,7 @@ const ProductDiscountDetails = () => {
   const fetchDetails = async () => {
     try {
       const res = await axios.get(
-        `https://localhost:7013/api/ProductDiscount/details/${id}`
-
+        `http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/details/${id}`
       );
       const d = res.data.data;
 
@@ -126,8 +125,7 @@ const ProductDiscountDetails = () => {
       // I assume your backend accepts PUT /api/ProductDiscount/edit-discount/{id}
       // where {id} is the discount id. If your backend expects PRODUCT id,
       // change the URL to `/edit-discount/${editProductId}` instead.
-      const url = `https://localhost:7013/api/ProductDiscount/edit-discount/${id}`;
-
+      const url = `http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/edit-discount/${id}`;
 
       const payload = {
         // keys used previously in your examples
