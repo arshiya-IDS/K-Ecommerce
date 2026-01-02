@@ -1,24 +1,52 @@
 import React, { useState } from "react";
 import { FaEdit, FaBan } from "react-icons/fa";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+
 
 const NotificationTemplateDetails = () => {
-  // Hardcoded notification template details
-  const [template, setTemplate] = useState({
-    template_id: 1,
-    template_name: "Order Confirmation",
-    subject: "Your order has been confirmed!",
-    body: "Hello {username},\n\nYour order #{order_id} has been confirmed and will be shipped soon.\n\nThank you for shopping with us.",
-    user_id: 101,
-    product_id: 202,
-    is_active: "Active",
-    created_at: "2025-10-20",
-    updated_at: "2025-10-22",
-  });
 
-  const [searchTerm, setSearchTerm,users] = useState('');
+  const { id } = useParams();
+
+  // Hardcoded notification template details
+ const [template, setTemplate] = useState(null);
+
+
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
   const [message, setMessage] = useState("");
+
+
+useEffect(() => {
+  const fetchTemplateDetails = async () => {
+    try {
+      const res = await axios.get(
+        `https://localhost:7013/api/NtfcnTemplate/details/${id}`
+      );
+
+      const data = res.data;
+
+      setTemplate({
+        template_id: data.template_id,
+        template_name: data.template_name,
+        subject: data.subject,
+        body: data.body,
+        user_id: data.user_id,
+        product_id: data.product_id,
+        is_active: data.is_active ? "Active" : "Inactive",
+        created_at: data.ntfcn_CrtdAt,
+        updated_at: data.ntfcn_UpdtdAt,
+      });
+    } catch (error) {
+      console.error("Failed to load template details", error);
+      setMessage("❌ Failed to load notification template");
+    }
+  };
+
+  if (id) fetchTemplateDetails();
+}, [id]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -31,10 +59,39 @@ const NotificationTemplateDetails = () => {
       // Search is handled by the useMemo hook
     };
   // Toggle Edit Mode
-  const handleEditToggle = () => {
-    setIsEditable(!isEditable);
-    setMessage(isEditable ? "✏️ Edit mode disabled." : "✏️ Edit mode enabled.");
-  };
+const handleEditToggle = async () => {
+  // SUBMIT MODE
+  if (isEditable) {
+    try {
+      const payload = {
+        user_id: template.user_id,
+        product_id: template.product_id,
+        subject: template.subject,
+        body: template.body,
+        template_name: template.template_name,
+        is_active: template.is_active === "Active",
+        order_id: 0
+      };
+
+      await axios.put(
+        `https://localhost:7013/api/NtfcnTemplate/edit-User/${id}`,
+        payload
+      );
+
+      setMessage("✅ Notification template updated successfully!");
+      setIsEditable(false);
+    } catch (error) {
+      console.error("Update failed", error);
+      setMessage("❌ Failed to update notification template");
+    }
+  } 
+  // EDIT MODE
+  else {
+    setIsEditable(true);
+    setMessage("✏️ Edit mode enabled.");
+  }
+};
+ 
 
   // Handle Deactivation
   const handleDeactivate = () => {
@@ -43,6 +100,14 @@ const NotificationTemplateDetails = () => {
     setTemplate({ ...template, is_active: "Inactive" });
     setMessage("⚠️ This notification template has been deactivated successfully!");
   };
+
+  if (!template) {
+  return (
+    <div className="text-center mt-5">
+      <span className="spinner-border spinner-border-sm"></span> Loading...
+    </div>
+  );
+}
 
   return (
     <div className="container my-5">

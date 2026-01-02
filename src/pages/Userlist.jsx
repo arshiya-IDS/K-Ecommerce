@@ -228,17 +228,13 @@ const handleSubmitStatus = () => {
       });
     }
 
-    headers.push({
-    key: 'deactivate',
-    label: 'Status',
-    style: { width: '100px' }
-});
+   
 
-    headers.push({
-      key: 'action',
-      label: 'Action',
-      style: { width: '100px' }
-    });
+    // headers.push({
+    //   key: 'action',
+    //   label: 'Action',
+    //   style: { width: '100px' }
+    // });
     
     return headers;
   };
@@ -336,14 +332,14 @@ const handleSubmitStatus = () => {
     </button>
 
     {/* Create Button */}
-    <button
+    {/* <button
                     className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
                     style={{ height: '34px', width: '34px', padding: 0 }}
                     title="Create New Enquiry"
                     onClick={() => navigate('/enquiry-form')}
                   >
                     <FaPlus size={16} />
-                  </button>
+                  </button> */}
   </div>
 </div>
 
@@ -574,15 +570,15 @@ const handleSubmitStatus = () => {
                     {visibleColumns.createdAt && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.createdAt}</td>
                     )}
-                                 <td
+                                 {/* <td
                             className="admin-user-option pl-3 p-3"
                             style={{
                               whiteSpace: 'nowrap',
                               border: '1px solid #dee2e6',
                               textAlign: 'center'
                             }}
-                          >
-                            <div
+                          > */}
+                            {/* <div
                               onClick={() => handleToggleClick(user)}
                               style={{
                                 width: '50px',
@@ -606,12 +602,12 @@ const handleSubmitStatus = () => {
                                   transition: 'left 0.3s ease'
                                 }}
                               ></div>
-                            </div>
-                          </td>
+                            </div> */}
+                          {/* </td> */}
 
 
                      {/* ✅ Action Column */}
-                                                                                <td
+                                                                                {/* <td
                                                                                   className="admin-user-option pl-3 p-3 sticky-action"
                                                                                   style={{
                                                                                     whiteSpace: 'nowrap',
@@ -634,7 +630,7 @@ const handleSubmitStatus = () => {
                                                                                   </button>
                                                             
                                                                                   
-                                                                                </td>
+                                                                                </td> */}
                                                                               </tr>
                                                                             ))}
                                                                           </tbody>

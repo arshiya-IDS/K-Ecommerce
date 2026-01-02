@@ -107,31 +107,33 @@ useEffect(() => {
 
 
 const handleSubmitStatus = async () => {
-    // If it's a protected ID in design B, update local activeStatus only (keeps previous logic)
-    if (selectedUser && statusChoice.includes(selectedUser.id)) {
-      setActiveStatus((prev) => ({ ...prev, [selectedUser.id]: statusChoice === "activate" }));
-      setShowConfirm(false);
-      setSelectedUser(null);
-      setStatusChoice(null);
-      return;
-    }
+  if (!selectedUser) return;
 
-    // If not protected, call backend
-    if (selectedUser && statusChoice) {
-      const shouldBeActive = statusChoice === "activate";
-      try {
-        await axios.patch(`${API_PRODUCT}/${selectedUser.id}/toggle-status`, null, { params: { active: shouldBeActive } });
-        fetchUserDiscounts();
-      } catch (err) {
-        console.error("Status change failed:", err);
-        alert("Failed to update status");
-      }
-    }
+  try {
+    const res = await axios.patch(
+      `${API_PRODUCT}/${selectedUser.id}/toggle-status`
+    );
 
+    // Update local toggle state immediately
+    setActiveStatus(prev => ({
+      ...prev,
+      [selectedUser.id]: res.data.user_discount_is_active
+    }));
+
+    // Optional success feedback
+    // alert(res.data.message);
+
+  } catch (err) {
+    console.error("Status change failed:", err);
+    alert("Failed to update status");
+  } finally {
     setShowConfirm(false);
     setSelectedUser(null);
     setStatusChoice(null);
-  };
+  }
+};
+
+
 const formatDate = (dateStr) => {
   if (!dateStr) return "-";
   return new Date(dateStr).toLocaleDateString("en-GB");

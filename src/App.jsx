@@ -65,9 +65,10 @@ function App() {
           <Route path="/category-list" element={<CategoryList/>}/>
           <Route path="/product-details/:id" element={<ProductDetails />} />
           <Route path="/notification-list" element={<NotificationTemplateList/>}/>
-          <Route path="/order-details" element={<OrderDetails/>}/>
+          <Route path="/order-details/:id" element={<OrderDetails/>}/>
           <Route path="/product-discount-details/:id" element={<ProductDiscountDetails/>}/>
           <Route path="/user-discount-detail/:id"element={<UserDiscountDetails/>}/>
+          <Route path="/notification-template-details/:id" element={<NotificationTemplateDetails/>}/>
 
           <Route path="/shipping-charges-detail/:id" element={<ShippingChargesDetails/>}/>
 
@@ -77,7 +78,6 @@ function App() {
           <Route path="/subcategories/details/:id" element={<SubCategoryDetails/>}/>
           
 
-          <Route path="/notification-template-details" element={<NotificationTemplateDetails/>}/>
           <Route path="/subcategories-list" element={<SubCategoryList/>}/>
           <Route path="/manage-subcategories" element={<ManageSubCategories/>}/>
           <Route path="/notification-template-create" element={<NotificationTemplateCreate/>}/>

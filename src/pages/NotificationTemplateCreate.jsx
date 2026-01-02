@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const NotificationTemplateCreate = () => {
   // State for the notification template form
@@ -24,17 +25,42 @@ const NotificationTemplateCreate = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    // Simulate an API submission
-    setTimeout(() => {
-      setLoading(false);
-      setMessage("✅ Notification Template created successfully!");
-      console.log("Submitted Template:", template);
-    }, 1500);
-  };
+  try {
+    const payload = {
+      template_name: template.template_name,
+      subject: template.subject,
+      body: template.body,
+      is_active: template.is_active,
+    };
+
+    await axios.post(
+      "https://localhost:7013/api/NtfcnTemplate/create",
+      payload
+    );
+
+    setMessage("✅ Notification Template created successfully!");
+
+    // Optional: reset form
+    setTemplate({
+      template_name: "",
+      subject: "",
+      body: "",
+      user_id: "",
+      product_id: "",
+      is_active: true,
+    });
+  } catch (error) {
+    console.error("Create template failed", error);
+    setMessage("❌ Failed to create notification template");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="container my-5">

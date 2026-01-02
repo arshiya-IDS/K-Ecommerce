@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { MdKeyboardArrowLeft } from "react-icons/md";
+import React, { useState, useMemo, useEffect } from "react";
+import axios from "axios";
+const API_PRODUCT = "https://localhost:7013/api/OrderItem";
 
 
 
@@ -32,33 +34,36 @@ const OrdersList = () => {
     });
   };
 
+
   //  Hardcoded sample data
-  const [orders] = useState([
-    {
-      order_id:'1',
-      product_name:'tree',
-      product_price:'2000',
-      product_quantity:'1',
-      order_date: "2025-09-29",
-      ordrs_CrtdAt: "2025-09-29 11:00 AM",
-      ordrs_CrtdBy: "Admin",
-      ordrs_UpdtdAt: "2025-09-30 10:15 AM",
-      ordrs_UpdtdBy: "Admin",
-      
-    },
-    {
-      order_id:'2',
-      product_name:'palm tree',
-      product_price:'1000',
-      product_quantity:'1',
-      order_date: "2025-10-03",
-      ordrs_CrtdAt: "2025-10-03 09:45 AM",
-      ordrs_CrtdBy: "Manager",
-      ordrs_UpdtdAt: "2025-10-05 02:00 PM",
-      ordrs_UpdtdBy: "Manager",
-      
-    },
-  ]);
+ const [orders, setOrders] = useState([]);
+useEffect(() => {
+  fetchOrders();
+}, []);
+
+const fetchOrders = async () => {
+  try {
+    const res = await axios.get(
+      "https://localhost:7013/api/OrderItem/list"
+    );
+
+    // If API returns single object → convert to array
+    const data = Array.isArray(res.data) ? res.data : [res.data];
+
+    setOrders(data);
+
+    // Initialize toggle status from API
+    const statusMap = {};
+    data.forEach(item => {
+      statusMap[item.order_id] = item.isActive;
+    });
+    setActiveStatus(statusMap);
+
+  } catch (error) {
+    console.error("Failed to fetch order items", error);
+  }
+};
+
 
   const [activeStatus, setActiveStatus] = useState({});
 const [showConfirm, setShowConfirm] = useState(false);
@@ -70,18 +75,17 @@ const protectedProductIds = [1, 2];
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState({
-    order_id:true,
-    product_name:true,
-    product_price:true,
-    product_quantity:true,
-    order_date: true,
-    ordrs_CrtdAt: true,
-    ordrs_CrtdBy: true,
-    ordrs_UpdtdAt: true,
-    ordrs_UpdtdBy: true,
-    
-    
-  });
+  order_id: true,
+  order_item_id: true,
+  product_name: true,
+  product_price: true,
+  product_quantity: true,
+  // ordr_itm_CrtdAt: true,
+  // ordr_itm_CrtdBy: true,
+  // ordr_itm_UpdtdAt: true,
+  // ordr_itm_UpdtdBy: true,
+});
+
 
   const handleToggleClick = (user) => {
   setSelectedUser(user);
@@ -89,47 +93,54 @@ const protectedProductIds = [1, 2];
   setShowConfirm(true);
 };
 
-// // const handleSubmitStatus = () => {
-// //   if (selectedUser && statusChoice && protectedProductIds.includes(selectedUser.order_id)) {
-// //     setActiveStatus((prev) => ({
-// //       ...prev,
-// //       [selectedUser.order_id]: statusChoice === 'activate',
-// //     }));
-// //   }
-// //   setShowConfirm(false);
-// //   setSelectedUser(null);
-// //   setStatusChoice(null);
-// };
+const exportCSV = () => {
+    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
+  };
+  const exportPDF = () => {
+    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
+  };
 
-const handleSubmitStatus = () => {
-  if (selectedUser && statusChoice) {
+const handleView = (row) => {
+  // Navigate to dynamic route with product ID
+  navigate(`/order-details/${row.order_id}`);
+};
+
+
+
+const handleSubmitStatus = async () => {
+  if (!selectedUser || !statusChoice) return;
+
+  try {
+    const orderId = selectedUser.order_id;
+
+    const res = await axios.put(
+      `https://localhost:7013/api/OrderItem/toggle-status/${orderId}`
+    );
+
+
+    // Update UI only after API success
     setActiveStatus((prev) => ({
       ...prev,
-      [selectedUser.order_id]: statusChoice === 'activate',
+      [orderId]: statusChoice === "activate",
     }));
+
+    console.log(res.data.message); // optional success log
+
+  } catch (error) {
+    console.error("Failed to toggle order status", error);
+    alert("Failed to update order status. Please try again.");
+  } finally {
+    setShowConfirm(false);
+    setSelectedUser(null);
+    setStatusChoice(null);
   }
-  setShowConfirm(false);
-  setSelectedUser(null);
-  setStatusChoice(null);
 };
+
 
 
 
   //  Handle View Product
-  const handleView = (order) => {
-  const orderData = { ...order, description: "Sample order details" };
-  const orderHistory = [
-    { srNo: 1, date: "21/10/2025", action: "Created", by: "Admin" },
-    { srNo: 2, date: "22/10/2025", action: "Updated", by: "Admin" }
-  ];
-
-  // navigate(`/order-details/${order.order_id}`, {
-  //   state: { orderData, orderHistory, mode: "view" },
-  // });
-  navigate(`/order-details`, {
-    state: { orderData, orderHistory, mode: "view" },
-  });
-};
+ 
 
 
   const filteredOrders = useMemo(() => {
@@ -290,6 +301,7 @@ const handleSubmitStatus = () => {
                 className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
                 style={{ height: "34px", width: "34px" }}
                 title="Export to PDF"
+                onClick={exportPDF}
               >
                 <FaFilePdf size={16} />
               </button>
@@ -297,6 +309,7 @@ const handleSubmitStatus = () => {
                 className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
                 style={{ height: "34px", width: "34px" }}
                 title="Export to Excel"
+                 onClick={exportCSV}
               >
                 <FaFileExcel size={16} />
               </button>

@@ -1,4 +1,3 @@
-import React, { useState, useMemo } from "react";
 import {
   FaEdit,
   FaEye,
@@ -15,6 +14,11 @@ import { IoMdSettings } from "react-icons/io";
 import { MdContentCopy, MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import checkIcon from "../assets/check.png";
 import { useNavigate } from "react-router-dom";
+import React, { useState, useMemo, useEffect } from "react";
+import axios from "axios";
+
+const API_PRODUCT = "https://localhost:7013/api/Product";
+
 
 const NotificationTemplateList = () => {
   const navigate = useNavigate();
@@ -36,18 +40,8 @@ const handleToggleClick = (user) => {
   setShowConfirm(true);
 };
 
-const handleSubmitStatus = () => {
-  if (selectedUser && statusChoice) {
-    setActiveStatus((prev) => ({
-      ...prev,
-      [selectedUser.template_id]: statusChoice === 'activate',
-    }));
-  }
-  setShowConfirm(false);
-  setSelectedUser(null);
-  setStatusChoice(null);
-};
 
+ 
 
   const [visibleColumns, setVisibleColumns] = useState({
     template_id: true,
@@ -58,20 +52,54 @@ const handleSubmitStatus = () => {
   });
 
   // ✅ Sample Data
-  const [templates] = useState([
-    {
-      template_id: 1,
-      template_name: "Order Confirmation",
-      subject: "Your Order #{order_id} is Confirmed!",
-      created_at: "2025-10-21",
-    },
-    {
-      template_id: 2,
-      template_name: "Shipping Update",
-      subject: "Your Order #{order_id} has been Shipped!",
-      created_at: "2025-10-22",
-    },
-  ]);
+ const [templates, setTemplates] = useState([]);
+useEffect(() => {
+  fetchTemplates();
+}, []);
+
+const fetchTemplates = async () => {
+  try {
+    const res = await axios.get(
+      "https://localhost:7013/api/NtfcnTemplate/list"
+    );
+
+    const data = res.data || [];
+
+    // Map API response to UI structure
+    setTemplates(
+      data.map((t) => ({
+        template_id: t.template_id,
+        template_name: t.template_name,
+        subject: t.subject,
+        created_at: t.ntfcn_CrtdAt
+          ? new Date(t.ntfcn_CrtdAt).toLocaleDateString()
+          : "N/A",
+        is_active: t.is_active,
+      }))
+    );
+
+    // Initialize toggle status
+    const statusMap = {};
+    data.forEach((t) => {
+      statusMap[t.template_id] = t.is_active;
+    });
+    setActiveStatus(statusMap);
+  } catch (error) {
+    console.error("Failed to load notification templates", error);
+  }
+};
+
+const exportCSV = () => {
+    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
+  };
+  const exportPDF = () => {
+    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
+  };
+
+const handleView = (row) => {
+  // Navigate to dynamic route with product ID
+  navigate(`/notification-template-details/${row.template_id}`);
+};
 
   // ✅ Copy field value
   const copyToClipboard = (text, id, field) => {
@@ -80,6 +108,36 @@ const handleSubmitStatus = () => {
       setTimeout(() => setCopiedField({ id: null, field: null }), 2000);
     });
   };
+
+  const handleSubmitStatus = async () => {
+  if (!selectedUser || !statusChoice) return;
+
+  const isActive = statusChoice === "activate";
+
+  try {
+    await axios.patch(
+      `https://localhost:7013/api/NtfcnTemplate/${selectedUser.template_id}/toggle-status`,
+      null, // no body
+      {
+        params: { is_active: isActive },
+      }
+    );
+
+    // Update UI state after success
+    setActiveStatus((prev) => ({
+      ...prev,
+      [selectedUser.template_id]: isActive,
+    }));
+  } catch (error) {
+    console.error("Status update failed", error);
+  }
+
+  setShowConfirm(false);
+  setSelectedUser(null);
+  setStatusChoice(null);
+};
+
+
 
   // ✅ Handle sorting
   const handleSort = (key) => {
@@ -140,11 +198,7 @@ const handleSubmitStatus = () => {
     });
   };
 
-  const handleView = (template) => {
-    navigate(`/notification-template-details`, {
-      state: { template, mode: "view" },
-    });
-  };
+  
 
   // ✅ Column Headers
   const columnHeaders = [
@@ -239,6 +293,7 @@ const handleSubmitStatus = () => {
                 className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
                 style={{ height: "34px", width: "34px" }}
                 title="Export to PDF"
+                onClick={exportPDF}
               >
                 <FaFilePdf size={16} />
               </button>
@@ -247,6 +302,7 @@ const handleSubmitStatus = () => {
                 className="btn btn-light btn-sm me-2 d-flex align-items-center justify-content-center"
                 style={{ height: "34px", width: "34px" }}
                 title="Export to Excel"
+                onClick={exportCSV}
               >
                 <FaFileExcel size={16} />
               </button>

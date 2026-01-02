@@ -1,49 +1,96 @@
 import React, { useState } from "react";
 import jsPDF from "jspdf";
+import { useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+
 
 const OrderDetails = () => {
+
+  const { id } = useParams(); // order_id from URL
+
   // Hardcoded demo data for testing
-  const [order, setOrder] = useState({
-    order_id: "ORD12345",
-    user_id: "USR789",
-    payment_id: "PAY567",
-    shipping_id: "SHP890",
-    order_total_amount: "2500",
-    order_status: "Delivered",
-    Orders_payment_status: "Paid",
-    Orders_shipping_address: "221B Baker Street, London, UK",
-    order_date: "2025-10-23",
-  });
+ 
+const [order, setOrder] = useState({});
+const [invoice, setInvoice] = useState({});
+const[payment,setPayment]=useState({});
+const [discount,setDiscount]=useState({});
+const [shipping,setShipping]=useState({});
 
-  const [payment, setPayment] = useState({
-    payment_id: "PAY567",
-    transaction_id: "TXN987654321",
-    payment_amount: "2500",
-    payment_method: "Credit Card",
-    payment_status: "Success",
-  });
+useEffect(() => {
+  if (id) {
+    fetchOrderItem();
+  }
+}, [id]);
 
-  const [discount, setDiscount] = useState({
-    product_discount_name: "Festive Sale",
-    product_discount_value: "10%",
-    product_actual_price: "2800",
-    product_discounted_price: "2520",
-  });
+const fetchOrderItem = async () => {
+  try {
+    const res = await axios.get(
+      `https://localhost:7013/api/OrderItem/OrderDetails`,
 
-  const [shipping, setShipping] = useState({
-    charge_base_amount: "100",
-    applied_charge_value: "50",
-    total_after_shipping: "2570",
-  });
+      {
+        params: { order_id: id }
+      }
+    );
 
-  const [invoice, setInvoice] = useState({
-    invoice_number: "INV-2025-1001",
-    invoice_date: "2025-10-24",
-    Invoice_total_amount: "2570",
-    gst_amount: "230",
-  });
+    const data = res.data;
 
-  const [searchTerm, setSearchTerm,users] = useState('');
+    // ORDER
+    setOrder({
+      order_id: data.order.order_id,
+      order_total_amount: data.order.order_total_amount,
+      order_status: data.order.order_status,
+      order_date: data.order.order_date,
+      Orders_shipping_address: data.order.orders_shipping_address ?? "N/A",
+      product_name:data.order.product_name,
+      product_quantity:data.order.product_quantity
+    });
+
+    // PAYMENT
+    setPayment({
+      payment_id: data.payment.payment_id,
+      transaction_id: data.payment.transaction_id,
+      payment_amount: data.payment.payment_amount,
+      payment_method: data.payment.payment_method,
+      payment_status: data.payment.payment_status,
+    });
+
+    // DISCOUNT
+    setDiscount({
+      product_discount_name: data.product_discount.product_discount_name,
+      product_discount_value: data.product_discount.product_discount_value,
+      product_actual_price: data.product_discount.product_actual_price,
+      product_discounted_price: data.product_discount.product_discounted_price,
+    });
+
+    // SHIPPING
+    setShipping({
+      charge_base_amount: data.shipping_charge.charge_base_amount,
+      applied_charge_value: data.shipping_charge.applied_charge_value,
+      total_after_shipping: data.shipping_charge.total_after_shipping,
+    });
+
+    // INVOICE
+    setInvoice({
+      invoice_number: data.invoice.invoice_number,
+      invoice_date: data.invoice.invc_CrtdAt,
+      Invoice_total_amount: data.invoice.invoice_total_amount,
+      gst_amount: data.invoice.gst_amount,
+      total_gst_amount:data.invoice.total_gst_amount
+    });
+
+  } catch (error) {
+    console.error("Failed to fetch order details", error);
+  }
+};
+
+  
+
+  
+
+  
+
+  const [searchTerm, setSearchTerm] = useState('');
   const [message, setMessage] = useState("");
   const [isEditable, setIsEditable] = useState(false);
   const [isDeactivated, setIsDeactivated] = useState(false);
@@ -175,13 +222,15 @@ const OrderDetails = () => {
         <h5 className="fw mb-3">Order Information</h5>
         <div className="row">
           {[
+            
             ["order_id", "Order ID"],
-            ["user_id", "User ID"],
-            ["order_total_amount", "Order Total (₹)"],
-            ["order_status", "Order Status"],
-            ["Orders_payment_status", "Payment Status"],
-            ["Orders_shipping_address", "Shipping Address"],
-            ["order_date", "Order Date"],
+            ["product_name", "Product Name"],
+            ["product_quantity", "Quantity"],
+            ["order_total_amount", "Product Total (₹)"],
+            ["order_status", "Status"],
+            ["order_date", "Created Date"],
+          
+
           ].map(([key, label]) => (
             <div className="col-md-6 mb-3" key={key}>
               <label className="form-label fw-semibold">{label}</label>
@@ -239,9 +288,9 @@ const OrderDetails = () => {
         </div>
 
         {/* Discount Section */}
-        <hr />
-        <h5 className="fw mb-3">Discount Information</h5>
-        <div className="row">
+        {/* <hr /> */}
+        {/* <h5 className="fw mb-3">Discount Information</h5> */}
+        {/* <div className="row">
           {[
             ["product_discount_name", "Discount Name"],
             ["product_discount_value", "Discount Value (%)"],
@@ -268,12 +317,12 @@ const OrderDetails = () => {
               />
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Shipping Section */}
-        <hr />
-        <h5 className="fw mb-3">Shipping Charges</h5>
-        <div className="row">
+        {/* <hr /> */}
+        {/* <h5 className="fw mb-3">Shipping Charges</h5> */}
+        {/* <div className="row">
           {[
             ["charge_base_amount", "Base Charge (₹)"],
             ["applied_charge_value", "Applied Charge (₹)"],
@@ -299,7 +348,7 @@ const OrderDetails = () => {
               />
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* Invoice Section */}
         <hr />
@@ -309,7 +358,7 @@ const OrderDetails = () => {
             ["invoice_number", "Invoice Number"],
             ["invoice_date", "Invoice Date"],
             ["Invoice_total_amount", "Total Invoice Amount (₹)"],
-            ["gst_amount", "GST Amount (₹)"],
+            ["total_gst_amount", "GST Amount (₹)"],
           ].map(([key, label]) => (
             <div className="col-md-6 mb-3" key={key}>
               <label className="form-label fw-semibold">{label}</label>

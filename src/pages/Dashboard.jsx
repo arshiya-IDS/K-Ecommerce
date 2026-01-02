@@ -6,9 +6,9 @@ const Dashboard = () => {
   // Dashboard boxes data
   const dashboardBoxes = [
     {
-      id: 'userlist',
-      title: 'User List',
-      description: 'User List Management',
+      id: 'Current Month Total Sale',
+      title: 'Current Month  Sale',
+      description: 'Current Month Total Sale',
       backgroundColor: '#4be891',
       iconBackgroundColor: '#37b56f',
       link: '/userlist'
