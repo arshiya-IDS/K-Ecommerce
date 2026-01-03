@@ -384,14 +384,14 @@ const fetchOrderItem = async () => {
 
         {/* Action Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
-          <button
+          {/* <button
             type="button"
             onClick={handleEditToggle}
             className="btn btn-primary fw-bold px-4 py-2 rounded-3"
             disabled={isDeactivated}
           >
             {isEditable ? "Submit" : "Edit"}
-          </button>
+          </button> */}
 
          
 
