@@ -20,7 +20,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_CATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/Category";
+const API_CATEGORY = "https://localhost:7013/api/Category";
 
 
 
@@ -29,15 +29,58 @@ const API_CATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/Categor
 const CategoryList = () => {
   const navigate = useNavigate();
 
+  // const [copiedField, setCopiedField] = useState({ id: null, field: null });
+  // const copyToClipboard = (text, id, field) => {
+  //   navigator.clipboard.writeText(text).then(() => {
+  //     setCopiedField({ id, field });
+  //     setTimeout(() => {
+  //       setCopiedField({ id: null, field: null });
+  //     }, 2000);
+  //   });
+  // };
+
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
-  const copyToClipboard = (text, id, field) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedField({ id, field });
-      setTimeout(() => {
-        setCopiedField({ id: null, field: null });
-      }, 2000);
-    });
-  };
+
+const copyToClipboard = async (text, id, field) => {
+  try {
+    // ✅ Modern Clipboard API (HTTPS)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } 
+    // ✅ Fallback (HTTP / older browsers)
+    else {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Avoid scrolling to bottom
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (!successful) {
+        throw new Error("Fallback copy failed");
+      }
+    }
+
+    // ✅ UI feedback
+    setCopiedField({ id, field });
+    setTimeout(() => {
+      setCopiedField({ id: null, field: null });
+    }, 2000);
+
+  } catch (err) {
+    console.error("Copy failed:", err);
+    alert("Copy failed. Please copy manually.");
+  }
+};
+
 
   const [page, setPage] = useState(1);
    const [pageSize, setPageSize] = useState(10);
@@ -84,7 +127,7 @@ const formatDate = (dateStr) => {
   const [visibleColumns, setVisibleColumns] = useState({
     id: true, // ✅ Added Category ID as the first column
     categoryName: true,
-    subCategory: true,
+    //subCategory: true,
     createdAt: true,
     updatedAt: true,
      deactivate: true,
@@ -127,14 +170,14 @@ const formatDate = (dateStr) => {
     setError(null);
 
     const response = await axios.get(
-      'http://ecommerce-admin-backend.i-diligence.com/api/Category'
+      'https://localhost:7013/api/Category'
     );
 
     // Map API response to UI-friendly format
     const mappedData = response.data.map((item) => ({
       id: item.category_Id,
       categoryName: item.category_Name,
-      subCategory: item.category_Description, // using description as sub category
+      //subCategory: item.category_Description, // using description as sub category
       createdAt: item.catgrs_CrtdAt, // API does not provide these
       updatedAt: item.catgrs_UpdtdAt,
        isActive: item.category_Is_Active
@@ -260,7 +303,7 @@ const handleSubmitStatus = async () => {
   const columnHeaders = [
     { key: 'id', label: 'Category ID', visible: visibleColumns.id }, // ✅ Added ID header
     { key: 'categoryName', label: 'Category Name', visible: visibleColumns.categoryName },
-    { key: 'subCategory', label: 'Description', visible: visibleColumns.subCategory },
+ //   { key: 'subCategory', label: 'Description', visible: visibleColumns.subCategory },
     { key: 'createdAt', label: 'Created At', visible: visibleColumns.createdAt },
     { key: 'updatedAt', label: 'Updated At', visible: visibleColumns.updatedAt },
     { key: 'status', label: 'Status', visible: visibleColumns.deactivate },

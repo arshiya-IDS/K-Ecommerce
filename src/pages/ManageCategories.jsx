@@ -48,7 +48,7 @@ const ManageCategories = () => {
     };
 
     const response = await axios.post(
-      "http://ecommerce-admin-backend.i-diligence.com/api/Category",
+      "https://localhost:7013/api/Category",
       payload
     );
 

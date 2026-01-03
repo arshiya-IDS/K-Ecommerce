@@ -34,7 +34,7 @@ const Userlist = () => {
 
 const fetchUsers = async () => {
   try {
-    const res = await axios.get("http://ecommerce-admin-backend.i-diligence.com/api/users");
+    const res = await axios.get("https://localhost:7013/api/users");
 
     const mappedUsers = res.data.map((u) => ({
       id: u.userId,

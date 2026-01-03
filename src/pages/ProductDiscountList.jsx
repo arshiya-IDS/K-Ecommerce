@@ -79,7 +79,7 @@ const handleView = (row) => {
   const fetchDiscounts = async () => {
     try {
       setLoading(true);
-      const resp = await axios.get("http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/list");
+      const resp = await axios.get("https://localhost:7013/api/ProductDiscount/list");
       if (resp?.data?.success) {
         // map to expected camelCase if backend uses different casing
         const data = (resp.data.data || []).map((d) => ({
@@ -114,7 +114,7 @@ const handleView = (row) => {
   // ---------------------------
   const toggleStatusApi = async (id) => {
     try {
-      const resp = await axios.put(`http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/toggle-status/${id}`);
+      const resp = await axios.put(`https://localhost:7013/api/ProductDiscount/toggle-status/${id}`);
       return resp.data;
     } catch (err) {
       console.error("toggleStatusApi:", err);

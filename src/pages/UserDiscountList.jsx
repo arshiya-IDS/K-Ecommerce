@@ -114,14 +114,22 @@ const handleSubmitStatus = async () => {
       `${API_PRODUCT}/${selectedUser.id}/toggle-status`
     );
 
-    // Update local toggle state immediately
+    const newStatus = res.data.user_discount_is_active;
+
+    // ✅ Update toggle UI
     setActiveStatus(prev => ({
       ...prev,
-      [selectedUser.id]: res.data.user_discount_is_active
+      [selectedUser.id]: newStatus
     }));
 
-    // Optional success feedback
-    // alert(res.data.message);
+    // ✅ Update table data
+    setUsers(prev =>
+      prev.map(u =>
+        u.id === selectedUser.id
+          ? { ...u, isActive: newStatus }
+          : u
+      )
+    );
 
   } catch (err) {
     console.error("Status change failed:", err);
@@ -132,6 +140,7 @@ const handleSubmitStatus = async () => {
     setStatusChoice(null);
   }
 };
+
 
 
 const formatDate = (dateStr) => {

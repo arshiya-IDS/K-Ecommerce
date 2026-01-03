@@ -1,7 +1,7 @@
 import axios from "axios";
 const API_BASE = "/api/Auth"; 
 
-const API_BASE_URL = "http://ecommerce-admin-backend.i-diligence.com/api/Auth"; // change to your API URL
+const API_BASE_URL = "https://localhost:7013/api/Auth"; // change to your API URL
 
 
 export const loginUser = async (data) => {

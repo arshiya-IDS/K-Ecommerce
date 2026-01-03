@@ -257,11 +257,11 @@ const DashboardLayout = () => {
                   <span>Orders List</span>
                 </div>
               </Link>
-              <Link className="logout-item" to="/order-details">
+              {/* <Link className="logout-item" to="/order-details">
                 <div className={`logout ${isActiveLink('/order-details') ? 'active' : ''}`}>
                   <span>Order Details</span>
                 </div>
-              </Link>
+              </Link> */}
             </div>
           )}
 

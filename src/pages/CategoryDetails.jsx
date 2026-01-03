@@ -61,7 +61,7 @@ const [loading, setLoading] = useState(true);
 
 
     const res = await axios.put(
-      `http://ecommerce-admin-backend.i-diligence.com/api/Category/${category.category_Id}`,
+      `https://localhost:7013/api/Category/${category.category_Id}`,
       payload,
        {
     headers: {
@@ -100,7 +100,7 @@ const [loading, setLoading] = useState(true);
 const fetchCategoryDetails = async () => {
   try {
     const res = await axios.get(
-      `http://ecommerce-admin-backend.i-diligence.com/api/Category/${categoryId}`
+      `https://localhost:7013/api/Category/${categoryId}`
     );
 
     setCategory(res.data);
