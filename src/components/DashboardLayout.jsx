@@ -4,7 +4,7 @@ import { FiPlus, FiMinus } from "react-icons/fi";
 import { FaPlus, FaMinus } from "react-icons/fa";
 
 
-const DashboardLayout = () => {
+const DashboardLayout = () => { 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [productMenuOpen, setProductMenuOpen] = useState(false);
