@@ -9,7 +9,10 @@ const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useState({
+  images: []
+});
+
   const [loading, setLoading] = useState(true);
   const [isEditable, setIsEditable] = useState(false);
   const [message, setMessage] = useState("");
@@ -26,7 +29,10 @@ const ProductDetails = () => {
       setLoading(true);
       const res = await axios.get(`${API_BASE}/details/${id}`);
       setProduct(res.data);
-      setPrimaryImageId(res.data.images.find(img => img.isPrimary)?.id || null);
+      const images = res.data.images || [];
+setProduct({ ...res.data, images });
+setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
+
     } catch (err) {
       setMessage("Failed to load product");
     } finally {
@@ -147,31 +153,63 @@ const ProductDetails = () => {
         <hr className="my-4" />
 
         <h5>Product Images</h5>
-        <div className="d-flex flex-wrap gap-3">
-          {product.images.map(img => (
-            <div key={img.id} className="position-relative border rounded p-2" style={{ width: "160px" }}>
-              <img src={img.url} alt="" className="img-fluid rounded" style={{ height: "120px", objectFit: "cover" }} />
-              {img.isPrimary && <FaStar className="text-warning position-absolute top-0 end-0 m-2" />}
-              {isEditable && (
-                <>
-                  <button
-                    className="btn btn-sm btn-danger position-absolute top-0 start-0 m-2"
-                    onClick={() => toggleDeleteImage(img.id)}
-                  >
-                    <FaTrash />
-                  </button>
-                  <button
-                    className={`btn btn-sm position-absolute bottom-0 start-0 m-2 ${primaryImageId === img.id ? 'btn-warning' : 'btn-outline-secondary'}`}
-                    onClick={() => setPrimaryImageId(img.id)}
-                  >
-                    Primary
-                  </button>
-                </>
-              )}
-              {deleteImageIds.includes(img.id) && <div className="bg-danger text-white text-center">Will be deleted</div>}
-            </div>
-          ))}
-        </div>
+
+<div className="d-flex flex-wrap gap-3">
+  {product.images && product.images.length > 0 ? (
+    product.images.map(img => (
+      <div
+        key={img.id}
+        className="position-relative border rounded p-2"
+        style={{ width: "160px" }}
+      >
+        <img
+          src={img.url}
+          alt="Product"
+          className="img-fluid rounded"
+          style={{ height: "120px", objectFit: "cover" }}
+          onError={(e) => {
+            e.target.src = "/assets/Images/placeholder.png";
+          }}
+        />
+
+        {img.isPrimary && (
+          <FaStar className="text-warning position-absolute top-0 end-0 m-2" />
+        )}
+
+        {isEditable && (
+          <>
+            <button
+              className="btn btn-sm btn-danger position-absolute top-0 start-0 m-2"
+              onClick={() => toggleDeleteImage(img.id)}
+            >
+              <FaTrash />
+            </button>
+
+            <button
+              className={`btn btn-sm position-absolute bottom-0 start-0 m-2 ${
+                primaryImageId === img.id
+                  ? "btn-warning"
+                  : "btn-outline-secondary"
+              }`}
+              onClick={() => setPrimaryImageId(img.id)}
+            >
+              Primary
+            </button>
+          </>
+        )}
+
+        {deleteImageIds.includes(img.id) && (
+          <div className="bg-danger text-white text-center small mt-1">
+            Will be deleted
+          </div>
+        )}
+      </div>
+    ))
+  ) : (
+    <div className="text-muted">No images available</div>
+  )}
+</div>
+
 
         {isEditable && (
           <div className="mt-3">

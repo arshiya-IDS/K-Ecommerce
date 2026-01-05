@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useParams, useNavigate } from "react-router-dom";
 
 
 const ManageSubCategories = () => {
   // ✅ Category state
+    const navigate = useNavigate();
+
   const [category, setCategory] = useState({
     category_name: "",
     category_description: "",
@@ -67,7 +71,14 @@ const fetchCategories = async () => {
       payload
     );
 
-    setMessage("✅ Subcategory added successfully!");
+     Swal.fire({
+      icon: "success",
+      title: "Added!",
+      text: "New Subcategory  Added",
+      timer: 1500,
+      showConfirmButton: false
+    });
+        navigate("/subcategories-list");
     setSubCategory({
       category_id: "",
       sub_category_name: "",

@@ -1,8 +1,11 @@
 // UserDiscount.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useParams, useNavigate } from "react-router-dom";
 
 const UserDiscount = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
   const [discountName, setDiscountName] = useState("");
@@ -46,7 +49,14 @@ const UserDiscount = () => {
   payload
 );
 
-      alert("User discount applied successfully!");
+       Swal.fire({
+      icon: "success",
+      title: "Added!",
+      text: "New discount applied",
+      timer: 1500,
+      showConfirmButton: false
+    });
+        navigate("/user-discount-list");
       // Reset form
       setDiscountName("");
       setDiscountType("percentage");

@@ -107,39 +107,41 @@ useEffect(() => {
 
 
 const handleSubmitStatus = async () => {
-  if (!selectedUser) return;
+  if (!selectedUser || !statusChoice) return;
+
+  const isActive = statusChoice === "activate";
 
   try {
-    const res = await axios.patch(
-      `${API_PRODUCT}/${selectedUser.id}/toggle-status`
+    await axios.put(
+      `${API_PRODUCT}/${selectedUser.id}/toggle-status?isActive=${isActive}`
     );
 
-    const newStatus = res.data.user_discount_is_active;
-
-    // ✅ Update toggle UI
+    // ✅ Update toggle UI instantly
     setActiveStatus(prev => ({
       ...prev,
-      [selectedUser.id]: newStatus
+      [selectedUser.id]: isActive
     }));
 
-    // ✅ Update table data
+    // ✅ Update table data instantly
     setUsers(prev =>
       prev.map(u =>
         u.id === selectedUser.id
-          ? { ...u, isActive: newStatus }
+          ? { ...u, isActive }
           : u
       )
     );
 
-  } catch (err) {
-    console.error("Status change failed:", err);
-    alert("Failed to update status");
-  } finally {
     setShowConfirm(false);
     setSelectedUser(null);
     setStatusChoice(null);
+
+  } catch (err) {
+    console.error("Status change failed:", err);
+    alert("Failed to update status");
   }
 };
+
+
 
 
 

@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useParams, useNavigate } from "react-router-dom";
+
 
 const ManageCategories = () => {
   // ✅ Category state
+
+  const navigate = useNavigate();
   const [category, setCategory] = useState({
     category_name: "",
     category_description: "",
@@ -52,9 +57,15 @@ const ManageCategories = () => {
       payload
     );
 
-    console.log("API Response:", response.data);
 
-    setMessage("✅ Category added successfully!");
+     Swal.fire({
+      icon: "success",
+      title: "Added!",
+      text: "New Category Added",
+      timer: 1500,
+      showConfirmButton: false
+    });
+        navigate("/category-list");
 
     // reset form
     setCategory({

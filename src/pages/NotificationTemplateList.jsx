@@ -109,32 +109,30 @@ const handleView = (row) => {
     });
   };
 
-  const handleSubmitStatus = async () => {
+ const handleSubmitStatus = async () => {
   if (!selectedUser || !statusChoice) return;
 
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.patch(
+    await axios.put(
       `https://localhost:7013/api/NtfcnTemplate/${selectedUser.template_id}/toggle-status`,
-      null, // no body
-      {
-        params: { is_active: isActive },
-      }
+      null,
+      { params: { isActive } }
     );
 
-    // Update UI state after success
-    setActiveStatus((prev) => ({
+    setActiveStatus(prev => ({
       ...prev,
       [selectedUser.template_id]: isActive,
     }));
+
   } catch (error) {
     console.error("Status update failed", error);
+  } finally {
+    setShowConfirm(false);
+    setSelectedUser(null);
+    setStatusChoice(null);
   }
-
-  setShowConfirm(false);
-  setSelectedUser(null);
-  setStatusChoice(null);
 };
 
 

@@ -257,7 +257,6 @@ const ProductDiscountDetails = () => {
         {/* Optional: product selector when you want to edit a specific product */}
         {discount.products && discount.products.length > 0 && (
           <div className="mb-3">
-            <label className="form-label">Select product to edit (optional)</label>
             <select
               className="form-control"
               value={editProductId ?? ""}

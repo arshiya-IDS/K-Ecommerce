@@ -62,16 +62,12 @@ const ProductDiscount = () => {
   // ---------------------------
   // HANDLE MULTI PRODUCT SELECT
   // ---------------------------
+ 
   const handleProductSelect = (e) => {
-    const options = e.target.options;
-    const selected = [];
+  const selected = Array.from(e.target.selectedOptions, option => option.value);
+  setSelectedProducts(selected);
+};
 
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) selected.push(parseInt(options[i].value));
-    }
-
-    setSelectedProducts(selected);
-  };
 
   // ---------------------------
   // SUBMIT DISCOUNT
@@ -84,14 +80,16 @@ const ProductDiscount = () => {
       return;
     }
 
+    
     const payload = {
-      discountName,
-      discountValue: parseFloat(discountValue),
-      discountStartDate,
-      discountEndDate,
-      isActive,
-      products: selectedProducts
-    };
+  discountName,
+  discountValue: parseFloat(discountValue),
+  discountStartDate,
+  discountEndDate,
+  isActive,
+  products: selectedProducts.map(Number) // 🔥 ENSURE INTS
+};
+
 
     try {
       await axios.post("https://localhost:7013/api/ProductDiscount", payload);
@@ -196,30 +194,42 @@ const ProductDiscount = () => {
           </div>
 
           {/* PRODUCT MULTI SELECT */}
-          <div className="mb-3">
-            <label className="form-label fw-semibold">Products</label>
+        <div className="border rounded p-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
+  {products.length === 0 && (
+    <div className="text-muted small">No products available</div>
+  )}
 
-            <select
-                multiple
-                className="form-select"
-                value={selectedProducts}
-                onChange={handleProductSelect}
-                required
-                disabled={!products.length}
-                size={Math.min(5, products.length)}
-              >
-                {products.map((prod) => (
-                  <option key={prod.product_id} value={prod.product_id}>
-                    {prod.product_name} — ₹{prod.product_actual_price}
-                  </option>
-                ))}
-              </select>
+  {products.map((prod) => (
+    <div key={prod.product_id} className="form-check">
+      
+       <input
+            className="form-check-input"
+            type="checkbox"
+            id={`prod-${prod.product_id}`}
+            value={prod.product_id}
+            checked={selectedProducts.includes(Number(prod.product_id))}
+            onChange={(e) => {
+              const id = Number(prod.product_id);
+
+              setSelectedProducts((prev) =>
+                e.target.checked
+                  ? [...prev, id]
+                  : prev.filter((p) => p !== id)
+              );
+            }}
+          />
 
 
-            <small className="form-text text-muted">
-              Hold Ctrl (Cmd on Mac) to select multiple products.
-            </small>
-          </div>
+      <label
+        className="form-check-label"
+        htmlFor={`prod-${prod.product_id}`}
+      >
+        {prod.product_name} — ₹{prod.product_actual_price}
+      </label>
+    </div>
+  ))}
+</div>
+
 
           {/* START DATE */}
           <div className="mb-3">

@@ -47,6 +47,9 @@ const protectedProductIds = [1, 2];
 const [users, setUsers] = useState([]);
 const [loading, setLoading] = useState(true);
 
+ const [ShippingCharges,  setShippingCharges] = useState([]);
+
+
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
@@ -112,28 +115,40 @@ const exportCSV = () => {
   };
 
 const handleSubmitStatus = async () => {
-  if (!selectedUser) return;
+  if (!selectedUser || !statusChoice) return;
+
+  const isActive = statusChoice === "activate";
 
   try {
     await axios.put(
-      `https://localhost:7013/api/ShippingCharges/toggle-status/${selectedUser.shipping_id}`
+      `https://localhost:7013/api/ShippingCharges/toggle-status/${selectedUser.shipping_id}?isActive=${isActive}`
     );
 
-    // ✅ Update UI instantly after success
-    setActiveStatus((prev) => ({
+    // ✅ Update toggle UI correctly
+    setActiveStatus(prev => ({
       ...prev,
-      [selectedUser.shipping_id]: !prev[selectedUser.shipping_id],
+      [selectedUser.shipping_id]: isActive,
     }));
 
-  } catch (error) {
-    console.error("Status toggle failed", error);
-    alert("❌ Failed to change shipping charge status");
-  } finally {
+    // ✅ Update table/list if present
+    setShippingCharges(prev =>
+      prev.map(c =>
+        c.shipping_id === selectedUser.shipping_id
+          ? { ...c, Shipping_Charges_is_active: isActive }
+          : c
+      )
+    );
+
     setShowConfirm(false);
     setSelectedUser(null);
     setStatusChoice(null);
+
+  } catch (error) {
+    console.error("Status update failed", error);
+    alert("❌ Failed to change shipping charge status");
   }
 };
+
 
 
 

@@ -1,8 +1,12 @@
 // ShippingCharges.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useParams, useNavigate } from "react-router-dom";
 
 const ShippingCharges = () => {
+   const navigate = useNavigate();
+
   const [chargeName, setChargeName] = useState("");
   const [chargeType, setChargeType] = useState("fixed"); // fixed or percentage
   const [chargeValue, setChargeValue] = useState("");
@@ -42,7 +46,14 @@ const [maxAmount, setMaxAmount] = useState("");
   payload
 );
 
-      alert("Shipping charge rule added successfully!");
+       Swal.fire({
+      icon: "success",
+      title: "Added!",
+      text: "New Shipping charge rule",
+      timer: 1500,
+      showConfirmButton: false
+    });
+        navigate("/shipping-charges-list");
       // Reset form
       setChargeName("");
       setChargeType("fixed");

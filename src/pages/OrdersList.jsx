@@ -110,24 +110,24 @@ const handleView = (row) => {
 const handleSubmitStatus = async () => {
   if (!selectedUser || !statusChoice) return;
 
-  try {
-    const orderId = selectedUser.order_id;
+  const orderId = selectedUser.order_id;
+  const isActive = statusChoice === "activate";
 
+  try {
     const res = await axios.put(
-      `https://localhost:7013/api/OrderItem/toggle-status/${orderId}`
+      `https://localhost:7013/api/OrderItem/toggle-status/${orderId}?isActive=${isActive}`
     );
 
-
-    // Update UI only after API success
-    setActiveStatus((prev) => ({
+    // ✅ Update UI from known state
+    setActiveStatus(prev => ({
       ...prev,
-      [orderId]: statusChoice === "activate",
+      [orderId]: isActive,
     }));
 
-    console.log(res.data.message); // optional success log
+    console.log(res.data.message);
 
   } catch (error) {
-    console.error("Failed to toggle order status", error);
+    console.error("Failed to update order status", error);
     alert("Failed to update order status. Please try again.");
   } finally {
     setShowConfirm(false);
@@ -135,6 +135,7 @@ const handleSubmitStatus = async () => {
     setStatusChoice(null);
   }
 };
+
 
 
 

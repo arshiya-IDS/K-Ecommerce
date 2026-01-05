@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useParams, useNavigate } from "react-router-dom";
+
 
 const ProductCreate = () => {
+    const navigate = useNavigate();
+
   // Product State
   const [product, setProduct] = useState({
     product_name: "",
@@ -153,7 +158,14 @@ const [subcategories, setSubcategories] = useState([]);
     if (res.ok) {
       const json = await res.json().catch(() => null);
       setLoading(false);
-      alert(json?.message ?? "Product created successfully!");
+       Swal.fire({
+      icon: "success",
+      title: "Added!",
+      text: "New Product created ",
+      timer: 1500,
+      showConfirmButton: false
+    });
+        navigate("/product-list");
       // optionally clear form here
     } else {
       // read error body (could be JSON or text)

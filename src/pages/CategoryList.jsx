@@ -225,35 +225,37 @@ const handleToggleClick = (row) => {
 
 // Updated: Simple toggle confirmation
 const handleSubmitStatus = async () => {
-  if (!selectedUser) return;
+  if (!selectedUser || !statusChoice) return;
+
+  const isActive = statusChoice === "activate";
 
   try {
-    // Correct PATCH request with proper headers
-    await axios.patch(
+    await axios.put(
       `${API_CATEGORY}/${selectedUser.id}/status`,
-      {}, // Empty body (since backend doesn't expect one)
-      {
-        headers: {
-          'Accept': '*/*',
-          'Content-Type': 'application/json', // Good practice
-        },
-      }
+      null,
+      { params: { isActive } }
     );
 
-    toast.success("Category status toggled successfully");
-    await fetchCategories(); // Refresh list
+    toast.success(
+      isActive ? "Category activated successfully" : "Category deactivated successfully"
+    );
+
+    // Optional: update locally OR refetch
+    await fetchCategories();
 
   } catch (error) {
-    console.error("Failed to toggle status", error);
+    console.error("Failed to update status", error);
     toast.error(
-      error.response?.data?.message || 
-      "Failed to update category status. Check console for details."
+      error.response?.data?.message ||
+      "Failed to update category status"
     );
   } finally {
     setShowConfirm(false);
     setSelectedUser(null);
+    setStatusChoice(null);
   }
 };
+
 
 
 
@@ -738,7 +740,8 @@ const handleSubmitStatus = async () => {
         </div>
 
 
-      {showConfirm && (
+   
+        {showConfirm && (
   <div
     style={{
       position: 'fixed',
@@ -750,47 +753,91 @@ const handleSubmitStatus = async () => {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: 9999,
+      zIndex: 9999
     }}
   >
     <div
       style={{
         backgroundColor: 'white',
-        padding: '30px',
+        padding: '25px 30px',
         borderRadius: '10px',
         textAlign: 'center',
-        boxShadow: '0px 4px 15px rgba(0,0,0,0.3)',
-        width: '400px',
-        maxWidth: '90%',
+        boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
+        width: '570px', // ⬅️ Matches popup size from your image
+        maxWidth: '100%',
+        height:'200px'
       }}
     >
-      <h5 className="mb-4" style={{ fontWeight: '600' }}>
-        Toggle Status Confirmation
+      {/* ✅ Updated Title */}
+      <h5 className="mb-3" style={{ fontWeight: '600', textAlign: 'left' }}>
+        Are you sure to change the status?
       </h5>
-      <p className="mb-4">
-        Are you sure you want to{' '}
-        <strong>
-          {activeStatus[selectedUser?.id] ? 'deactivate' : 'activate'}
-        </strong>{' '}
-        the category "<strong>{selectedUser?.categoryName}</strong>"?
-      </p>
 
-      <div className="d-flex justify-content-center gap-3">
+      {/* ✅ Side-by-side checkboxes */}
+      <div
+        className="d-flex justify-content-left mb-4"
+        style={{ gap: '30px' ,textDecoration:'none'}}
+      >
+        <div className="form-check"
+                           style={{ fontSize:'17px' }}
+
+        
+        >
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="activateCheck"
+            checked={statusChoice === 'activate'}
+            onChange={() => setStatusChoice('activate')}
+          />
+          <label className="form-check-label ms-1" htmlFor="activateCheck"
+           style={{ textDecoration: 'none', cursor: 'pointer',fontSize:'17px' }}
+          >
+            Activate
+          </label>
+        </div>
+
+        <div className="form-check"
+                   style={{ fontSize:'17px' }}
+
+        >
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="deactivateCheck"
+            checked={statusChoice === 'deactivate'}
+            onChange={() => setStatusChoice('deactivate')}
+          />
+          <label className="form-check-label ms-1" htmlFor="deactivateCheck"
+           style={{ textDecoration: 'none', cursor: 'pointer', fontSize:'17px' }}
+          >
+            Deactivate
+          </label>
+        </div>
+      </div>
+
+      {/* ✅ Buttons styled like your uploaded popup */}
+      <div className="d-flex justify-content-end gap-2 mt-2">
         <button
-          className="btn btn-outline-secondary px-4"
-          onClick={() => {
-            setShowConfirm(false);
-            setSelectedUser(null);
+          className="btn btn-outline-secondary"
+          style={{
+            minWidth: '90px',
+            borderRadius: '6px'
           }}
+          onClick={() => setShowConfirm(false)}
         >
           Cancel
         </button>
         <button
-          className="btn btn-primary px-4"
-          style={{ backgroundColor: '#FEC200', border: 'none' }}
+          className="btn btn-danger"
+          style={{
+            minWidth: '90px',
+            borderRadius: '6px'
+          }}
           onClick={handleSubmitStatus}
+          disabled={!statusChoice}
         >
-          Confirm
+          Submit
         </button>
       </div>
     </div>

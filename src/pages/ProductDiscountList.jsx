@@ -32,7 +32,6 @@ const ProductDiscountList = () => {
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
-  const [activeStatus, setActiveStatus] = useState({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [statusChoice, setStatusChoice] = useState(null);
@@ -116,11 +115,15 @@ const handleView = (row) => {
     try {
       const resp = await axios.put(`https://localhost:7013/api/ProductDiscount/toggle-status/${id}`);
       return resp.data;
+
+      
     } catch (err) {
       console.error("toggleStatusApi:", err);
       throw err;
     }
   };
+
+ 
 
   const handleToggleClick = (user) => {
     setSelectedUser(user);
@@ -128,24 +131,46 @@ const handleView = (row) => {
     setShowConfirm(true);
   };
 
-  const handleSubmitStatus = async () => {
-    if (!selectedUser) return;
-    // optionally ensure protected ids logic
-    if (!protectedProductIds.includes(selectedUser.productDiscountId)) {
-      // proceed normally
-    }
-    try {
-      const result = await toggleStatusApi(selectedUser.productDiscountId);
-      toast.success(result?.message ?? "Status updated");
-      // refresh
-      await fetchDiscounts();
-    } catch (err) {
-      toast.error("Failed to update status");
-    }
+  
+
+const handleSubmitStatus = async () => {
+  if (!selectedUser || !statusChoice) return;
+
+  const isActive = statusChoice === "activate";
+  const discountId = selectedUser.productDiscountId;
+
+  if (protectedProductIds.includes(discountId)) {
+    toast.error("This discount cannot be modified");
+    return;
+  }
+
+  try {
+    await axios.put(
+      `https://localhost:7013/api/ProductDiscount/toggle-status/${discountId}?isActive=${isActive}`
+    );
+
+    // ✅ UPDATE THE SAME STATE USED BY UI
+    setUsers(prev =>
+      prev.map(u =>
+        u.productDiscountId === discountId
+          ? { ...u, isActive }
+          : u
+      )
+    );
+
+   
+
+  } catch (error) {
+    console.error("Failed to update status", error);
+    toast.error("Status update failed");
+  } finally {
     setShowConfirm(false);
     setSelectedUser(null);
     setStatusChoice(null);
-  };
+  }
+};
+
+
 
   // ---------------------------
   // Copy to clipboard helper
@@ -301,7 +326,7 @@ const handleView = (row) => {
       <tr>
         <td style="padding:6px;border:1px solid #ccc">${r.productDiscountId}</td>
         <td style="padding:6px;border:1px solid #ccc">${r.discountName}</td>
-        <td style="padding:6px;border:1px solid #ccc">${r.discountValue}</td>
+          <td style="padding:6px;border:1px solid #ccc">${r.discountValue}</td>
         <td style="padding:6px;border:1px solid #ccc">${r.actualPrice}</td>
         <td style="padding:6px;border:1px solid #ccc">${r.discountedPrice}</td>
         <td style="padding:6px;border:1px solid #ccc">${r.createdAt}</td>
@@ -351,7 +376,7 @@ const handleView = (row) => {
   const columnHeaders = [
     visibleColumns.productDiscountId && { key: "productDiscountId", label: "Product Discount ID", width: "150px" },
     visibleColumns.discountName && { key: "discountName", label: "Discount Name", width: "180px" },
-    visibleColumns.discountValue && { key: "discountValue", label: "Discount Value", width: "120px" },
+   visibleColumns.discountValue && { key: "discountValue", label: "Discount Value", width: "120px" },
     visibleColumns.actualPrice && { key: "actualPrice", label: "Actual Price", width: "120px" },
     visibleColumns.discountedPrice && { key: "discountedPrice", label: "Discounted Price", width: "130px" },
     visibleColumns.createdAt && { key: "createdAt", label: "Created At", width: "130px" },

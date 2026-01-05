@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useParams, useNavigate } from "react-router-dom";
 
 const NotificationTemplateCreate = () => {
+  const navigate = useNavigate();
+
   // State for the notification template form
   const [template, setTemplate] = useState({
     template_name: "",
@@ -43,7 +47,14 @@ const NotificationTemplateCreate = () => {
       payload
     );
 
-    setMessage("✅ Notification Template created successfully!");
+    Swal.fire({
+      icon: "success",
+      title: "Added!",
+      text: "New Notification Template Added",
+      timer: 1500,
+      showConfirmButton: false
+    });
+        navigate("/notification-list");
 
     // Optional: reset form
     setTemplate({
