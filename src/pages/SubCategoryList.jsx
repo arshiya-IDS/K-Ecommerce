@@ -23,14 +23,46 @@ const SubCategoryList = () => {
   const navigate = useNavigate();
 
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
-  const copyToClipboard = (text, id, field) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedField({ id, field });
-      setTimeout(() => {
-        setCopiedField({ id: null, field: null });
-      }, 2000);
-    });
-  };
+  
+const copyToClipboard = async (text, id, field) => {
+  try {
+    // ✅ Modern Clipboard API (HTTPS)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } 
+    // ✅ Fallback (HTTP / older browsers)
+    else {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Avoid scrolling to bottom
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (!successful) {
+        throw new Error("Fallback copy failed");
+      }
+    }
+
+    // ✅ UI feedback
+    setCopiedField({ id, field });
+    setTimeout(() => {
+      setCopiedField({ id: null, field: null });
+    }, 2000);
+
+  } catch (err) {
+    console.error("Copy failed:", err);
+    alert("Copy failed. Please copy manually.");
+  }
+};
 
   
 
@@ -286,7 +318,7 @@ const handleSubmitStatus = async () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <button type="button" className="btn btn-light btn-sm ms-2" style={{ height: '34px', width: '34px' }}>
+            <button type="button" className="btn btn-light btn-sm ms-0" style={{ height: '34px', width: '34px' }}>
               <i className="fas fa-search" style={{ fontSize: '13px' }}></i>
             </button>
           </div>

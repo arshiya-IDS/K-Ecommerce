@@ -1978,7 +1978,7 @@ img.main-ssk-logo {
     margin-left: 5px;
   }     
   .active:after {
-    content: "\2212";
+    content: "";
   }  
   .panel {
     padding: 0 18px;

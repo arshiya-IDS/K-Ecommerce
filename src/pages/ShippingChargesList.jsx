@@ -27,14 +27,47 @@ const ShippingChargesList = () => {
   const navigate = useNavigate();
 
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
-  const copyToClipboard = (text, id, field) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedField({ id, field });
-      setTimeout(() => {
-        setCopiedField({ id: null, field: null });
-      }, 2000);
-    });
-  };
+ 
+  const copyToClipboard = async (text, id, field) => {
+  try {
+    // ✅ Modern Clipboard API (HTTPS)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } 
+    // ✅ Fallback (HTTP / older browsers)
+    else {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Avoid scrolling to bottom
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (!successful) {
+        throw new Error("Fallback copy failed");
+      }
+    }
+
+    // ✅ UI feedback
+    setCopiedField({ id, field });
+    setTimeout(() => {
+      setCopiedField({ id: null, field: null });
+    }, 2000);
+
+  } catch (err) {
+    console.error("Copy failed:", err);
+    alert("Copy failed. Please copy manually.");
+  }
+};
+
 
   // ✅ Sample Data
  
@@ -301,7 +334,7 @@ const handleView = (row) => {
               <input type="search" placeholder="Search by ID, Name, Contact, Email, Location..."
                 className="form-control form-control-sm" style={{ height: '34px' }}
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-              <button type="button" className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
+              <button type="button" className="btn btn-light btn-sm ms-0 d-flex align-items-center justify-content-center"
                 style={{ height: '34px', width: '34px' }} title="Search" onClick={handleSearch}>
                 <i className="fas fa-search" style={{ fontSize: '13px' }}></i>
               </button>

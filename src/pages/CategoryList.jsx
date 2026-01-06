@@ -377,7 +377,8 @@ const handleSubmitStatus = async () => {
 
           {/* Search Bar */}
           <div
-            className="input-group align-items-center mx-3 py-2"
+            className="input-group align-items-center mx-3 py-1"
+            
             style={{ maxWidth: '350px', width: '100%' }}
           >
             <input
@@ -388,9 +389,10 @@ const handleSubmitStatus = async () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            
             <button
               type="button"
-              className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
+              className="btn btn-light btn-sm ms-0 d-flex align-items-center justify-content-center"
               style={{ height: '34px', width: '34px' }}
               title="Search"
             >
