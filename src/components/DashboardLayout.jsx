@@ -18,15 +18,33 @@ const DashboardLayout = () => {
   const location = useLocation();
 
   // Responsive sidebar
-  useEffect(() => {
-    const handleResize = () => setSidebarOpen(window.innerWidth >= 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // useEffect(() => {
+  //   const handleResize = () => setSidebarOpen(window.innerWidth >= 768);
+  //   handleResize();
+  //   window.addEventListener('resize', handleResize);
+  //   return () => window.removeEventListener('resize', handleResize);
+  //}, []);
+
+    
+ useEffect(() => {
+  const handleResize = () => {
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
+
+  handleResize(); // 👈 important on first load
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+  const toggleSidebar = () => {
+  setSidebarOpen(prev => !prev);
+};
+
+
 
   // Toggle functions
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleProductMenu = () => setProductMenuOpen(!productMenuOpen);
   const toggleCategoryMenu= () => setCategoryMenuOpen(!categoryMenuOpen);
@@ -44,7 +62,8 @@ const DashboardLayout = () => {
   return (
     <div className="dashboard-wrapper">
       {/* Sidebar */}
-      <div className={`dashboard-sidebar ${sidebarOpen ? 'open' : ''}`} id="sidebar-wrapper">
+        <div className={`dashboard-sidebar ${sidebarOpen ? "open" : "closed"}`}>
+
         <div className="sidebar-heading border-bottom bg-light">
           <Link to="/">
             <img
@@ -109,7 +128,7 @@ const DashboardLayout = () => {
                 <div className={`logout ${isActiveLink('/product-discount') ? 'active' : ''}`}>
                   <span>Products Discount Add</span>
                 </div>
-              </Link> */}
+              </Link>  */}
              
             </div>
           )}
@@ -293,7 +312,7 @@ const DashboardLayout = () => {
           )}
 
           {/* Other existing menu items */}
-          <Link className="logout-item" to="/enquiry-dashboard">
+          {/* <Link className="logout-item" to="/enquiry-dashboard">
             <div className={`logout ${isActiveLink('/enquiry-dashboard') ? 'active' : ''}`}>
               <img src="/images/icons/Enquirydashboard.png" width="20" height="20" alt="Enquiry Dashboard" className="menu-icon" />
               <span>Products Dashboard</span>
@@ -305,7 +324,7 @@ const DashboardLayout = () => {
               <img src="/images/icons/report.png" width="20" height="20" alt="MIS Report" className="menu-icon" />
               <span>MIS Report</span>
             </div>
-          </Link>
+          </Link> */}
 
           <Link className="logout-item" to="/">
             <div className="logout">
@@ -317,7 +336,11 @@ const DashboardLayout = () => {
       </div>
 
       {/* Top Navbar + Page Content */}
-      <div id="page-content-wrapper">
+    <div
+  id="page-content-wrapper"
+  className={sidebarOpen ? "sidebar-open" : "sidebar-closed"}
+>
+
         <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom dashboard-navbar">
           <div className="container-fluid">
             <button className="btn sidebar-toggle-btn" id="sidebarToggle" onClick={toggleSidebar}>

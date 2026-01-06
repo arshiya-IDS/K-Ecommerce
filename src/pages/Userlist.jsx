@@ -292,7 +292,7 @@ const handleSubmitStatus = () => {
     />
     <button
       type="button"
-      className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
+      className="btn btn-light btn-sm ms-0 d-flex align-items-center justify-content-center"
       style={{ height: '34px', width: '34px', padding: 0 }}
       title="Search"
       onClick={handleSearch}

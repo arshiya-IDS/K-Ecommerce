@@ -171,18 +171,48 @@ const formatDate = (dateStr) => {
   };
 
   // --- copy to clipboard ---
-  const copyToClipboard = (text, id, field) => {
-    if (!text && text !== 0) return;
-    navigator.clipboard
-      .writeText(String(text))
-      .then(() => {
-        setCopiedField({ id, field });
-        setTimeout(() => setCopiedField({ id: null, field: null }), 2000);
-      })
-      .catch(() => {
-        // ignore
-      });
-  };
+  
+
+  const copyToClipboard = async (text, id, field) => {
+  try {
+    // ✅ Modern Clipboard API (HTTPS)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+    } 
+    // ✅ Fallback (HTTP / older browsers)
+    else {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Avoid scrolling to bottom
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (!successful) {
+        throw new Error("Fallback copy failed");
+      }
+    }
+
+    // ✅ UI feedback
+    setCopiedField({ id, field });
+    setTimeout(() => {
+      setCopiedField({ id: null, field: null });
+    }, 2000);
+
+  } catch (err) {
+    console.error("Copy failed:", err);
+    alert("Copy failed. Please copy manually.");
+  }
+};
+
 
   // --- column headers (kept as design B) ---
   const getColumnHeaders = () => {
@@ -361,7 +391,7 @@ const formatDate = (dateStr) => {
               />
               <button
                 type="button"
-                className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
+                className="btn btn-light btn-sm ms-0 d-flex align-items-center justify-content-center"
                 style={{ height: "34px", width: "34px", padding: 0 }}
                 title="Search"
                 onClick={() => {
@@ -623,6 +653,7 @@ const formatDate = (dateStr) => {
                       Previous
                     </button>
                   </li>
+                  
                   <li className="page-item active">
                     <span className="page-link">{page}</span>
                   </li>
