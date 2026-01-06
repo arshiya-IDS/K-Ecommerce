@@ -12,9 +12,9 @@ import { useNavigate } from 'react-router-dom';
 
 import axios from "axios";
 
-const API_CATEGORY = "https://localhost:7031/api/Category";
-const API_SUBCATEGORY = "https://localhost:7031/api/Category/sub";
-const API_PRODUCT = "https://localhost:7031/api/Product";
+const API_CATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/Category";
+const API_SUBCATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/Category/sub";
+const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/Product";
 
 
 const ProductList = () => {
