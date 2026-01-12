@@ -73,11 +73,15 @@ const [statusChoice, setStatusChoice] = useState(null);
 const [categories, setCategories] = useState([]);
 const [loading, setLoading] = useState(false);
 
+const pageSizeOptions = [10, 15, 20, 25, "All"];
+const [total, setTotal] = useState(0);
+
 const [page, setPage] = useState(1);
 const [pageSize, setPageSize] = useState(10);
 const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [searchTerm, setSearchTerm] = useState('');
+const [toDate, setToDate] = useState("");
+const [searchTerm, setSearchTerm] = useState('');
+
   
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
@@ -253,6 +257,21 @@ const handleSubmitStatus = async () => {
     { key: 'action', label: 'Action', visible: true },
   ];
 
+  
+
+const handlePageSizeChange = (e) => {
+  const value = e.target.value;
+
+  if (value === "All") {
+    setPageSize(categories.length || 100000);
+  } else {
+    setPageSize(Number(value));
+  }
+
+  setPage(1);
+};
+
+
   return (
     <div className="container">
       <div className="category-table pb-3">
@@ -396,7 +415,9 @@ const handleSubmitStatus = async () => {
               </tr>
             </thead>
             <tbody>
-              {sortedCategories.map((cat) => (
+             {/* {sortedCategories.map((cat) => ( */}
+                {sortedCategories.slice((page - 1) * pageSize, page * pageSize).map((cat) => (
+
                 <tr key={cat.id}>
                   {/* Sub Category ID */}
                   {visibleColumns.subCategoryId && (
@@ -405,6 +426,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.subCategoryId}</span>
                         <button
                           className="btn btn-sm p-1"
+                         title={copiedField.id === cat.id && copiedField.field === "subCategoryId" ? "Copied" : "Copy"}
+
                           onClick={() => copyToClipboard(cat.subCategoryId, cat.id, 'subCategoryId')}
                         >
                           {copiedField.id === cat.id && copiedField.field === 'subCategoryId' ? (
@@ -424,6 +447,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.categoryName}</span>
                         <button
                           className="btn btn-sm p-1"
+                          title={copiedField.id === cat.id && copiedField.field === "categoryName" ? "Copied" : "Copy"}
+
                           onClick={() => copyToClipboard(cat.categoryName, cat.id, 'categoryName')}
                         >
                           {copiedField.id === cat.id && copiedField.field === 'categoryName' ? (
@@ -443,6 +468,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.subCategory}</span>
                         <button
                           className="btn btn-sm p-1"
+                          title={copiedField.id === cat.id && copiedField.field === "subCategory" ? "Copied" : "Copy"}
+
                           onClick={() => copyToClipboard(cat.subCategory, cat.id, 'subCategory')}
                         >
                           {copiedField.id === cat.id && copiedField.field === 'subCategory' ? (
@@ -462,6 +489,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.createdAt}</span>
                         <button
                           className="btn btn-sm p-1"
+                          title={copiedField.id === cat.id && copiedField.field === "createdAt" ? "Copied" : "Copy"}
+
                           onClick={() => copyToClipboard(cat.createdAt, cat.id, 'createdAt')}
                         >
                           {copiedField.id === cat.id && copiedField.field === 'createdAt' ? (
@@ -481,6 +510,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.updatedAt}</span>
                         <button
                           className="btn btn-sm p-1"
+                          title={copiedField.id === cat.id && copiedField.field === "updatedAt" ? "Copied" : "Copy"}
+
                           onClick={() => copyToClipboard(cat.updatedAt, cat.id, 'updatedAt')}
                         >
                           {copiedField.id === cat.id && copiedField.field === 'updatedAt' ? (
@@ -545,36 +576,66 @@ const handleSubmitStatus = async () => {
         </div>
 
         {/* Pagination */}
-        <div className="row">
-          <div className="col-md-6 mt-3">
-            <strong>
-              Showing 1 to {sortedCategories.length} of {sortedCategories.length} entries
-            </strong>
-          </div>
-          <div className="col-md-6">
-            <nav aria-label="Page navigation">
-              <ul className="pagination d-flex justify-content-end w-100 mt-3">
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    <MdKeyboardArrowLeft style={{ fontSize: '20px' }} />
-                    <MdKeyboardArrowLeft style={{ fontSize: '20px', marginLeft: '-15px' }} /> Previous
-                  </a>
-                </li>
-                <li className="page-item active">
-                  <a className="page-link" href="#">
-                    Page 1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a className="page-link" href="#">
-                    Next <MdKeyboardArrowRight style={{ fontSize: '20px' }} />
-                    <MdKeyboardArrowRight style={{ fontSize: '20px', marginLeft: '-15px' }} />
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
+       {/* Pagination */}
+<div className="row align-items-center">
+  <div className="col-md-6 mt-3 d-flex align-items-center gap-2">
+    <strong>Show</strong>
+
+    <select
+      className="form-select form-select-sm"
+      style={{ width: "80px" }}
+      value={
+        pageSize >= sortedCategories.length ? "All" : pageSize
+      }
+      onChange={handlePageSizeChange}
+    >
+      {pageSizeOptions.map((size) => (
+        <option key={size} value={size}>
+          {size}
+        </option>
+      ))}
+    </select>
+
+    <strong>
+      entries | Showing {(page - 1) * pageSize + 1} to{" "}
+      {Math.min(page * pageSize, sortedCategories.length)} of{" "}
+      {sortedCategories.length}
+    </strong>
+  </div>
+
+  <div className="col-md-6">
+    <nav>
+      <ul className="pagination justify-content-end mt-3">
+        <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </button>
+        </li>
+
+        <li className="page-item active">
+          <span className="page-link">Page {page}</span>
+        </li>
+
+        <li
+          className={`page-item ${
+            page * pageSize >= sortedCategories.length ? "disabled" : ""
+          }`}
+        >
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
 
           {showConfirm && (
   <div

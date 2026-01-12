@@ -3,11 +3,17 @@ import { FaEdit, FaBan } from "react-icons/fa";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
-
+import "sweetalert2/src/sweetalert2.scss";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import {useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 const ShippingChargesDetails = () => {
 
+  const navigate=useNavigate();
+
   const { id } = useParams(); // shipping_id
+
+
 
   // Hardcoded shipping charge details
  
@@ -49,7 +55,15 @@ const ShippingChargesDetails = () => {
         payload
       );
 
-      setMessage("✅ Shipping charge updated successfully!");
+      
+             Swal.fire({
+            icon: "success",
+            title: "Updated",
+            text: "Shipping charge updated",
+            timer: 1500,
+            showConfirmButton: false
+          });
+              navigate("/shipping-charges-list");
       setIsEditable(false);
     } catch (err) {
       console.error("Edit error", err);
@@ -124,7 +138,7 @@ const ShippingChargesDetails = () => {
         </h2>
 
           {/* Center: Search Bar */}
-    <div
+    {/* <div
       className="input-group"
       style={{
         maxWidth: "350px",
@@ -153,7 +167,7 @@ const ShippingChargesDetails = () => {
       >
         <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
       </button>
-    </div>
+    </div> */}
 
       </div>
 
@@ -229,6 +243,14 @@ const ShippingChargesDetails = () => {
 
         {/* Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
+           <Link to="/shipping-charges-list">
+                                          <button
+                                          type="button"
+                                          className="btn btn-primary fw-bold px-4 py-2 rounded-3"
+                                        >
+                                         Back
+                                        </button>
+                                        </Link>
           <button
             type="button"
             onClick={handleEditToggle}

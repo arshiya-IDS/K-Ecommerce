@@ -3,8 +3,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
+import "sweetalert2/src/sweetalert2.scss";
 
 const UserDiscount = () => {
+
+  const [errors, setErrors] = useState({});
+
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState("");
@@ -23,13 +27,58 @@ const UserDiscount = () => {
     .catch(err => console.error("Users API error", err));
 }, []);
 
+const validateForm = () => {
+  const newErrors = {};
+
+  if (!discountName.trim()) {
+    newErrors.discountName = "Discount name is required";
+  }
+
+  if (!selectedUser) {
+    newErrors.selectedUser = "Please select a user";
+  }
+
+  if (!discountValue) {
+    newErrors.discountValue = "Discount value is required";
+  } else if (Number(discountValue) <= 0) {
+    newErrors.discountValue = "Discount value must be greater than 0";
+  }
+
+  if (discountType === "percentage" && Number(discountValue) > 100) {
+    newErrors.discountValue = "Percentage cannot exceed 100";
+  }
+
+  if (!discountStartDate) {
+    newErrors.discountStartDate = "Start date is required";
+  }
+
+  if (!discountEndDate) {
+    newErrors.discountEndDate = "End date is required";
+  }
+
+  if (
+    discountStartDate &&
+    discountEndDate &&
+    new Date(discountEndDate) < new Date(discountStartDate)
+  ) {
+    newErrors.discountEndDate = "End date must be after start date";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!discountName || !discountValue || !selectedUser) {
-      alert("Please fill all required fields.");
-      return;
-    }
+     if (!validateForm()) {
+    Swal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Please correct the highlighted fields",
+    });
+    return;
+  }
 
     
 
@@ -92,25 +141,38 @@ const UserDiscount = () => {
           {/* Discount Name */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Discount Name</label>
+            
+
             <input
-              type="text"
-              className="form-control"
-              value={discountName}
-              onChange={(e) => setDiscountName(e.target.value)}
-              placeholder="Enter discount name"
-              required
-            />
+                type="text"
+                className={`form-control ${errors.discountName ? "is-invalid" : ""}`}
+                value={discountName}
+                onChange={(e) => {
+                  setDiscountName(e.target.value);
+                  setErrors({ ...errors, discountName: "" });
+                }}
+              />
+              {errors.discountName && (
+                <div className="invalid-feedback">{errors.discountName}</div>
+              )}
+
           </div>
 
           {/* Select User */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Select User</label>
             <select
-              className="form-select"
-              value={selectedUser}
-              onChange={(e) => setSelectedUser(e.target.value)}
-              required
-            >
+  className={`form-select ${errors.selectedUser ? "is-invalid" : ""}`}
+  value={selectedUser}
+  onChange={(e) => {
+    setSelectedUser(e.target.value);
+    setErrors({ ...errors, selectedUser: "" });
+  }}
+>
+  {errors.selectedUser && (
+  <div className="invalid-feedback">{errors.selectedUser}</div>
+)}
+
               <option value="">Select User</option>
              {users.map((user) => (
             <option key={user.userId} value={user.userName}>
@@ -119,6 +181,8 @@ const UserDiscount = () => {
           ))}
 
             </select>
+           
+
           </div>
 
           {/* Discount Type */}
@@ -140,41 +204,64 @@ const UserDiscount = () => {
           {/* Discount Value */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Discount Value</label>
+          
+
             <input
-              type="number"
-              className="form-control"
-              value={discountValue}
-              onChange={(e) => setDiscountValue(e.target.value)}
+            type="number"
+            className={`form-control ${errors.discountValue ? "is-invalid" : ""}`}
               placeholder={`Enter discount value in ${
-                discountType === "percentage" ? "%" : "$"
-              }`}
-              min="0"
-              required
-            />
+                          discountType === "percentage" ? "%" : "$"
+                        }`}
+            value={discountValue}
+            onChange={(e) => {
+              setDiscountValue(e.target.value);
+              setErrors({ ...errors, discountValue: "" });
+            }}
+          />
+          {errors.discountValue && (
+  <div className="invalid-feedback">{errors.discountValue}</div>
+)}
+
+
           </div>
 
           {/* Start Date */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Start Date</label>
+            
             <input
-              type="date"
-              className="form-control"
-              value={discountStartDate}
-              onChange={(e) => setDiscountStartDate(e.target.value)}
-              required
-            />
+            type="date"
+            className={`form-control ${errors.discountStartDate ? "is-invalid" : ""}`}
+            value={discountStartDate}
+            onChange={(e) => {
+              setDiscountStartDate(e.target.value);
+              setErrors({ ...errors, discountStartDate: "" });
+            }}
+          />
+          {errors.discountStartDate && (
+  <div className="invalid-feedback">{errors.discountStartDate}</div>
+)}
+
           </div>
 
           {/* End Date */}
           <div className="mb-3">
             <label className="form-label fw-semibold">End Date</label>
+            
             <input
-              type="date"
-              className="form-control"
-              value={discountEndDate}
-              onChange={(e) => setDiscountEndDate(e.target.value)}
-              required
-            />
+            type="date"
+            className={`form-control ${errors.discountEndDate ? "is-invalid" : ""}`}
+            value={discountEndDate}
+            onChange={(e) => {
+              setDiscountEndDate(e.target.value);
+              setErrors({ ...errors, discountEndDate: "" });
+            }}
+          />
+          {errors.discountEndDate && (
+  <div className="invalid-feedback">{errors.discountEndDate}</div>
+)}
+
+
           </div>
 
           {/* Is Active */}

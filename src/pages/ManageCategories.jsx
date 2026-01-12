@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
+import "sweetalert2/src/sweetalert2.scss";
 
 
 const ManageCategories = () => {
   // ✅ Category state
+const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
   const [category, setCategory] = useState({
@@ -28,15 +30,53 @@ const ManageCategories = () => {
   const [message, setMessage] = useState("");
 
   // ✅ Handle input change for category
+ 
   const handleCategoryChange = (e) => {
-    setCategory({ ...category, [e.target.name]: e.target.value });
-  };
+  setCategory({ ...category, [e.target.name]: e.target.value });
+  setErrors({ ...errors, [e.target.name]: "" });
+};
 
-  
+
+  const validateCategoryForm = () => {
+  const newErrors = {};
+
+  if (!category.category_name.trim()) {
+    newErrors.category_name = "Category name is required";
+  } else if (category.category_name.length < 3) {
+    newErrors.category_name = "Category name must be at least 3 characters";
+  }
+
+  if (!category.category_description.trim()) {
+    newErrors.category_description = "Description is required";
+  }
+
+  if (
+    category.parent_category_id &&
+    Number(category.parent_category_id) < 0
+  ) {
+    newErrors.parent_category_id = "Parent category ID cannot be negative";
+  }
+
+  if (!category.category_type.trim()) {
+    newErrors.category_type = "Category type is required";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
   // ✅ Handle category submission
  const handleCategorySubmit = async (e) => {
   e.preventDefault();
+   if (!validateCategoryForm()) {
+    Swal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Please correct the highlighted fields",
+    });
+    return;
+  }
   setLoading(true);
   setMessage("");
 
@@ -113,27 +153,34 @@ const ManageCategories = () => {
 
           <div className="mb-3">
             <label className="form-label fw-semibold">Category Name</label>
+            
             <input
-              type="text"
-              name="category_name"
-              className="form-control"
-              placeholder="Enter category name"
-              value={category.category_name}
-              onChange={handleCategoryChange}
-              required
-            />
+            type="text"
+            name="category_name"
+            className={`form-control ${errors.category_name ? "is-invalid" : ""}`}
+            value={category.category_name}
+            onChange={handleCategoryChange}
+          />
+          {errors.category_name && (
+            <div className="invalid-feedback">{errors.category_name}</div>
+          )}
+
           </div>
 
           <div className="mb-3">
             <label className="form-label fw-semibold">Description</label>
+            
             <textarea
               name="category_description"
-              className="form-control"
+              className={`form-control ${errors.category_description ? "is-invalid" : ""}`}
               rows="3"
-              placeholder="Enter category description"
               value={category.category_description}
               onChange={handleCategoryChange}
-            ></textarea>
+            />
+            {errors.category_description && (
+              <div className="invalid-feedback">{errors.category_description}</div>
+            )}
+
           </div>
 
           <div className="row">
@@ -151,14 +198,18 @@ const ManageCategories = () => {
 
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Category Type</label>
+              
               <input
                 type="text"
                 name="category_type"
-                className="form-control"
-                placeholder="Enter category type"
+                className={`form-control ${errors.category_type ? "is-invalid" : ""}`}
                 value={category.category_type}
                 onChange={handleCategoryChange}
               />
+              {errors.category_type && (
+                <div className="invalid-feedback">{errors.category_type}</div>
+              )}
+
             </div>
           </div>
 

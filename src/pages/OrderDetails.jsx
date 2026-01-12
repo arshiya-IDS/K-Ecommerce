@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
+import { Link } from "react-router-dom";
 
 const OrderDetails = () => {
 
@@ -181,7 +181,7 @@ const fetchOrderItem = async () => {
         </h2>
 
           {/* Center: Search Bar */}
-    <div
+    {/* <div
       className="input-group"
       style={{
         maxWidth: "350px",
@@ -210,7 +210,7 @@ const fetchOrderItem = async () => {
       >
         <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
       </button>
-    </div>
+    </div> */}
       </div>
 
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
@@ -393,7 +393,14 @@ const fetchOrderItem = async () => {
             {isEditable ? "Submit" : "Edit"}
           </button> */}
 
-         
+         <Link to="/orders-list">
+                               <button
+                               type="button"
+                               className="btn btn-primary fw-bold px-4 py-2 rounded-3"
+                             >
+                              Back
+                             </button>
+                             </Link>
 
           <button
             type="button"

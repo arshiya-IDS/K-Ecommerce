@@ -3,9 +3,13 @@ import { MdDescription } from "react-icons/md";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+import "sweetalert2/src/sweetalert2.scss";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const CategoryDetails = () => {
+  const navigate=useNavigate();
   // Hardcoded category details
   const [category, setCategory] = useState({
     category_id: 1,
@@ -73,7 +77,16 @@ const [loading, setLoading] = useState(true);
     // Update UI with response
     setCategory(res.data.category);
     setIsEditable(false);
-    setMessage("✅ Category updated successfully!");
+      Swal.fire({
+    icon: "success",
+    title: "Updated!",
+    text: "Category Updated",
+    timer: 1500,
+    showConfirmButton: false
+  }).then(() => {
+    navigate("/category-list");
+  });
+
   } catch (error) {
     console.error("Update failed", error);
     setMessage("❌ Failed to update category");
@@ -139,7 +152,7 @@ if (loading) {
         <h2 style={{ fontSize: "20px",fontWeight:'normal',marginLeft:'420px' }}>Category Details</h2>
 
         {/* Center: Search Bar */}
-    <div
+    {/* <div
       className="input-group"
       style={{
         maxWidth: "350px",
@@ -168,7 +181,7 @@ if (loading) {
       >
         <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
       </button>
-    </div>
+    </div> */}
   
       </div>
 
@@ -208,11 +221,21 @@ if (loading) {
             ))}
           </div>
 
-
+ 
         
 
         {/* Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
+
+          <Link to="/category-list">
+            <button
+            type="button"
+            className="btn btn-primary fw-bold px-4 py-2 rounded-3"
+          >
+           Back
+          </button>
+          </Link>
+
           <button
             type="button"
             onClick={handleEditToggle}
@@ -221,6 +244,8 @@ if (loading) {
           >
             {isEditable ? "Submit" : "Edit"}
           </button>
+
+         
 
           {/* <button
             type="button"

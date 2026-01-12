@@ -3,9 +3,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
+import "sweetalert2/src/sweetalert2.scss";
 
 const ShippingCharges = () => {
    const navigate = useNavigate();
+   const [errors, setErrors] = useState({});
+
 
   const [chargeName, setChargeName] = useState("");
   const [chargeType, setChargeType] = useState("fixed"); // fixed or percentage
@@ -13,20 +16,64 @@ const ShippingCharges = () => {
   const [estimatedDays, setEstimatedDays] = useState("");
   const [isActive, setIsActive] = useState(true);
 
-   const [purchaseAmount, setPurchaseAmount] = useState("");
-
-      const [purchaseAmount2, setPurchaseAmount2] = useState("");
+  
 
 
   const [minAmount, setMinAmount] = useState("");
 const [maxAmount, setMaxAmount] = useState("");
 
+const validateForm = () => {
+  const newErrors = {};
+
+  if (!chargeName.trim()) {
+    newErrors.chargeName = "Charge name is required";
+  }
+
+  if (minAmount === "" || Number(minAmount) < 0) {
+    newErrors.minAmount = "Minimum amount must be 0 or greater";
+  }
+
+  if (maxAmount === "" || Number(maxAmount) <= 0) {
+    newErrors.maxAmount = "Maximum amount must be greater than 0";
+  }
+
+  if (
+    minAmount !== "" &&
+    maxAmount !== "" &&
+    Number(minAmount) >= Number(maxAmount)
+  ) {
+    newErrors.maxAmount = "Maximum amount must be greater than minimum amount";
+  }
+
+  if (chargeValue === "" || Number(chargeValue) <= 0) {
+    newErrors.chargeValue =
+      chargeType === "percentage"
+        ? "Percentage must be greater than 0"
+        : "Charge value must be greater than 0";
+  }
+
+  if (chargeType === "percentage" && Number(chargeValue) > 100) {
+    newErrors.chargeValue = "Percentage cannot exceed 100%";
+  }
+
+  if (estimatedDays === "" || Number(estimatedDays) <= 0) {
+    newErrors.estimatedDays = "Estimated days must be greater than 0";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!chargeName || !chargeValue || !purchaseAmount || !estimatedDays) {
-      alert("Please fill all required fields.");
-      return;
-    }
+   if (!validateForm()) {
+    Swal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Please correct the highlighted fields",
+    });
+    return;
+  }
 
     
 
@@ -58,7 +105,8 @@ const [maxAmount, setMaxAmount] = useState("");
       setChargeName("");
       setChargeType("fixed");
       setChargeValue("");
-      setPurchaseAmount("");
+      setMinAmount("");
+      setMaxAmount("");
       setEstimatedDays("");
       setIsActive(true);
     } catch (error) {
@@ -87,43 +135,67 @@ const [maxAmount, setMaxAmount] = useState("");
           {/* Charge Name */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Charge Name</label>
+           
             <input
-              type="text"
-              className="form-control"
-              value={chargeName}
-              onChange={(e) => setChargeName(e.target.value)}
-              placeholder="Enter charge name (e.g., Standard Shipping)"
-              required
-            />
+            type="text"
+            className={`form-control ${errors.chargeName ? "is-invalid" : ""}`}
+            value={chargeName}
+            placeholder="Enter charge name (e.g., Standard Shipping)"
+            onChange={(e) => {
+              setChargeName(e.target.value);
+              setErrors({ ...errors, chargeName: "" });
+            }}
+          />
+          {errors.chargeName && (
+  <div className="invalid-feedback">{errors.chargeName}</div>
+)}
+
+
           </div>
 
           {/* Minimum Purchase Amount */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Minimum Purchase Amount ($)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={purchaseAmount}
-              onChange={(e) => setPurchaseAmount(e.target.value)}
-              min="0"
-              placeholder="Enter minimum order amount for this charge"
-              required
-            />
-          
+            
+                    
+                      <input
+            type="number"
+            className={`form-control ${errors.minAmount ? "is-invalid" : ""}`}
+            value={minAmount}
+            min="0"
+          placeholder="Enter minimum order amount for this charge"
+            onChange={(e) => {
+              setMinAmount(e.target.value);
+              setErrors({ ...errors, minAmount: "" });
+            }}
+          />
+
+          {errors.minAmount && (
+  <div className="invalid-feedback">{errors.minAmount}</div>
+)}
+
 
           </div>
 
             <div className="mb-3">
             <label className="form-label fw-semibold">Maximum Purchase Amount ($)</label>
+              
+          
             <input
-              type="number"
-              className="form-control"
-              value={purchaseAmount2}
-              onChange={(e) => setPurchaseAmount2(e.target.value)}
-              min="0"
-              placeholder="Enter maximum order amount for this charge"
-              required
-            />
+          type="number"
+          className={`form-control ${errors.maxAmount ? "is-invalid" : ""}`}
+          value={maxAmount}
+          placeholder="Enter maximum order amount for this charge"
+          onChange={(e) => {
+            setMaxAmount(e.target.value);
+            setErrors({ ...errors, maxAmount: "" });
+          }}
+        />
+        {errors.maxAmount && (
+  <div className="invalid-feedback">{errors.maxAmount}</div>
+)}
+
+
           </div>
 
           {/* Charge Type */}
@@ -134,6 +206,8 @@ const [maxAmount, setMaxAmount] = useState("");
               value={chargeType}
               onChange={(e) => setChargeType(e.target.value)}
             >
+            
+
               <option value="fixed">Fixed Amount ($)</option>
               <option value="percentage">Percentage (%)</option>
             </select>
@@ -142,31 +216,47 @@ const [maxAmount, setMaxAmount] = useState("");
           {/* Charge Value */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Charge Value</label>
+            
             <input
               type="number"
-              className="form-control"
+              className={`form-control ${errors.chargeValue ? "is-invalid" : ""}`}
               value={chargeValue}
-              onChange={(e) => setChargeValue(e.target.value)}
               min="0"
-              placeholder={`Enter charge value in ${
-                chargeType === "percentage" ? "%" : "$"
-              }`}
-              required
+                          placeholder={`Enter charge value in ${
+                            chargeType === "percentage" ? "%" : "$"
+                          }`}
+              onChange={(e) => {
+                setChargeValue(e.target.value);
+                setErrors({ ...errors, chargeValue: "" });
+              }}
             />
+            {errors.chargeValue && (
+  <div className="invalid-feedback">{errors.chargeValue}</div>
+)}
+
+
           </div>
 
           {/* Estimated Days */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Estimated Delivery Days</label>
+           
             <input
-              type="number"
-              className="form-control"
-              value={estimatedDays}
-              onChange={(e) => setEstimatedDays(e.target.value)}
-              min="1"
-              placeholder="Enter estimated delivery days"
-              required
-            />
+            type="number"
+            className={`form-control ${errors.estimatedDays ? "is-invalid" : ""}`}
+            value={estimatedDays}
+            min="1"
+            placeholder="Enter estimated delivery days"
+            onChange={(e) => {
+              setEstimatedDays(e.target.value);
+              setErrors({ ...errors, estimatedDays: "" });
+            }}
+          />
+          {errors.estimatedDays && (
+  <div className="invalid-feedback">{errors.estimatedDays}</div>
+)}
+
+
           </div>
 
           {/* Is Active */}

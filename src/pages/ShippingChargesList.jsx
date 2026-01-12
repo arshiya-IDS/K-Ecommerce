@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from "react-router-dom";
 
 const API_PRODUCT = "https://localhost:7013/api/ShippingCharges";
 
@@ -82,6 +83,9 @@ const [loading, setLoading] = useState(true);
 
  const [ShippingCharges,  setShippingCharges] = useState([]);
 
+// ✅ Pagination (simple)
+const [currentPage, setCurrentPage] = useState(1);
+const [rowsPerPage, setRowsPerPage] = useState(10);
 
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -302,6 +306,20 @@ const handleView = (row) => {
 
   const columnHeaders = getColumnHeaders();
 
+  // ✅ Pagination calculation
+const totalPages = Math.ceil(sortedUsers.length / rowsPerPage);
+
+const paginatedUsers = useMemo(() => {
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  return sortedUsers.slice(start, end);
+}, [sortedUsers, currentPage, rowsPerPage]);
+
+useEffect(() => {
+  setCurrentPage(1);
+}, [rowsPerPage, searchTerm]);
+
+
   return (
     <div className="container">
       <div className="row">
@@ -434,7 +452,9 @@ const handleView = (row) => {
               </thead>
 
               <tbody>
-                {sortedUsers.map((user, index) => (
+                {/* {sortedUsers.map((user, index) => ( */}
+                  {paginatedUsers.map((user, index) => (
+
                   <tr key={user.shipping_id} className={index % 2 === 0 ? 'even' : 'odd'}>
                     {visibleColumns.shipping_id && (
                       <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap', color: '#645959' }}>
@@ -442,8 +462,9 @@ const handleView = (row) => {
                           <span>{user.shipping_id}</span>
                           <button
                             className="btn btn-sm ms-2 p-1"
+                            title={copiedField.id === user.shipping_id  && copiedField.field === "shipping_id" ? "Copied" : "Copy"}
+
                             onClick={() => copyToClipboard(user.shipping_id, user.shipping_id, 'shipping_id')}
-                            title="Copy Shipping ID"
                             style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {copiedField.id === user.shipping_id && copiedField.field === 'shipping_id'
                               ? <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
@@ -459,8 +480,9 @@ const handleView = (row) => {
                           <span>{user.name}</span>
                           <button
                             className="btn btn-sm ms-2 p-1"
+                            title={copiedField.id === user.shipping_id  && copiedField.field === "name" ? "Copied" : "Copy"}
+
                             onClick={() => copyToClipboard(user.name, user.shipping_id, 'name')}
-                            title="Copy Name"
                             style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {copiedField.id === user.shipping_id && copiedField.field === 'name'
                               ? <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
@@ -476,8 +498,9 @@ const handleView = (row) => {
                           <span>{user.email}</span>
                           <button
                             className="btn btn-sm ms-2 p-1"
+                            title={copiedField.id === user.shipping_id  && copiedField.field === "email" ? "Copied" : "Copy"}
+
                             onClick={() => copyToClipboard(user.email, user.shipping_id, 'email')}
-                            title="Copy Email"
                             style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {copiedField.id === user.shipping_id && copiedField.field === 'email'
                               ? <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
@@ -493,8 +516,9 @@ const handleView = (row) => {
                           <span>{user.phoneNumber}</span>
                           <button
                             className="btn btn-sm ms-2 p-1"
+                            title={copiedField.id === user.shipping_id  && copiedField.field === "phoneNumber" ? "Copied" : "Copy"}
+
                             onClick={() => copyToClipboard(user.phoneNumber, user.shipping_id, 'phoneNumber')}
-                            title="Copy Phone Number"
                             style={{ width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {copiedField.id === user.shipping_id && copiedField.field === 'phoneNumber'
                               ? <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
@@ -584,53 +608,58 @@ const handleView = (row) => {
                                                     </div>
                  
 
-          <div className="row">
-            <div className="col-md-6">
-              <div className="mt-3">
-                <strong>Showing 1 to {sortedUsers.length} of {sortedUsers.length} entries</strong>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <nav aria-label="Page navigation">
-                <ul className="pagination d-flex justify-content-end w-100 mt-3">
-                  <li className="page-item" aria-current="page">
-                    <a className="page-link"
+         <div className="row align-items-center mt-3">
+  {/* Left: Rows dropdown */}
+  <div className="col-md-6 d-flex align-items-center">
+    <span className="me-2"><strong>Show</strong></span>
 
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px", // spacing between arrow and text
-                      fontSize: "15px", // adjust this to your desired text size
-             }}
-                    
-                    href="#">
+    <select
+      className="form-select form-select-sm"
+      style={{ width: "80px" }}
+      value={rowsPerPage}
+      onChange={(e) => setRowsPerPage(Number(e.target.value))}
+    >
+      <option value={10}>10</option>
+      <option value={25}>25</option>
+      <option value={50}>50</option>
+    </select>
 
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                                             Previous
-                    
+    <span className="ms-2">
+      entries (Total: {sortedUsers.length})
+    </span>
+  </div>
 
+  {/* Right: Prev / Next */}
+  <div className="col-md-6">
+    <nav>
+      <ul className="pagination justify-content-end mb-0">
+        <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setCurrentPage(prev => prev - 1)}
+          >
+            Previous
+          </button>
+        </li>
 
-                    </a>
-                  </li>
-                  <li className="page-item active">
-                    <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
-                  </li>
-                  <li className="page-item">
-                  <a className="page-link" style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px", // spacing between arrow and text
-                      fontSize: "15px", // adjust this to your desired text size
-                     }} href="#">Next
-                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                       <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                    </a>               
-                       </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
+        <li className="page-item active">
+          <span className="page-link">
+            Page {currentPage} of {totalPages}
+          </span>
+        </li>
+
+        <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setCurrentPage(prev => prev + 1)}
+          >
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
 
             {showConfirm && (
   <div
