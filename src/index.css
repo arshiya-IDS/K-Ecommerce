@@ -202,6 +202,33 @@ body {
   margin-left: 0;
 }
 
+.copy-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.copy-tooltip {
+  position: absolute;
+  top: -28px;
+  right: 0;
+  background: #000;
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.copy-tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 .sidebar-logo {
   width: 80%;

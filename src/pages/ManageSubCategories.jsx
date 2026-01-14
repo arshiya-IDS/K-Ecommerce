@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
+import "sweetalert2/src/sweetalert2.scss";
+
 
 
 const ManageSubCategories = () => {
   // ✅ Category state
+  const [errors, setErrors] = useState({});
+
     const navigate = useNavigate();
 
   const [category, setCategory] = useState({
@@ -31,9 +35,13 @@ const [categories, setCategories] = useState([]);
  
 
   // ✅ Handle input change for subcategory
+ 
+
   const handleSubCategoryChange = (e) => {
-    setSubCategory({ ...subCategory, [e.target.name]: e.target.value });
-  };
+  setSubCategory({ ...subCategory, [e.target.name]: e.target.value });
+  setErrors({ ...errors, [e.target.name]: "" });
+};
+
 
 useEffect(() => {
   fetchCategories();
@@ -48,11 +56,41 @@ const fetchCategories = async () => {
   }
 };
 
+const validateSubCategoryForm = () => {
+  const newErrors = {};
+
+  if (!subCategory.category_id) {
+    newErrors.category_id = "Please select a parent category";
+  }
+
+  if (!subCategory.sub_category_name.trim()) {
+    newErrors.sub_category_name = "Subcategory name is required";
+  } else if (subCategory.sub_category_name.length < 3) {
+    newErrors.sub_category_name = "Subcategory name must be at least 3 characters";
+  }
+
+  if (!subCategory.sub_category_description.trim()) {
+    newErrors.sub_category_description = "Description is required";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
   
 
   // ✅ Handle subcategory submission
  const handleSubCategorySubmit = async (e) => {
   e.preventDefault();
+
+  if (!validateSubCategoryForm()) {
+    Swal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Please correct the highlighted fields",
+    });
+    return;
+  }
   setLoading(true);
   setMessage("");
 
@@ -124,13 +162,18 @@ const fetchCategories = async () => {
           <div className="row">
            <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Parent Category</label>
-              <select
-                className="form-select"
-                name="category_id"
-                value={subCategory.category_id}
-                onChange={handleSubCategoryChange}
-                required
-              >
+             
+                <select
+              className={`form-select ${errors.category_id ? "is-invalid" : ""}`}
+              name="category_id"
+              value={subCategory.category_id}
+              onChange={handleSubCategoryChange}
+            >
+              {errors.category_id && (
+  <div className="invalid-feedback">{errors.category_id}</div>
+)}
+
+
                 <option value="">-- Select Category --</option>
                 {categories.map((cat) => (
                   <option key={cat.category_Id} value={cat.category_Id}>
@@ -143,15 +186,19 @@ const fetchCategories = async () => {
 
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Subcategory Name</label>
+             
               <input
-                type="text"
-                name="sub_category_name"
-                className="form-control"
-                placeholder="Enter subcategory name"
-                value={subCategory.sub_category_name}
-                onChange={handleSubCategoryChange}
-                required
-              />
+              type="text"
+              name="sub_category_name"
+              className={`form-control ${errors.sub_category_name ? "is-invalid" : ""}`}
+              placeholder="Enter subcategory name"
+              value={subCategory.sub_category_name}
+              onChange={handleSubCategoryChange}
+            />
+            {errors.sub_category_name && (
+  <div className="invalid-feedback">{errors.sub_category_name}</div>
+)}
+
             </div>
           </div>
 
@@ -159,14 +206,20 @@ const fetchCategories = async () => {
             <label className="form-label fw-semibold">
               Subcategory Description
             </label>
+           
             <textarea
-              name="sub_category_description"
-              className="form-control"
-              rows="3"
-              placeholder="Enter subcategory description"
-              value={subCategory.sub_category_description}
-              onChange={handleSubCategoryChange}
-            ></textarea>
+            name="sub_category_description"
+            className={`form-control ${errors.sub_category_description ? "is-invalid" : ""}`}
+            rows="3"
+            value={subCategory.sub_category_description}
+            onChange={handleSubCategoryChange}
+          />
+          {errors.sub_category_description && (
+            <div className="invalid-feedback">{errors.sub_category_description}</div>
+          )}
+
+
+
           </div>
 
           <div className="form-check mb-3">

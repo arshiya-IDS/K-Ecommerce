@@ -40,6 +40,8 @@ const CategoryList = () => {
   // };
 
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
+  const pageSizeOptions = [10, 15, 20, 25, 30, "All"];
+const [total, setTotal] = useState(0);
 
 const copyToClipboard = async (text, id, field) => {
   try {
@@ -79,6 +81,20 @@ const copyToClipboard = async (text, id, field) => {
     console.error("Copy failed:", err);
     alert("Copy failed. Please copy manually.");
   }
+};
+
+
+
+const handlePageSizeChange = (e) => {
+  const value = e.target.value;
+
+  if (value === "All") {
+    setPageSize(total || categories.length || 999999);
+  } else {
+    setPageSize(Number(value));
+  }
+
+  setPage(1);
 };
 
 
@@ -184,6 +200,7 @@ const formatDate = (dateStr) => {
     }));
 
     setCategories(mappedData);
+     setTotal(response.data.total);
   } catch (err) {
     console.error('Error fetching categories:', err);
     setError('Failed to load categories');
@@ -191,6 +208,7 @@ const formatDate = (dateStr) => {
     setLoading(false);
   }
 };
+
 
 
 useEffect(() => {
@@ -313,6 +331,12 @@ const handleSubmitStatus = async () => {
 
    
   ];
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+const gotoNext = () => setPage((p) => Math.min(totalPages, p + 1));
+const gotoPrev = () => setPage((p) => Math.max(1, p - 1));
+
 
   return (
     <div className="container">
@@ -499,20 +523,19 @@ const handleSubmitStatus = async () => {
                     <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                       <div className="d-flex justify-content-between align-items-center">
                         <strong>{cat.id}</strong>
-                        <button
-                          className="btn btn-sm p-1"
-                          onClick={() => copyToClipboard(cat.id, cat.id, 'id')}
-                        >
-                          {copiedField.id === cat.id && copiedField.field === 'id' ? (
-                            <img
-                              src={checkIcon}
-                              alt="Copied"
-                              style={{ width: '18px', height: '18px' }}
-                            />
-                          ) : (
-                            <MdContentCopy size={15} />
-                          )}
-                        </button>
+                        
+                    <button
+                className="btn btn-sm p-1"
+                title={copiedField.id === cat.id && copiedField.field === "id" ? "Copied" : "Copy"}
+                onClick={() => copyToClipboard(cat.id, cat.id, "id")}
+              >
+                {copiedField.id === cat.id && copiedField.field === "id" ? (
+                  <img src={checkIcon} alt="Copied" style={{ width: "18px", height: "18px" }} />
+                ) : (
+                  <MdContentCopy size={15} />
+                )}
+              </button>
+
                       </div>
                     </td>
                   )}
@@ -524,6 +547,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.categoryName}</span>
                         <button
                           className="btn btn-sm p-1"
+                          title={copiedField.id === cat.id && copiedField.field === "categoryName" ? "Copied" : "Copy"}
+
                           onClick={() =>
                             copyToClipboard(cat.categoryName, cat.id, 'categoryName')
                           }
@@ -550,6 +575,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.subCategory}</span>
                         <button
                           className="btn btn-sm p-1"
+                         title={copiedField.id === cat.id && copiedField.field === "subCategory" ? "Copied" : "Copy"}
+
                           onClick={() =>
                             copyToClipboard(cat.subCategory, cat.id, 'subCategory')
                           }
@@ -565,6 +592,9 @@ const handleSubmitStatus = async () => {
                             <MdContentCopy size={15} />
                           )}
                         </button>
+
+                     
+
                       </div>
                     </td>
                   )}
@@ -576,6 +606,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.createdAt}</span>
                         <button
                           className="btn btn-sm p-1"
+                          title={copiedField.id === cat.id && copiedField.field === "createdAt" ? "Copied" : "Copy"}
+
                           onClick={() =>
                             copyToClipboard(cat.createdAt, cat.id, 'createdAt')
                           }
@@ -602,6 +634,8 @@ const handleSubmitStatus = async () => {
                         <span>{cat.updatedAt}</span>
                         <button
                           className="btn btn-sm p-1"
+                          title={copiedField.id === cat.id && copiedField.field === "updatedAt" ? "Copied" : "Copy"}
+
                           onClick={() =>
                             copyToClipboard(cat.updatedAt, cat.id, 'updatedAt')
                           }
@@ -685,57 +719,62 @@ const handleSubmitStatus = async () => {
 
         {/* Pagination footer */}
         <div className="row">
-          <div className="col-md-6">
-            <div className="mt-3">
-              <strong>
-                Showing 1 to {sortedCategories.length} of {sortedCategories.length} entries
-              </strong>
-            </div>
-          </div>
+          
+          <div className="col-md-6 d-flex align-items-center gap-2">
+  <span><strong>Show:</strong></span>
+
+  <select
+    className="form-select form-select-sm"
+    style={{ width: "90px" }}
+    value={
+      pageSize >= (total || sortedCategories.length)
+        ? "All"
+        : pageSize
+    }
+    onChange={handlePageSizeChange}
+  >
+    {pageSizeOptions.map((size) => (
+      <option key={size} value={size}>
+        {size}
+      </option>
+    ))}
+  </select>
+
+  <span>
+    <strong>
+      entries | Showing {(page - 1) * pageSize + 1} to{" "}
+      {Math.min(page * pageSize, total || sortedCategories.length)} of{" "}
+      {total || sortedCategories.length}
+    </strong>
+  </span>
+</div>
+
           <div className="col-md-6">
             <nav aria-label="Page navigation">
               <ul className="pagination d-flex justify-content-end w-100 mt-3">
-                <li className="page-item" aria-current="page">
-                  <a
-                    className="page-link"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '15px',
-                    }}
-                    href="#"
-                  >
-                    <MdKeyboardArrowLeft style={{ fontSize: '20px', lineHeight: 1 }} />
-                    <MdKeyboardArrowLeft
-                      style={{ fontSize: '20px', lineHeight: 1, marginLeft: '-18px' }}
-                    />
-                    Previous
-                  </a>
-                </li>
-                <li className="page-item active">
-                  <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">
-                    Page 1
-                  </a>
-                </li>
-                <li className="page-item">
-                  <a
-                    className="page-link"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '15px',
-                    }}
-                    href="#"
-                  >
-                    Next
-                    <MdKeyboardArrowRight style={{ fontSize: '20px', lineHeight: 1 }} />
-                    <MdKeyboardArrowRight
-                      style={{ fontSize: '20px', lineHeight: 1, marginLeft: '-18px' }}
-                    />
-                  </a>
-                </li>
+                
+                <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+                    <button className="page-link" onClick={gotoPrev}>
+                      <MdKeyboardArrowLeft />
+                      <MdKeyboardArrowLeft style={{ marginLeft: "-18px" }} />
+                      Previous
+                    </button>
+                  </li>
+
+                  <li className="page-item active">
+                    <span className="page-link">
+                      Page {page} of {totalPages}
+                    </span>
+                  </li>
+
+                  <li className={`page-item ${page === totalPages ? "disabled" : ""}`}>
+                    <button className="page-link" onClick={gotoNext}>
+                      Next
+                      <MdKeyboardArrowRight />
+                      <MdKeyboardArrowRight style={{ marginLeft: "-18px" }} />
+                    </button>
+                  </li>
+
               </ul>
             </nav>
           </div>

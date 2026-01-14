@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
+import "sweetalert2/src/sweetalert2.scss";
 
 const NotificationTemplateCreate = () => {
   const navigate = useNavigate();

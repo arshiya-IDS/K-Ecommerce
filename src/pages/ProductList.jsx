@@ -15,6 +15,9 @@ import { MdContentCopy, MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-
 import checkIcon from "../assets/check.png";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import "sweetalert2/src/sweetalert2.scss";
+
 
 const API_CATEGORY = "https://localhost:7013/api/Category";
 const API_SUBCATEGORY = "https://localhost:7013/api/Category/sub";
@@ -31,6 +34,9 @@ const ProductList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+
+  const pageSizeOptions = [10, 15, 20, 25, 30, "All"];
+
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
@@ -172,6 +178,30 @@ const formatDate = (dateStr) => {
 
   // --- copy to clipboard ---
   
+   
+  const handleDuplicate = async (productId) => {
+  try {
+    const res = await axios.post(
+      `${API_PRODUCT}/${productId}/duplicate`
+    );
+
+    const newId = res.data.newProductId;
+
+    Swal.fire({
+      icon: "success",
+      title: "Product Duplicated",
+      text: "You can now edit the duplicated product",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    navigate(`/product-details/${newId}`); // or product-create with id
+  } catch (err) {
+    console.error("Duplicate failed", err);
+    Swal.fire("Error", "Failed to duplicate product", "error");
+  }
+};
+
 
   const copyToClipboard = async (text, id, field) => {
   try {
@@ -322,6 +352,19 @@ const formatDate = (dateStr) => {
     setSelectedUser(null);
     setStatusChoice(null);
   };
+
+  const handlePageSizeChange = (e) => {
+  const value = e.target.value;
+
+  if (value === "All") {
+    setPageSize(total || displayedProducts.length || 999999);
+  } else {
+    setPageSize(Number(value));
+  }
+
+  setPage(1); // reset to first page
+};
+
 
   return (
     <div className="container">
@@ -497,6 +540,8 @@ const formatDate = (dateStr) => {
                             <span>{user.productId}</span>
                             <button
                               className="btn btn-sm p-1"
+                              title={copiedField.id === user.id && copiedField.field === "productId" ? "Copied" : "Copy"}
+
                               onClick={() => copyToClipboard(user.productId, user.id, "productId")}
                               style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}
                             >
@@ -514,6 +559,8 @@ const formatDate = (dateStr) => {
                             <span>{user.productName}</span>
                             <button
                               className="btn btn-sm p-1"
+                              title={copiedField.id === user.id && copiedField.field === "productName" ? "Copied" : "Copy"}
+
                               onClick={() => copyToClipboard(user.productName, user.id, "productName")}
                               style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}
                             >
@@ -530,6 +577,8 @@ const formatDate = (dateStr) => {
                             <span>₹{user.price ?? "-"}</span>
                             <button
                               className="btn btn-sm p-1"
+                              title={copiedField.id === user.id && copiedField.field === "price" ? "Copied" : "Copy"}
+
                               onClick={() => copyToClipboard(user.price ?? "", user.id, "price")}
                               style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}
                             >
@@ -547,6 +596,8 @@ const formatDate = (dateStr) => {
                              <span>{user.category}</span> 
                             <button
                               className="btn btn-sm p-1"
+                              title={copiedField.id === user.id && copiedField.field === "category" ? "Copied" : "Copy"}
+
                               onClick={() => copyToClipboard(user.category ?? "", user.id, "category")}
                               style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}
                             >
@@ -565,6 +616,8 @@ const formatDate = (dateStr) => {
                              <span> {user.subCategory}</span> 
                             <button
                               className="btn btn-sm p-1"
+                              title={copiedField.id === user.id && copiedField.field === "subCategory" ? "Copied" : "Copy"}
+
                               onClick={() => copyToClipboard(user.subCategory ?? "", user.id, "subCategory")}
                               style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}
                             >
@@ -584,6 +637,8 @@ const formatDate = (dateStr) => {
 
                             <button
                               className="btn btn-sm p-1"
+                              title={copiedField.id === user.id && copiedField.field === "createdAt" ? "Copied" : "Copy"}
+
                               onClick={() => copyToClipboard(user.createdAt ?? "", user.id, "createdAt")}
                               style={{ width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}
                             >
@@ -624,10 +679,28 @@ const formatDate = (dateStr) => {
 
                       {/* Action */}
                       <td className="admin-user-option pl-3 p-3 sticky-action" style={{ border: "1px solid #dee2e6", position: "sticky", right: 0, backgroundColor: "white", zIndex: 1 }}>
-                        <button className="btn btn-sm btn-outline-success me-1" title="View" onClick={() => handleView(user)}>
+                        {/* <button className="btn btn-sm btn-outline-success me-1" title="View" onClick={() => handleView(user)}>
                           <MdKeyboardArrowRight style={{ fontSize: "20px"}} />
                           <MdKeyboardArrowRight style={{ fontSize: "20px",marginLeft:"-13px" }} />
+                        </button> */}
+
+                        <button
+                          className="btn btn-sm btn-outline-success me-1"
+                          title="View"
+                          onClick={() => handleView(user)}
+                        >
+                          <MdKeyboardArrowRight style={{ fontSize: "20px" }} />
+                          <MdKeyboardArrowRight style={{ fontSize: "20px", marginLeft: "-13px" }} />
                         </button>
+
+                        <button
+                          className="btn btn-sm btn-outline-warning"
+                          title="Duplicate Product"
+                          onClick={() => handleDuplicate(user.id)}
+                        >
+                          <FaPlus />
+                        </button>
+
                       </td>
                     </tr>
                   ))
@@ -638,11 +711,36 @@ const formatDate = (dateStr) => {
 
           {/* Pagination */}
           <div className="row mt-3">
-            <div className="col-md-6">
-              <strong>
-                Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total || displayedProducts.length)} of {total || displayedProducts.length} entries
-              </strong>
+           
+           <div className="col-md-6 d-flex align-items-center gap-2">
+              <span><strong>Show:</strong></span>
+
+              <select
+                className="form-select form-select-sm"
+                style={{ width: "90px" }}
+                value={
+                  pageSize >= (total || displayedProducts.length)
+                    ? "All"
+                    : pageSize
+                }
+                onChange={handlePageSizeChange}
+              >
+                {pageSizeOptions.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+
+              <span>
+                <strong>
+                  entries | Showing {(page - 1) * pageSize + 1} to{" "}
+                  {Math.min(page * pageSize, total || displayedProducts.length)} of{" "}
+                  {total || displayedProducts.length}
+                </strong>
+              </span>
             </div>
+
             <div className="col-md-6">
               <nav aria-label="Page navigation">
                 <ul className="pagination justify-content-end">

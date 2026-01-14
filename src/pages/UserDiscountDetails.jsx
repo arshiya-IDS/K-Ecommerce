@@ -3,8 +3,15 @@ import { FaEdit, FaBan } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useEffect } from "react";
+import "sweetalert2/src/sweetalert2.scss";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 
 const UserDiscountDetails = () => {
+
+  const navigate=useNavigate();
   // Hardcoded user discount details
   const { id } = useParams(); // userId
 
@@ -73,7 +80,14 @@ const [discount, setDiscount] = useState({
     );
 
     setIsEditable(false);
-    setMessage("✅ User Discount updated successfully!");
+    Swal.fire({
+            icon: "success",
+            title: "Updated!",
+            text: "User Discount",
+            timer: 1500,
+            showConfirmButton: false
+          });
+          navigate("/user-discount-list");
   } catch (error) {
     console.error("Update failed", error);
     setMessage("❌ Failed to update User Discount Details");
@@ -142,7 +156,7 @@ useEffect(() => {
         </h2>
 
           {/* Center: Search Bar */}
-    <div
+    {/* <div
       className="input-group"
       style={{
         maxWidth: "350px",
@@ -171,7 +185,7 @@ useEffect(() => {
       >
         <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
       </button>
-    </div>
+    </div> */}
 
       </div>
 
@@ -212,11 +226,11 @@ useEffect(() => {
 
         </div>
 
-        <hr />
+  
 
         {/* Notes Section */}
-        <h5 className="fw mb-3">Discount Notes</h5>
-        <div className="mb-3">
+        {/* <h5 className="fw mb-3">Discount Notes</h5> */}
+        {/* <div className="mb-3">
           <textarea
             name="notes"
             className="form-control"
@@ -228,21 +242,30 @@ useEffect(() => {
                         color: "#212529",
                         transition: "all 0.3s ease"
                       }}
-            rows="3"
-            value={
-              discount.userDiscountIsActive === "Active"
-                ? "This discount is currently active for the selected user."
-                : "This discount has been deactivated and is no longer valid."
-            }
+           
+                      value={
+            discount.userDiscountIsActive
+              ? "This discount is currently active for the selected user."
+              : "This discount has been deactivated and is no longer valid."
+          }
+
             readOnly
           ></textarea>
           <small className="text-muted">
             Notes auto-updated based on discount status.
           </small>
-        </div>
+        </div> */}
 
         {/* Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
+          <Link to="/user-discount-list">
+                                <button
+                                type="button"
+                                className="btn btn-primary fw-bold px-4 py-2 rounded-3"
+                              >
+                               Back
+                              </button>
+                              </Link>
           <button
             type="button"
             onClick={handleEditToggle}

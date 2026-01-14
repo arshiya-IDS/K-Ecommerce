@@ -4,7 +4,7 @@ import { FiPlus, FiMinus } from "react-icons/fi";
 import { FaPlus, FaMinus } from "react-icons/fa";
 
 
-const DashboardLayout = () => { 
+  const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [productMenuOpen, setProductMenuOpen] = useState(false);
@@ -16,6 +16,7 @@ const DashboardLayout = () => {
   const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
 
   const location = useLocation();
+
 
   // Responsive sidebar
   // useEffect(() => {
@@ -33,7 +34,7 @@ const DashboardLayout = () => {
     }
   };
 
-  handleResize(); // 👈 important on first load
+  handleResize(); 
   window.addEventListener("resize", handleResize);
   return () => window.removeEventListener("resize", handleResize);
 }, []);
@@ -58,6 +59,18 @@ const DashboardLayout = () => {
  // const isActiveLink = (path) => location.pathname.includes(path);
   const isActiveLink = (path) => location.pathname === path;
 
+  // ✅ Close all sidebar dropdowns
+const closeAllMenus = () => {
+  setProductMenuOpen(false);
+  setCategoryMenuOpen(false);
+  setSubcategoryMenuOpen(false);
+  setUserMenuOpen(false);
+  setShippingMenuOpen(false);
+  setOrdersMenuOpen(false);
+  setNotificationMenuOpen(false);
+};
+
+
 
   return (
     <div className="dashboard-wrapper">
@@ -81,10 +94,18 @@ const DashboardLayout = () => {
           </Link>
         </div>
 
-        <div
-          className="list-group list-group-flush sidebar-menu p-3"
-          style={{ background: '#FEC200', height: '1000px' }}
-        >
+       
+<div
+  className="list-group list-group-flush sidebar-menu p-3 overflow-y-auto hide-scrollbar"
+  style={{
+    background: "#FEC200",
+    maxHeight: "calc(100vh - 90px)",
+    scrollbarWidth:"none",
+    msOverflowStyle:"none",
+
+  }}
+>
+
           {/* Dashboard */}
           <Link className="logout-item" to="/">
             <div className={`logout mt-0 ${isActiveLink('/dashboard') ? 'active' : ''}`}>
@@ -95,7 +116,8 @@ const DashboardLayout = () => {
 
           {/* ✅ Products Section */}
           <div className="logout-item" onClick={toggleProductMenu} style={{ cursor: 'pointer' }}>
-            <div className="logout d-flex justify-content-between align-items-center">
+              <div className="logout d-flex justify-content-between align-items-center w-full min-h-[48px] px-3">
+
               <div className="d-flex align-items-center">
                 <img src="/images/icons/checklist-product.png" width="26" height="28" alt="Product" className="menu-icon" />
                 <span>Products</span>
@@ -104,34 +126,31 @@ const DashboardLayout = () => {
             </div>
           </div>
 
-          {productMenuOpen && (
-            <div className="ms-4 mt-1">
-              <Link className="logout-item" to="/product-list">
-                <div className={`logout ${isActiveLink('/product-list') ? 'active' : ''}`}  >
-                  <span>Product List</span>
-                </div>
-              </Link>
+              {productMenuOpen && (
+                  <div className="mt-1 w-full pl-4">
+                    <Link className="logout-item" to="/product-list" onClick={closeAllMenus}>
+                  
+                      <div
+                        className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                          isActiveLink('/product-list') ? 'active' : ''
+                        }`}
+                      >
+                        <span className="text-left w-full">Product List</span>
+                      </div>
+                    </Link>
 
-              <Link className="logout-item" to="/product-create">
-                <div className={`logout ${isActiveLink('/product-create') ? 'active' : ''}`}>
-                  <span>Products Add</span>
-                </div>
-              </Link>
-              
+                    <Link className="logout-item" to="/product-create" onClick={closeAllMenus}>
+                      <div
+                        className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                          isActiveLink('/product-create') ? 'active' : ''
+                        }`}
+                      >
+                        <span className="text-left w-full">Products Add</span>
+                      </div>
+                    </Link>
+                  </div>
+                )}
 
-              {/* <Link className="logout-item" to="/product-discount-list">
-                <div className={`logout ${isActiveLink('/product-discount-list') ? 'active' : ''}`}>
-                  <span>Product Discount List</span>
-                </div>
-              </Link>
-              <Link className="logout-item" to="/product-discount">
-                <div className={`logout ${isActiveLink('/product-discount') ? 'active' : ''}`}>
-                  <span>Products Discount Add</span>
-                </div>
-              </Link>  */}
-             
-            </div>
-          )}
 
            {/* ✅ category Section */}
           <div className="logout-item" onClick={toggleCategoryMenu} style={{ cursor: 'pointer' }}>
@@ -144,27 +163,30 @@ const DashboardLayout = () => {
             </div>
           </div>
 
-          {categoryMenuOpen && (
-            <div className="ms-4 mt-1">
-              
-              
-              <Link className="logout-item" to="/category-list">
-                <div className={`logout ${isActiveLink('/category-list') ? 'active' : ''}`}>
-                  <span>Category List</span>
-                </div>
-              </Link>   
+        {categoryMenuOpen && (
+              <div className="mt-1 w-full pl-4">
+                <Link className="logout-item" to="/category-list" onClick={closeAllMenus}>
+                  <div
+                    className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                      isActiveLink('/category-list') ? 'active' : ''
+                    }`}
+                  >
+                    <span className="text-left w-full">Category List</span>
+                  </div>
+                </Link>
 
-              <Link className="logout-item" to="/manage-categories">
-                <div className={`logout ${isActiveLink('/manage-categories') ? 'active' : ''}`}>
-                  <span>Category Add</span>
-                </div>
-              </Link>   
+                <Link className="logout-item" to="/manage-categories" onClick={closeAllMenus}>
+                  <div
+                    className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                      isActiveLink('/manage-categories') ? 'active' : ''
+                    }`}
+                  >
+                    <span className="text-left w-full">Category Add</span>
+                  </div>
+                </Link>
+              </div>
+            )}
 
-              
-            </div>
-
-           
-          )}
 
            {/* ✅ subcategory Section */}
           <div className="logout-item" onClick={toggleSubcategoryMenu} style={{ cursor: 'pointer' }}>
@@ -178,26 +200,29 @@ const DashboardLayout = () => {
           </div>
 
           {subcategoryMenuOpen && (
-            <div className="ms-4 mt-1">
-              
-              
-              <Link className="logout-item" to="/subcategories-list">
-                <div className={`logout ${isActiveLink('/subcategories-list') ? 'active' : ''}`}>
-                  <span>Sub Category List</span>
-                </div>
-              </Link>   
+              <div className="mt-1 w-full pl-4">
+                <Link className="logout-item" to="/subcategories-list" onClick={closeAllMenus}>
+                  <div
+                    className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                      isActiveLink('/subcategories-list') ? 'active' : ''
+                    }`}
+                  >
+                    <span className="text-left w-full">Sub Category List</span>
+                  </div>
+                </Link>
 
-              <Link className="logout-item" to="/manage-subcategories">
-                <div className={`logout ${isActiveLink('/manage-subcategories') ? 'active' : ''}`}>
-                  <span>Sub-Category Add</span>
-                </div>
-              </Link>   
+                <Link className="logout-item" to="/manage-subcategories" onClick={closeAllMenus}>
+                  <div
+                    className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                      isActiveLink('/manage-subcategories') ? 'active' : ''
+                    }`}
+                  >
+                    <span className="text-left w-full">Sub-Category Add</span>
+                  </div>
+                </Link>
+              </div>
+            )}
 
-               
-            </div>
-
-           
-          )}
 
           {/* ✅ Users Section */}
           <div className="logout-item" onClick={toggleUserMenu} style={{ cursor: 'pointer' }}>
@@ -209,27 +234,27 @@ const DashboardLayout = () => {
               {userMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
           </div>
+      
+      {userMenuOpen && (
+  <div className="mt-1 w-full pl-4">
+    {[
+      ['/userlist', 'User List'],
+      ['/user-discount-list', 'User Discount List'],
+      ['/user-discount', 'User Discount Add'],
+    ].map(([path, label]) => (
+      <Link key={path} className="logout-item" to={path} onClick={closeAllMenus}>
+        <div
+          className={`logout w-full min-h-[48px] px-3 flex items-center ${
+            isActiveLink(path) ? 'active' : ''
+          }`}
+        >
+          <span className="text-left w-full">{label}</span>
+        </div>
+      </Link>
+    ))}
+  </div>
+)}
 
-          {userMenuOpen && (
-            <div className="ms-4 mt-1">
-              <Link className="logout-item" to="/userlist">
-                <div className={`logout ${isActiveLink('/userlist') ? 'active' : ''}`}>
-                  <span> User List</span>
-                </div>
-              </Link>
-              <Link className="logout-item" to="/user-discount-list">
-                <div className={`logout ${isActiveLink('/user-discount-list') ? 'active' : ''}`}>
-                  <span> User Discount List</span>
-                </div>
-              </Link>
-              <Link className="logout-item" to="/user-discount">
-                <div className={`logout ${isActiveLink('/user-discount') ? 'active' : ''}`}>
-                  <span> User Discount Add</span>
-                </div>
-              </Link>
-             
-            </div>
-          )}
 
           {/* ✅ Shipping Section */}
           <div className="logout-item" onClick={toggleShippingMenu} style={{ cursor: 'pointer' }}>
@@ -243,20 +268,30 @@ const DashboardLayout = () => {
           </div>
 
           {shippingMenuOpen && (
-            <div className="ms-4 mt-1">
-              <Link className="logout-item" to="/shipping-charges-list">
-                <div className={`logout ${isActiveLink('/shipping-charges-list') ? 'active' : ''}`}>
-                  <span> Shipping Charges List</span>
-                </div>
-              </Link>
-              <Link className="logout-item" to="/shipping-charges">
-                <div className={`logout ${isActiveLink('/shipping-charges') ? 'active' : ''}`}>
-                  <span>Shipping Charges Add</span>
-                </div>
-              </Link>
-             
-            </div>
-          )}
+          <div className="mt-1 w-full pl-4">
+            <Link className="logout-item" to="/shipping-charges-list" onClick={closeAllMenus}>
+              <div
+                className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                  isActiveLink('/shipping-charges-list') ? 'active' : ''
+                }`}
+              >
+                <span className="text-left w-full">Shipping Charges List</span>
+              </div>
+              
+            </Link>
+
+            <Link className="logout-item" to="/shipping-charges" onClick={closeAllMenus}>
+              <div
+                className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                  isActiveLink('/shipping-charges') ? 'active' : ''
+                }`}
+              >
+                <span className="text-left w-full">Shipping Charges Add</span>
+              </div>
+            </Link>
+          </div>
+        )}
+
 
           {/* ✅ Orders Section */}
           <div className="logout-item" onClick={toggleOrdersMenu} style={{ cursor: 'pointer' }}>
@@ -269,23 +304,23 @@ const DashboardLayout = () => {
             </div>
           </div>
 
-          {ordersMenuOpen && (
-            <div className="ms-4 mt-1">
-              <Link className="logout-item" to="/orders-list">
-                <div className={`logout ${isActiveLink('/orders-list') ? 'active' : ''}`}>
-                  <span>Orders List</span>
+         {ordersMenuOpen && (
+            <div className="mt-1 w-full pl-4">
+              <Link className="logout-item" to="/orders-list" onClick={closeAllMenus}>
+                <div
+                  className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                    isActiveLink('/orders-list') ? 'active' : ''
+                  }`}
+                >
+                  <span className="text-left w-full">Orders List</span>
                 </div>
               </Link>
-              {/* <Link className="logout-item" to="/order-details">
-                <div className={`logout ${isActiveLink('/order-details') ? 'active' : ''}`}>
-                  <span>Order Details</span>
-                </div>
-              </Link> */}
             </div>
           )}
 
+
           {/* ✅ Notifications Section */}
-          <div className="logout-item" onClick={toggleNotificationMenu} style={{ cursor: 'pointer' }}>
+          {/* <div className="logout-item" onClick={toggleNotificationMenu} style={{ cursor: 'pointer' }}>
             <div className="logout d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <img src="/images/icons/user-discount.png" width="24" height="24" alt="Notification" className="menu-icon" />
@@ -293,23 +328,32 @@ const DashboardLayout = () => {
               </div>
               {notificationMenuOpen ? <FiMinus /> : <FiPlus />}
             </div>
-          </div>
+          </div> */}
 
-          {notificationMenuOpen && (
-            <div className="ms-4 mt-1">
+          {/* {notificationMenuOpen && (
+            <div className="mt-1 w-full pl-4">
               <Link className="logout-item" to="/notification-list">
-                <div className={`logout ${isActiveLink('/notification-list') ? 'active' : ''}`}>
-                  <span>Notification Template List</span>
+                <div
+                  className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                    isActiveLink('/notification-list') ? 'active' : ''
+                  }`}
+                >
+                  <span className="text-left w-full">Notification Template List</span>
                 </div>
               </Link>
+
               <Link className="logout-item" to="/notification-template-create">
-                <div className={`logout ${isActiveLink('/notification-template-create') ? 'active' : ''}`}>
-                  <span> Notification Template Add</span>
+                <div
+                  className={`logout w-full min-h-[48px] px-3 flex items-center ${
+                    isActiveLink('/notification-template-create') ? 'active' : ''
+                  }`}
+                >
+                  <span className="text-left w-full">Notification Template Add</span>
                 </div>
               </Link>
-              
             </div>
-          )}
+          )} */}
+
 
           {/* Other existing menu items */}
           {/* <Link className="logout-item" to="/enquiry-dashboard">

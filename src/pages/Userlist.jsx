@@ -58,6 +58,12 @@ const [selectedUser, setSelectedUser] = useState(null);
 const [statusChoice, setStatusChoice] = useState(null);
 const protectedProductIds = [1, 2];
 
+const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
+
+const pageSizeOptions = [10, 20, 30, "All"];
+
+
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
@@ -183,6 +189,19 @@ const handleSubmitStatus = () => {
   //     console.error('Failed to copy text: ', err);
   //   }
   // };
+
+  const handlePageSizeChange = (e) => {
+  const value = e.target.value;
+
+  if (value === "All") {
+    setPageSize(sortedUsers.length || 100000);
+  } else {
+    setPageSize(Number(value));
+  }
+
+  setPage(1);
+};
+
 
   const getColumnHeaders = () => {
     const headers = [];
@@ -445,7 +464,9 @@ const handleSubmitStatus = () => {
 
               </thead>
               <tbody>
-                {sortedUsers.map((user, index) => (
+                {/* {sortedUsers.map((user, index) => ( */}
+                  {sortedUsers.slice((page - 1) * pageSize, page * pageSize).map((user, index) => (
+
                   <tr key={user.id} className={index % 2 === 0 ? 'even' : 'odd'}>
                     {visibleColumns.name && (
                       <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>
@@ -454,15 +475,10 @@ const handleSubmitStatus = () => {
                           <div className="d-flex align-items-center">
                             <button
                               className="btn btn-sm ms-2 p-1"
+                             title={copiedField.id === user.id  && copiedField.field === "name" ? "Copied" : "Copy"}
+
                               onClick={() => copyToClipboard(user.name, user.id, 'name')}
-                              title="Copy Name"
-                                style={{
-                              width: "28px",
-                              height: "28px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                }}
+                            
                             >
           
                              {copiedField.id === user.id  &&
@@ -488,14 +504,8 @@ const handleSubmitStatus = () => {
                             <button
                               className="btn btn-sm ms-2 p-1"
                               onClick={() => copyToClipboard(user.email, user.id, 'email')}
-                              title="Copy Email"
-                               style={{
-                                width: "28px",
-                                height: "28px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-          }}
+                              title={copiedField.id === user.id  && copiedField.field === "email" ? "Copied" : "Copy"}
+
                           >
              
                               {copiedField.id === user.id && copiedField.field === "email" ? (
@@ -520,14 +530,8 @@ const handleSubmitStatus = () => {
                             <button
                               className="btn btn-sm ms-2 p-1"
                               onClick={() => copyToClipboard(user.phoneNumber, user.id, 'phoneNumber')}
-                              title="Copy Phone Number"
-                              style={{
-                                width: "28px",
-                                height: "28px",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                }}
+                              title={copiedField.id === user.id  && copiedField.field === "phoneNumber" ? "Copied" : "Copy"}
+
                             >
 
                               {copiedField.id === user.id &&
@@ -638,53 +642,64 @@ const handleSubmitStatus = () => {
                                                                         </div>
                   
 
-          <div className="row">
-            <div className="col-md-6">
-              <div className="mt-3">
-                <strong>Showing 1 to {sortedUsers.length} of {sortedUsers.length} entries</strong>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <nav aria-label="Page navigation">
-                <ul className="pagination d-flex justify-content-end w-100 mt-3">
-                  <li className="page-item" aria-current="page">
-                    <a className="page-link"
+        {/* Pagination */}
+<div className="row align-items-center">
+  <div className="col-md-6 mt-3 d-flex align-items-center gap-2">
+    <strong>Show</strong>
 
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px", // spacing between arrow and text
-                      fontSize: "15px", // adjust this to your desired text size
-             }}
-                    
-                    href="#">
+    <select
+      className="form-select form-select-sm"
+      style={{ width: "80px" }}
+      value={pageSize >= sortedUsers.length ? "All" : pageSize}
+      onChange={handlePageSizeChange}
+    >
+      {pageSizeOptions.map((size) => (
+        <option key={size} value={size}>
+          {size}
+        </option>
+      ))}
+    </select>
 
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                                             Previous
-                    
+    <strong>
+      entries | Showing {(page - 1) * pageSize + 1} to{" "}
+      {Math.min(page * pageSize, sortedUsers.length)} of{" "}
+      {sortedUsers.length}
+    </strong>
+  </div>
 
+  <div className="col-md-6">
+    <nav>
+      <ul className="pagination justify-content-end mt-3">
+        <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </button>
+        </li>
 
-                    </a>
-                  </li>
-                  <li className="page-item active">
-                    <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
-                  </li>
-                  <li className="page-item">
-                  <a className="page-link" style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px", // spacing between arrow and text
-                      fontSize: "15px", // adjust this to your desired text size
-                     }} href="#">Next
-                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                       <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                    </a>               
-                       </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
+        <li className="page-item active">
+          <span className="page-link">Page {page}</span>
+        </li>
+
+        <li
+          className={`page-item ${
+            page * pageSize >= sortedUsers.length ? "disabled" : ""
+          }`}
+        >
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
 
             {showConfirm && (
   <div

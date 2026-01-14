@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
+import "sweetalert2/src/sweetalert2.scss";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+
 
 const API_BASE = "https://localhost:7013/api/Product";
 
@@ -19,6 +22,10 @@ const ProductDetails = () => {
   const [newImages, setNewImages] = useState([]);
   const [deleteImageIds, setDeleteImageIds] = useState([]);
   const [primaryImageId, setPrimaryImageId] = useState(null);
+  const [replaceAllImages, setReplaceAllImages] = useState(false);
+  const [replaceImageMap, setReplaceImageMap] = useState({});
+
+
 
   useEffect(() => {
     fetchProduct();
@@ -30,8 +37,8 @@ const ProductDetails = () => {
       const res = await axios.get(`${API_BASE}/details/${id}`);
       setProduct(res.data);
       const images = res.data.images || [];
-setProduct({ ...res.data, images });
-setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
+      setProduct({ ...res.data, images });
+      setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
 
     } catch (err) {
       setMessage("Failed to load product");
@@ -68,8 +75,29 @@ setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
     formData.append("SubCategory_Id", product.subcategory_id);
     formData.append("Product_Type", product.product_type);
 
-    newImages.forEach(file => formData.append("Images", file));
-    deleteImageIds.forEach(id => formData.append("DeleteImageIds", id));
+    // Replace individual images
+Object.entries(replaceImageMap).forEach(([imageId, file]) => {
+  formData.append("ReplaceImageIds", imageId);
+  formData.append("ReplaceImages", file);
+});
+
+
+    if (replaceAllImages && newImages.length > 0) {
+  // Mark all existing images for deletion
+  product.images.forEach(img => {
+    formData.append("DeleteImageIds", img.id);
+  });
+
+  // Upload new images
+  newImages.forEach(file => {
+    formData.append("Images", file);
+  });
+} else {
+  // Normal behavior (individual delete + add)
+  newImages.forEach(file => formData.append("Images", file));
+  deleteImageIds.forEach(id => formData.append("DeleteImageIds", id));
+}
+
     if (primaryImageId) formData.append("PrimaryImageId", primaryImageId);
 
     try {
@@ -77,7 +105,19 @@ setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
 
         headers: { "Content-Type": "multipart/form-data" }
       });
-      setMessage("Product updated successfully!");
+         Swal.fire({
+            icon: "success",
+            title: "Updated!",
+            text: "Product updated",
+            timer: 1500,
+            showConfirmButton: false
+          });
+          navigate("/product-list");
+
+          setReplaceAllImages(false);
+
+          setReplaceImageMap({});
+
       setIsEditable(false);
       setNewImages([]);
       setDeleteImageIds([]);
@@ -91,6 +131,24 @@ setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
 
   if (loading) return <div className="text-center py-5"><h4>Loading...</h4></div>;
   if (!product) return <div className="text-center text-danger">Product not found</div>;
+
+  const handleReplaceSingleImage = (imageId, file) => {
+  setReplaceImageMap(prev => ({
+    ...prev,
+    [imageId]: file
+  }));
+};
+
+const getImagePreviewSrc = (img) => {
+  // If this image is marked for replacement, show local preview
+  if (replaceImageMap[img.id]) {
+    return URL.createObjectURL(replaceImageMap[img.id]);
+  }
+
+  // Otherwise show existing image from server
+  return img.url;
+};
+
 
   return (
     <div className="container my-5">
@@ -162,41 +220,63 @@ setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
         className="position-relative border rounded p-2"
         style={{ width: "160px" }}
       >
-        <img
-          src={img.url}
+        
+                <img
+          src={getImagePreviewSrc(img)}
           alt="Product"
           className="img-fluid rounded"
           style={{ height: "120px", objectFit: "cover" }}
-          onError={(e) => {
-            e.target.src = "/assets/Images/placeholder.png";
-          }}
         />
+
 
         {img.isPrimary && (
           <FaStar className="text-warning position-absolute top-0 end-0 m-2" />
         )}
 
-        {isEditable && (
-          <>
-            <button
-              className="btn btn-sm btn-danger position-absolute top-0 start-0 m-2"
-              onClick={() => toggleDeleteImage(img.id)}
-            >
-              <FaTrash />
-            </button>
+      {isEditable && (
+  <>
 
-            <button
-              className={`btn btn-sm position-absolute bottom-0 start-0 m-2 ${
-                primaryImageId === img.id
-                  ? "btn-warning"
-                  : "btn-outline-secondary"
-              }`}
-              onClick={() => setPrimaryImageId(img.id)}
-            >
-              Primary
-            </button>
-          </>
-        )}
+ 
+    <button
+      className="btn btn-sm btn-danger position-absolute top-0 start-0 m-2"
+      onClick={() => toggleDeleteImage(img.id)}
+    >
+      <FaTrash />
+    </button>
+
+ <button
+      className={`btn btn-sm position-absolute bottom-0 start-0 m-2 ${
+        primaryImageId === img.id
+          ? "btn-warning"
+          : "btn-outline-secondary"
+      }`}
+      onClick={() => setPrimaryImageId(img.id)}
+    >
+      Primary
+    </button>
+    
+
+    {/* 🔽 REPLACE SINGLE IMAGE */}
+ 
+   <div className="mt-10">
+      <input
+        type="file"
+        accept="image/*"
+        className="form-control form-control-sm"
+        onChange={(e) =>
+          handleReplaceSingleImage(img.id, e.target.files[0])
+        }
+      />
+      {replaceImageMap[img.id] && (
+        <small className="text-warning">Image will be replaced</small>
+      )}
+    </div>
+   
+  </>
+)}
+
+
+
 
         {deleteImageIds.includes(img.id) && (
           <div className="bg-danger text-white text-center small mt-1">
@@ -204,20 +284,41 @@ setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
           </div>
         )}
       </div>
+      
     ))
   ) : (
     <div className="text-muted">No images available</div>
   )}
 </div>
 
+ 
 
-        {isEditable && (
-          <div className="mt-3">
-            <label className="form-label">Add New Images</label>
-            <input type="file" multiple className="form-control" onChange={handleImageChange} />
-            {newImages.length > 0 && <small>{newImages.length} file(s) selected</small>}
-          </div>
-        )}
+
+       {/* {isEditable && (
+  <div className="mt-3">
+    <label className="form-label fw-bold">
+      Replace All Product Images (4 Images)
+    </label>
+
+    <input
+      type="file"
+      multiple
+      accept="image/*"
+      className="form-control"
+      onChange={(e) => {
+        setReplaceAllImages(true);
+        handleImageChange(e);
+      }}
+    />
+
+    {newImages.length > 0 && (
+      <small className="text-warning">
+        {newImages.length} new image(s) selected — existing images will be replaced
+      </small>
+    )}
+  </div>
+)} */}
+
 
         {isEditable && (
           <div className="text-end mt-4">

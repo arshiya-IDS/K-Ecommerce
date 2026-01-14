@@ -18,6 +18,10 @@ const UserDiscountList = () => {
   // Sample data for users with the requested columns
 
   const navigate = useNavigate();
+const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
+
+const pageSizeOptions = [10, 20, 30, "All"];
 
 
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
@@ -60,6 +64,19 @@ const UserDiscountList = () => {
     alert("Copy failed. Please copy manually.");
   }
 };
+
+const handlePageSizeChange = (e) => {
+  const value = e.target.value;
+
+  if (value === "All") {
+    setPageSize(sortedUsers.length || 100000);
+  } else {
+    setPageSize(Number(value));
+  }
+
+  setPage(1);
+};
+
 
  const [users, setUsers] = useState([]);
 const [loading, setLoading] = useState(true);
@@ -584,7 +601,9 @@ const exportCSV = () => {
 
               </thead>
               <tbody>
-                {sortedUsers.map((user, index) => (
+                {/* {sortedUsers.map((user, index) => ( */}
+                  {sortedUsers.slice((page - 1) * pageSize, page * pageSize).map((user, index) => (
+
                   <tr key={user.id} className={index % 2 === 0 ? 'even' : 'odd'}>
 
                     {visibleColumns.id && (
@@ -806,53 +825,64 @@ const exportCSV = () => {
                               </div>
                  
 
-          <div className="row">
-            <div className="col-md-6">
-              <div className="mt-3">
-                <strong>Showing 1 to {sortedUsers.length} of {sortedUsers.length} entries</strong>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <nav aria-label="Page navigation">
-                <ul className="pagination d-flex justify-content-end w-100 mt-3">
-                  <li className="page-item" aria-current="page">
-                    <a className="page-link"
+       {/* Pagination */}
+<div className="row align-items-center">
+  <div className="col-md-6 mt-3 d-flex align-items-center gap-2">
+    <strong>Show</strong>
 
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px", // spacing between arrow and text
-                      fontSize: "15px", // adjust this to your desired text size
-             }}
-                    
-                    href="#">
+    <select
+      className="form-select form-select-sm"
+      style={{ width: "80px" }}
+      value={pageSize >= sortedUsers.length ? "All" : pageSize}
+      onChange={handlePageSizeChange}
+    >
+      {pageSizeOptions.map((size) => (
+        <option key={size} value={size}>
+          {size}
+        </option>
+      ))}
+    </select>
 
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                                             Previous
-                    
+    <strong>
+      entries | Showing {(page - 1) * pageSize + 1} to{" "}
+      {Math.min(page * pageSize, sortedUsers.length)} of{" "}
+      {sortedUsers.length}
+    </strong>
+  </div>
 
+  <div className="col-md-6">
+    <nav>
+      <ul className="pagination justify-content-end mt-3">
+        <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </button>
+        </li>
 
-                    </a>
-                  </li>
-                  <li className="page-item active">
-                    <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
-                  </li>
-                  <li className="page-item">
-                  <a className="page-link" style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "4px", // spacing between arrow and text
-                      fontSize: "15px", // adjust this to your desired text size
-                     }} href="#">Next
-                      <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                       <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                    </a>               
-                       </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
+        <li className="page-item active">
+          <span className="page-link">Page {page}</span>
+        </li>
+
+        <li
+          className={`page-item ${
+            page * pageSize >= sortedUsers.length ? "disabled" : ""
+          }`}
+        >
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
 
              {showConfirm && (
   <div

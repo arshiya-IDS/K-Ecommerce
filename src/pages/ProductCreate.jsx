@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
+import "sweetalert2/src/sweetalert2.scss";
 
 
 const ProductCreate = () => {
     const navigate = useNavigate();
+    // Validation errors
+const [errors, setErrors] = useState({});
+
 
   // Product State
   const [product, setProduct] = useState({
@@ -104,17 +108,55 @@ const [subcategories, setSubcategories] = useState([]);
   //   alert("Product created successfully!");
   // };
 
+  const validateForm = () => {
+  const newErrors = {};
+
+  if (!product.product_name.trim())
+    newErrors.product_name = "Product name is required";
+
+  if (!product.product_description.trim())
+    newErrors.product_description = "Description is required";
+
+  if (!product.product_actual_price)
+    newErrors.product_actual_price = "Actual price is required";
+  else if (Number(product.product_actual_price) <= 0)
+    newErrors.product_actual_price = "Price must be greater than 0";
+
+  if (
+    product.product_discounted_price &&
+    Number(product.product_discounted_price) < 0
+  )
+    newErrors.product_discounted_price = "Discount price cannot be negative";
+
+  if (!product.category_id)
+    newErrors.category_id = "Please select a category";
+
+  if (!product.subcategory_id)
+    newErrors.subcategory_id = "Please select a subcategory";
+
+  if (!product.product_type)
+    newErrors.product_type = "Please select product type";
+
+  // At least one image
+  if (!images.some(img => img))
+    newErrors.images = "At least one product image is required";
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
+
   const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // Basic client-side validation (immediate)
-  if (!product.product_name.trim()) return alert("Product name is required");
-  if (!product.product_description.trim()) return alert("Product description is required");
-  if (!product.product_actual_price) return alert("Actual price is required");
-  if (!product.category_id) return alert("Please select a category");
-  if (!product.subcategory_id) return alert("Please select a subcategory");
-  if (!product.product_type) return alert("Please select product type");
-
+   if (!validateForm()) {
+    Swal.fire({
+      icon: "error",
+      title: "Validation Error",
+      text: "Please fix the highlighted fields",
+    });
+    return;
+  }
   
   // Ensure numbers are proper
   const actualPrice = Number(product.product_actual_price);
@@ -216,26 +258,32 @@ const [subcategories, setSubcategories] = useState([]);
             <input
               type="text"
               name="product_name"
-              className="form-control"
+              className={`form-control ${errors.product_name ? "is-invalid" : ""}`}
               placeholder="Enter product name"
               value={product.product_name}
               onChange={handleChange}
               required
             />
+            {errors.product_name && (
+  <div className="invalid-feedback">{errors.product_name}</div>
+)}
           </div>
+          
 
           {/* Description */}
           <div className="mb-3">
             <label className="form-label fw-semibold">Description</label>
             <textarea
               name="product_description"
-              className="form-control"
-              rows="3"
+              className={`form-control ${errors.product_description ? "is-invalid" : ""}`}              rows="3"
               placeholder="Enter product description"
               value={product.product_description}
               onChange={handleChange}
               required
             ></textarea>
+            {errors.product_description && (
+  <div className="invalid-feedback">{errors.product_description}</div>
+)}
           </div>
 
           {/* Prices */}
@@ -245,12 +293,15 @@ const [subcategories, setSubcategories] = useState([]);
               <input
                 type="number"
                 name="product_actual_price"
-                className="form-control"
+                className={`form-control ${errors.product_actual_price ? "is-invalid" : ""}`}
                 placeholder="Enter price"
                 value={product.product_actual_price}
                 onChange={handleChange}
                 required
               />
+              {errors.product_actual_price && (
+  <div className="invalid-feedback">{errors.product_actual_price}</div>
+)}
             </div>
 
             <div className="col-md-6 mb-3">
@@ -258,11 +309,14 @@ const [subcategories, setSubcategories] = useState([]);
               <input
                 type="number"
                 name="product_discounted_price"
-                className="form-control"
+                className={`form-control ${errors.product_discounted_price ? "is-invalid" : ""}`}
                 placeholder="Enter discounted price"
                 value={product.product_discounted_price}
                 onChange={handleChange}
               />
+              {errors.product_discounted_price && (
+  <div className="invalid-feedback">{errors.product_discounted_price}</div>
+)}
             </div>
           </div>
 
@@ -271,7 +325,7 @@ const [subcategories, setSubcategories] = useState([]);
             {/* CATEGORY DROPDOWN */}
             <div className="col-md-6 mb-3">
               <label className="form-label fw-semibold">Category</label>
-            
+           
               {/* <select
                 className="form-select"
                 name="Category_Id"
@@ -291,7 +345,7 @@ const [subcategories, setSubcategories] = useState([]);
               </select> */}
 
               <select
-                className="form-select"
+                className={`form-select ${errors.category_id ? "is-invalid" : ""}`}
                 name="category_id"
                 value={product.category_id} 
                 onChange={(e) => {
@@ -299,6 +353,9 @@ const [subcategories, setSubcategories] = useState([]);
                   fetchSubcategories(e.target.value);
                 }}
               >
+                {errors.category_id && (
+  <div className="invalid-feedback">{errors.category_id}</div>
+)}
                 <option value="">Select Category</option>
 
                 {categories.map((cat) => (
@@ -358,11 +415,15 @@ const [subcategories, setSubcategories] = useState([]);
               </select> */}
 
               <select
-                className="form-select"
+                 className={`form-select ${errors.subcategory_id ? "is-invalid" : ""}`}
                 name="subcategory_id"
                 value={product.subcategory_id}
                 onChange={handleChange}
               >
+                {errors.subcategory_id && (
+  <div className="invalid-feedback">{errors.subcategory_id}</div>
+)}
+
                 <option value="">Select Subcategory</option>
 
                 {subcategories.map((sub) => (
@@ -380,11 +441,15 @@ const [subcategories, setSubcategories] = useState([]);
               <label className="form-label fw-semibold">Product Type</label>
               <select
                 name="product_type"
-                className="form-select"
+                className={`form-select ${errors.product_type ? "is-invalid" : ""}`}
                 value={product.product_type}
                 onChange={handleChange}
                 required
               >
+                {errors.product_type && (
+  <div className="invalid-feedback">{errors.product_type}</div>
+)}
+
                 <option value="">Select type</option>
                 <option value="Physical">Physical</option>
                 <option value="Digital">Digital</option>
@@ -423,6 +488,10 @@ const [subcategories, setSubcategories] = useState([]);
                       setPreviewImages(updatedPreviews);
                     }}
                   />
+                  {errors.images && (
+  <div className="text-danger small mt-2">{errors.images}</div>
+)}
+
                 </div>
               ))}
             </div>

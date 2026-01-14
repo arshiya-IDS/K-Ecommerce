@@ -3,10 +3,14 @@ import { FaEdit, FaBan } from "react-icons/fa";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
-
+import "sweetalert2/src/sweetalert2.scss";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import { useNavigate } from "react-router-dom";
 
 const NotificationTemplateDetails = () => {
+const navigate=useNavigate();
 
+  
   const { id } = useParams();
 
   // Hardcoded notification template details
@@ -78,7 +82,15 @@ const handleEditToggle = async () => {
         payload
       );
 
-      setMessage("✅ Notification template updated successfully!");
+       Swal.fire({
+      icon: "success",
+      title: "Updated!",
+      text: "Notification template updated",
+      timer: 1500,
+      showConfirmButton: false
+    });
+        navigate("/notification-list");
+
       setIsEditable(false);
     } catch (error) {
       console.error("Update failed", error);

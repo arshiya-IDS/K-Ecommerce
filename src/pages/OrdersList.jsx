@@ -25,6 +25,12 @@ import checkIcon from "../assets/check.png";
 const OrdersList = () => {
   const navigate = useNavigate();
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
+  // Simple pagination
+const [page, setPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
+
+const pageSizeOptions = [10, 20, 30, "All"];
+
  const copyToClipboard = async (text, id, field) => {
   try {
     // ✅ Modern Clipboard API (HTTPS)
@@ -65,6 +71,19 @@ const OrdersList = () => {
   }
 };
 
+// Simple pagination
+
+const handlePageSizeChange = (e) => {
+  const value = e.target.value;
+
+  if (value === "All") {
+    setPageSize(sortedOrders.length || 100000);
+  } else {
+    setPageSize(Number(value));
+  }
+
+  setPage(1);
+};
 
 
   //  Hardcoded sample data
@@ -406,7 +425,9 @@ const handleSubmitStatus = async () => {
                 </tr>
               </thead>
               <tbody>
-                {sortedOrders.map((order, index) => (
+                {/* {sortedOrders.map((order, index) => ( */}
+                  {sortedOrders.slice((page - 1) * pageSize, page * pageSize).map((order, index) => (
+
                   <tr key={index}>
                     {Object.keys(visibleColumns).map(
                       (key) =>
@@ -520,53 +541,68 @@ const handleSubmitStatus = async () => {
                   
 
           {/* Pagination Placeholder */}
-         <div className="row">
-                     <div className="col-md-6">
-                       <div className="mt-3">
-                         <strong>Showing 1 to {sortedOrders.length} of {sortedOrders.length} entries</strong>
-                       </div>
-                     </div>
-                     <div className="col-md-6">
-                       <nav aria-label="Page navigation">
-                         <ul className="pagination d-flex justify-content-end w-100 mt-3">
-                           <li className="page-item" aria-current="page">
-                             <a className="page-link"
-         
-                             style={{
-                               display: "flex",
-                               alignItems: "center",
-                               gap: "4px", // spacing between arrow and text
-                               fontSize: "15px", // adjust this to your desired text size
-                      }}
-                             
-                             href="#">
-         
-                               <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                               <MdKeyboardArrowLeft style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                                                      Previous
-                             
-         
-         
-                             </a>
-                           </li>
-                           <li className="page-item active">
-                             <a className="page-link" href="#" tabIndex="-1" aria-disabled="true">Page 1</a>
-                           </li>
-                           <li className="page-item">
-                           <a className="page-link" style={{
-                               display: "flex",
-                               alignItems: "center",
-                               gap: "4px", // spacing between arrow and text
-                               fontSize: "15px", // adjust this to your desired text size
-                              }} href="#">Next
-                               <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1 }}/> 
-                                <MdKeyboardArrowRight style={{ fontSize: "20px", lineHeight: 1, marginLeft: "-18px" }} />
-                             </a>               
-                                </li>
-                         </ul>
-                       </nav>
-                     </div>
-                   </div>
+                                          {/* Pagination */}
+<div className="row align-items-center">
+  <div className="col-md-6 mt-3 d-flex align-items-center gap-2">
+    <strong>Show</strong>
+
+    <select
+      className="form-select form-select-sm"
+      style={{ width: "80px" }}
+      value={pageSize >= sortedOrders.length ? "All" : pageSize}
+      onChange={handlePageSizeChange}
+    >
+      {pageSizeOptions.map((size) => (
+        <option key={size} value={size}>
+          {size}
+        </option>
+      ))}
+    </select>
+
+    <strong>
+      entries | Showing {(page - 1) * pageSize + 1} to{" "}
+      {Math.min(page * pageSize, sortedOrders.length)} of{" "}
+      {sortedOrders.length}
+    </strong>
+  </div>
+
+  <div className="col-md-6">
+    <nav>
+      <ul className="pagination justify-content-end mt-3">
+        <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+          >
+            <MdKeyboardArrowLeft />
+            <MdKeyboardArrowLeft style={{ marginLeft: "-15px" }} />
+            Previous
+          </button>
+        </li>
+
+        <li className="page-item active">
+          <span className="page-link">Page {page}</span>
+        </li>
+
+        <li
+          className={`page-item ${
+            page * pageSize >= sortedOrders.length ? "disabled" : ""
+          }`}
+        >
+          <button
+            className="page-link"
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Next
+            <MdKeyboardArrowRight />
+            <MdKeyboardArrowRight style={{ marginLeft: "-15px" }} />
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
                     
                       {showConfirm && (
   <div
