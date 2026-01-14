@@ -51,7 +51,7 @@ const ShippingChargesDetails = () => {
       };
 
       await axios.put(
-        `https://localhost:7013/api/ShippingCharges/edit-User/${id}`,
+        `http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/edit-User/${id}`,
         payload
       );
 
@@ -81,7 +81,7 @@ const ShippingChargesDetails = () => {
   if (!id) return;
 
   axios
-    .get(`https://localhost:7013/api/ShippingCharges/details/${id}`)
+    .get(`http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/details/${id}`)
     .then((res) => {
       const d = res.data;
 

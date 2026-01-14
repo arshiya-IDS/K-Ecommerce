@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
 
-const API_PRODUCT = "https://localhost:7013/api/Product";
+const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/Product";
 
 
 const NotificationTemplateList = () => {
@@ -60,7 +60,7 @@ useEffect(() => {
 const fetchTemplates = async () => {
   try {
     const res = await axios.get(
-      "https://localhost:7013/api/NtfcnTemplate/list"
+      "http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/list"
     );
 
     const data = res.data || [];
@@ -152,7 +152,7 @@ const handleView = (row) => {
 
   try {
     await axios.put(
-      `https://localhost:7013/api/NtfcnTemplate/${selectedUser.template_id}/toggle-status`,
+      `http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/${selectedUser.template_id}/toggle-status`,
       null,
       { params: { isActive } }
     );

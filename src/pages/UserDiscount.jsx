@@ -22,7 +22,7 @@ const UserDiscount = () => {
   
   useEffect(() => {
   axios
-    .get("https://localhost:7013/api/users")
+    .get("http://ecommerce-admin-backend.i-diligence.com/api/users")
     .then((res) => setUsers(res.data))
     .catch(err => console.error("Users API error", err));
 }, []);
@@ -94,7 +94,7 @@ const validateForm = () => {
 
     try {
       await axios.post(
-  "https://localhost:7013/api/UserDiscount",
+  "http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount",
   payload
 );
 

@@ -74,7 +74,7 @@ const [discount, setDiscount] = useState({
     };
 
     await axios.put(
-      `https://localhost:7013/api/UserDiscount/${discount.user_discount_id}`,
+      `http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount/${discount.user_discount_id}`,
       payload,
       { headers: { "Content-Type": "application/json" } }
     );
@@ -103,7 +103,7 @@ useEffect(() => {
   const fetchUserDiscount = async () => {
     try {
       const res = await axios.get(
-        `https://localhost:7013/api/UserDiscount/${id}`
+        `http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount/${id}`
       );
 
       const d = res.data;

@@ -89,7 +89,7 @@ const validateForm = () => {
 
     try {
       await axios.post(
-  "https://localhost:7013/api/ShippingCharges/Create",
+  "http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/Create",
   payload
 );
 

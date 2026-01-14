@@ -22,7 +22,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
 
-const API_PRODUCT = "https://localhost:7013/api/ShippingCharges";
+const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges";
 
 const ShippingChargesList = () => {
   const navigate = useNavigate();
@@ -111,7 +111,7 @@ useEffect(() => {
   const fetchShippingCharges = async () => {
     try {
       const res = await axios.get(
-        "https://localhost:7013/api/ShippingCharges/list"
+        "http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/list"
       );
 
       const mappedData = res.data.map(item => ({
@@ -158,7 +158,7 @@ const handleSubmitStatus = async () => {
 
   try {
     await axios.put(
-      `https://localhost:7013/api/ShippingCharges/toggle-status/${selectedUser.shipping_id}?isActive=${isActive}`
+      `http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/toggle-status/${selectedUser.shipping_id}?isActive=${isActive}`
     );
 
     // ✅ Update toggle UI correctly

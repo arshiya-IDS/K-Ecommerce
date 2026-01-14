@@ -19,9 +19,9 @@ const Dashboard = () => {
           currentMonthSaleRes,
           totalOrdersRes
         ] = await Promise.all([
-          axios.get('https://localhost:7013/api/Auth/total-registrations'),
-          axios.get('https://localhost:7013/api/OrderItem/CurrentMonthPaidOrderTotal'),
-          axios.get('https://localhost:7013/api/OrderItem/TotalConfirmedPaidOrderCount')
+          axios.get('http://ecommerce-admin-backend.i-diligence.com/api/Auth/total-registrations'),
+          axios.get('http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/CurrentMonthPaidOrderTotal'),
+          axios.get('http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/TotalConfirmedPaidOrderCount')
         ]);
 
         setDashboardData({

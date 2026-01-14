@@ -3,7 +3,7 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
-const API_PRODUCT = "https://localhost:7013/api/OrderItem";
+const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/OrderItem";
 
 
 
@@ -95,7 +95,7 @@ useEffect(() => {
 const fetchOrders = async () => {
   try {
     const res = await axios.get(
-      "https://localhost:7013/api/OrderItem/list"
+      "http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/list"
     );
 
     // If API returns single object → convert to array
@@ -166,7 +166,7 @@ const handleSubmitStatus = async () => {
 
   try {
     const res = await axios.put(
-      `https://localhost:7013/api/OrderItem/toggle-status/${orderId}?isActive=${isActive}`
+      `http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/toggle-status/${orderId}?isActive=${isActive}`
     );
 
     // ✅ Update UI from known state

@@ -22,7 +22,7 @@ const ProductDiscountDetails = () => {
   const fetchDetails = async () => {
     try {
       const res = await axios.get(
-        `https://localhost:7013/api/ProductDiscount/details/${id}`
+        `http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/details/${id}`
       );
       const d = res.data.data;
 
@@ -113,7 +113,7 @@ const ProductDiscountDetails = () => {
       };
 
       const res = await axios.put(
-        `https://localhost:7013/api/ProductDiscount/${id}`,
+        `http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/${id}`,
         payload
       );
 

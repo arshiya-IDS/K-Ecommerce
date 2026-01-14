@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { useEffect } from "react";
 
-const API_PRODUCT = "https://localhost:7013/api/UserDiscount";
+const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount";
 
 
 const UserDiscountList = () => {
@@ -115,7 +115,7 @@ const protectedProductIds = [1, 2];
 const fetchUserDiscounts = async () => {
   try {
      const res = await axios.get(
-        "https://localhost:7013/api/UserDiscount",
+        "http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount",
        
       );
 

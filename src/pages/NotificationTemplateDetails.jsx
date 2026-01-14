@@ -27,7 +27,7 @@ useEffect(() => {
   const fetchTemplateDetails = async () => {
     try {
       const res = await axios.get(
-        `https://localhost:7013/api/NtfcnTemplate/details/${id}`
+        `http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/details/${id}`
       );
 
       const data = res.data;
@@ -78,7 +78,7 @@ const handleEditToggle = async () => {
       };
 
       await axios.put(
-        `https://localhost:7013/api/NtfcnTemplate/edit-User/${id}`,
+        `http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/edit-User/${id}`,
         payload
       );
 

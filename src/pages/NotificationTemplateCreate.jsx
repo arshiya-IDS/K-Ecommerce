@@ -44,7 +44,7 @@ const NotificationTemplateCreate = () => {
     };
 
     await axios.post(
-      "https://localhost:7013/api/NtfcnTemplate/create",
+      "http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/create",
       payload
     );
 

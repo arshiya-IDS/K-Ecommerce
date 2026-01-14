@@ -26,7 +26,7 @@ useEffect(() => {
 const fetchOrderItem = async () => {
   try {
     const res = await axios.get(
-      `https://localhost:7013/api/OrderItem/OrderDetails`,
+      `http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/OrderDetails`,
 
       {
         params: { order_id: id }

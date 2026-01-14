@@ -41,7 +41,7 @@ const [subcategories, setSubcategories] = useState([]);
 
   // Fetch Categories
   useEffect(() => {
-    fetch("https://localhost:7013/api/Category")
+    fetch("http://ecommerce-admin-backend.i-diligence.com/api/Category")
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch(() => console.log("Failed to load categories"));
@@ -50,7 +50,7 @@ const [subcategories, setSubcategories] = useState([]);
   // Fetch Subcategories when category changes
   // useEffect(() => {
   //   if (product.category_id) {
-  //     fetch(`https://localhost:7013/api/Category/sub/${product.category_id}`)
+  //     fetch(`http://ecommerce-admin-backend.i-diligence.com/api/Category/sub/${product.category_id}`)
   //       .then((res) => res.json())
   //       .then((data) => setSubCategories(data))
   //       .catch(() => console.log("Failed to load subcategories"));
@@ -59,7 +59,7 @@ const [subcategories, setSubcategories] = useState([]);
 
   const fetchSubcategories = async (categoryId) => {
   try {
-    const res = await fetch(`https://localhost:7013/api/Category/sub/${categoryId}`);
+    const res = await fetch(`http://ecommerce-admin-backend.i-diligence.com/api/Category/sub/${categoryId}`);
     const data = await res.json();
     setSubcategories(data);
   } catch (error) {
@@ -98,7 +98,7 @@ const [subcategories, setSubcategories] = useState([]);
   //     formData.append("Media", media);
   //   }
 
-  //   await fetch("https://localhost:7013/api/Product/create", {
+  //   await fetch("http://ecommerce-admin-backend.i-diligence.com/api/Product/create", {
 
   //     method: "POST",
   //     body: formData,
@@ -191,7 +191,7 @@ const [subcategories, setSubcategories] = useState([]);
       formData.append("Media", media);
     }
 
-    const res = await fetch("https://localhost:7013/api/Product/create", {
+    const res = await fetch("http://ecommerce-admin-backend.i-diligence.com/api/Product/create", {
       method: "POST",
       body: formData,
     });

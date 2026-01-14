@@ -6,7 +6,7 @@ import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 
 
-const API_BASE = "https://localhost:7013/api/Product";
+const API_BASE = "http://ecommerce-admin-backend.i-diligence.com/api/Product";
 
 const ProductDetails = () => {
   const { id } = useParams();

@@ -48,7 +48,7 @@ const [subCategory, setSubCategory] = useState(null);
     };
 
     await axios.put(
-      `https://localhost:7013/api/SubCategory/edit-SubCategory/${subCategory.sub_category_id}`,
+      `http://ecommerce-admin-backend.i-diligence.com/api/SubCategory/edit-SubCategory/${subCategory.sub_category_id}`,
        payload,
   {
     headers: {
@@ -92,7 +92,7 @@ const [subCategory, setSubCategory] = useState(null);
 const fetchSubCategoryDetails = async () => {
   try {
     const res = await axios.get(
-      `https://localhost:7013/api/SubCategory/details/${id}`
+      `http://ecommerce-admin-backend.i-diligence.com/api/SubCategory/details/${id}`
     );
 
     const data = res.data;
