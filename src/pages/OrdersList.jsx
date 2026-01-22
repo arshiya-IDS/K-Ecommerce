@@ -25,6 +25,9 @@ import checkIcon from "../assets/check.png";
 const OrdersList = () => {
   const navigate = useNavigate();
   const [copiedField, setCopiedField] = useState({ id: null, field: null });
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   // Simple pagination
 const [page, setPage] = useState(1);
 const [pageSize, setPageSize] = useState(10);
@@ -72,6 +75,19 @@ const pageSizeOptions = [10, 20, 30, "All"];
 };
 
 // Simple pagination
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "-"; // invalid date protection
+
+  const day = d.getDate().toString().padStart(2, "0");
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+
 
 const handlePageSizeChange = (e) => {
   const value = e.target.value;
@@ -131,7 +147,8 @@ const protectedProductIds = [1, 2];
   product_name: true,
   product_price: true,
   product_quantity: true,
-  // ordr_itm_CrtdAt: true,
+  order_date:true,
+ // ordr_itm_CrtdAt: true,
   // ordr_itm_CrtdBy: true,
   // ordr_itm_UpdtdAt: true,
   // ordr_itm_UpdtdBy: true,
@@ -196,25 +213,57 @@ const handleSubmitStatus = async () => {
 
 
   const filteredOrders = useMemo(() => {
-    if (!searchTerm) return orders;
-    return orders.filter((o) =>
-      Object.values(o)
-        .join(" ")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    );
-  }, [orders, searchTerm]);
+  const term = searchTerm.trim().toLowerCase();
+  if (!term) return orders;
 
-  const sortedOrders = useMemo(() => {
-    if (!sortConfig.key) return filteredOrders;
-    return [...filteredOrders].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key])
-        return sortConfig.direction === "asc" ? -1 : 1;
-      if (a[sortConfig.key] > b[sortConfig.key])
-        return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [filteredOrders, sortConfig]);
+  return orders.filter((o) => {
+    return (
+      String(o.order_id ?? "").toLowerCase().includes(term) ||
+      String(o.order_item_id ?? "").toLowerCase().includes(term) ||
+      String(o.product_name ?? "").toLowerCase().includes(term) ||
+      String(o.product_price ?? "").toLowerCase().includes(term) ||
+      String(o.product_quantity ?? "").toLowerCase().includes(term)
+    );
+  });
+}, [orders, searchTerm]);
+
+const dateFilteredOrders = useMemo(() => {
+  if (!fromDate && !toDate) return filteredOrders;
+
+  const from = fromDate ? new Date(fromDate) : null;
+  const to = toDate ? new Date(toDate) : null;
+
+  return filteredOrders.filter((o) => {
+    if (!o.created_at) return false;
+
+    const rowDate = new Date(o.created_at);
+
+    if (from && rowDate < from) return false;
+    if (to && rowDate > to) return false;
+
+    return true;
+  });
+}, [filteredOrders, fromDate, toDate]);
+
+
+
+
+ const sortedOrders = useMemo(() => {
+  if (!sortConfig.key) return dateFilteredOrders;
+
+  return [...dateFilteredOrders].sort((a, b) => {
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+}, [dateFilteredOrders, sortConfig]);
+
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -295,22 +344,29 @@ const handleSubmitStatus = async () => {
               <label className="text-white me-2 mb-0" style={{ fontWeight: "500" }}>
                 From:
               </label>
+             
               <input
-                type="date"
-                className="form-control form-control-sm me-2"
-                style={{ height: "34px", width: "150px" }}
-              />
+              type="date"
+              className="form-control form-control-sm me-2"
+              style={{ height: "34px", width: "150px" }}
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
               <label className="text-white me-2 mb-0" style={{ fontWeight: "500" }}>
                 To:
               </label>
+              
               <input
-                type="date"
-                className="form-control form-control-sm me-2"
-                style={{ height: "34px", width: "150px" }}
-              />
+              type="date"
+              className="form-control form-control-sm me-2"
+              style={{ height: "34px", width: "150px" }}
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
               <button
                 className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
                 style={{ height: "34px", width: "34px" }}
+                  onClick={() => setPage(1)}
                 title="Apply Filter"
               >
                 <FaTelegramPlane size={14} />
@@ -440,7 +496,7 @@ const handleSubmitStatus = async () => {
                               color: "#645959",
                             }}
                           >
-                            <div className="d-flex justify-content-between align-items-center">
+                            {/* <div className="d-flex justify-content-between align-items-center">
                               <span>{order[key]}</span>
                               <button
                                 className="btn btn-sm ms-2 p-1"
@@ -465,7 +521,49 @@ const handleSubmitStatus = async () => {
                                   <MdContentCopy size={15} />
                                 )}
                               </button>
-                            </div>
+                            </div> */}
+
+                             <div className="d-flex justify-content-between align-items-center">
+                  {/* Special handling for date column */}
+                  {key === "order_date" ? (
+                    <span>{formatDate(order[key])}</span>
+                  ) : (
+                    <span>{order[key] ?? "-"}</span>
+                  )}
+
+                  <button
+                    className="btn btn-sm ms-2 p-1"
+                    onClick={() =>
+                      copyToClipboard(
+                        key === "order_date"
+                          ? formatDate(order[key])   // copy formatted date
+                          : String(order[key] ?? ""),
+                        order.order_item_id || index,
+                        key
+                      )
+                    }
+                    title={`Copy ${key.replace(/_/g, " ")}`}
+                    style={{
+                      width: "28px",
+                      height: "28px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {copiedField.id === (order.order_item_id || index) &&
+                    copiedField.field === key ? (
+                      <img
+                        src={checkIcon}
+                        alt="Copied"
+                        style={{ width: "18px", height: "18px" }}
+                      />
+                    ) : (
+                      <MdContentCopy size={15} />
+                    )}
+                  </button>
+                </div>
+
                           </td>
                         )
                     )}

@@ -30,8 +30,15 @@ const [subcategories, setSubcategories] = useState([]);
 
 
   // Image & Media States
+  
+
+ 
   const [images, setImages] = useState([null, null, null, null]);
-  const [previewImages, setPreviewImages] = useState(["", "", "", ""]);
+  const [previews, setPreviews] = useState(["", "", "", ""]);
+
+
+
+
   const [media, setMedia] = useState(null);
   const [mediaPreview, setMediaPreview] = useState("");
   const [primaryIndex, setPrimaryIndex] = useState(null);
@@ -137,9 +144,15 @@ const [subcategories, setSubcategories] = useState([]);
   if (!product.product_type)
     newErrors.product_type = "Please select product type";
 
+
+  
+  if (!images.some(img => img)) {
+  newErrors.images = "At least one product image is required";
+}
+
+
   // At least one image
-  if (!images.some(img => img))
-    newErrors.images = "At least one product image is required";
+  
 
   setErrors(newErrors);
 
@@ -181,15 +194,23 @@ const [subcategories, setSubcategories] = useState([]);
     const primary = primaryIndex === null || primaryIndex === undefined ? -1 : primaryIndex;
     formData.append("PrimaryIndex", String(primary));
 
-    // Append images (multiple entries with the same name)
-    images.forEach((img) => {
-      if (img) formData.append("Images", img);
-    });
 
-    // Attach media if present
-    if (media) {
-      formData.append("Media", media);
-    }
+  
+
+    // Append images (multiple entries with the same name)
+    // images.forEach((img) => {
+    //   if (img) formData.append("Images", img);
+    // });
+
+    images.forEach(img => {
+  if (img) formData.append("Images", img);
+});
+
+if (media) {
+  formData.append("Media", media);
+}
+
+    
 
     const res = await fetch("https://localhost:7013/api/Product/create", {
       method: "POST",
@@ -467,34 +488,37 @@ const [subcategories, setSubcategories] = useState([]);
             </p>
 
             {/* Image Inputs */}
-            <div className="row">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={num} className="col-md-6 mb-3">
-                  <label className="form-label fw-semibold">Image {num}</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="form-control"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (!file) return;
+          <div className="mb-3">
+  <label className="form-label fw-semibold">Product Image</label>
+  {[0,1,2,3].map(i => (
+  <div key={i} className="mb-3">
+    <label>Image {i + 1}</label>
+    <input
+      type="file"
+      accept="image/*"
+      className="form-control"
+      onChange={e => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-                      const updatedImages = [...images];
-                      updatedImages[num - 1] = file;
-                      setImages(updatedImages);
+        const imgs = [...images];
+        const prev = [...previews];
 
-                      const updatedPreviews = [...previewImages];
-                      updatedPreviews[num - 1] = URL.createObjectURL(file);
-                      setPreviewImages(updatedPreviews);
-                    }}
-                  />
-                  {errors.images && (
-  <div className="text-danger small mt-2">{errors.images}</div>
-)}
+        imgs[i] = file;
+        prev[i] = URL.createObjectURL(file);
 
-                </div>
-              ))}
-            </div>
+        setImages(imgs);
+        setPreviews(prev);
+      }}
+    />
+  </div>
+))}
+
+  {errors.images && (
+    <div className="invalid-feedback">{errors.images}</div>
+  )}
+</div>
+
 
             {/* Media Upload */}
             <div className="mb-3">
@@ -516,68 +540,75 @@ const [subcategories, setSubcategories] = useState([]);
             {/* Preview Section */}
             <div className="d-flex flex-wrap mt-3 gap-3">
               {/* Images */}
-              {previewImages.map((src, index) => (
-                <div
-                  key={index}
-                  className={`position-relative border rounded-3 p-2 ${
-                    primaryIndex === index ? "border-success border-3" : ""
-                  }`}
-                  style={{ width: "130px" }}
-                >
-                  <img
-                    src={src}
-                    alt={`preview-${index}`}
-                    className="img-fluid rounded"
-                    style={{ height: "100px", objectFit: "cover" }}
-                  />
-                  <div className="form-check mt-2 text-center">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="primaryMedia"
-                      onChange={() => setPrimaryIndex(index)}
-                      checked={primaryIndex === index}
-                    />
-                    <label className="form-check-label small">Primary</label>
-                  </div>
-                </div>
-              ))}
+                {/* Image Previews */}
+{previews.map((src, index) =>
+  src ? (
+    <div
+      key={index}
+      className={`position-relative border rounded-3 p-2 ${
+        primaryIndex === index ? "border-success border-3" : ""
+      }`}
+      style={{ width: "130px" }}
+    >
+      <img
+        src={src}
+        alt={`preview-${index}`}
+        className="img-fluid rounded"
+        style={{ height: "100px", objectFit: "cover" }}
+      />
+
+      <div className="form-check mt-2 text-center">
+        <input
+          className="form-check-input"
+          type="radio"
+          name="primaryMedia"
+          checked={primaryIndex === index}
+          onChange={() => setPrimaryIndex(index)}
+        />
+        <label className="form-check-label small">Primary</label>
+      </div>
+    </div>
+  ) : null
+)}
+
 
               {/* Media Preview */}
-              {mediaPreview && (
-                <div
-                  className={`position-relative border rounded-3 p-2 ${
-                    primaryIndex === 4 ? "border-success border-3" : ""
-                  }`}
-                  style={{ width: "130px" }}
-                >
-                  {media && media.type.startsWith("video/") ? (
-                    <video
-                      src={mediaPreview}
-                      controls
-                      className="rounded"
-                      style={{ width: "100%", height: "100px", objectFit: "cover" }}
-                    ></video>
-                  ) : (
-                    <img
-                      src={mediaPreview}
-                      alt="media-preview"
-                      className="img-fluid rounded"
-                      style={{ height: "100px", objectFit: "cover" }}
-                    />
-                  )}
-                  <div className="form-check mt-2 text-center">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="primaryMedia"
-                      onChange={() => setPrimaryIndex(4)}
-                      checked={primaryIndex === 4}
-                    />
-                    <label className="form-check-label small">Primary</label>
-                  </div>
-                </div>
-              )}
+           {mediaPreview && (
+  <div
+    className={`position-relative border rounded-3 p-2 ${
+      primaryIndex === 4 ? "border-success border-3" : ""
+    }`}
+    style={{ width: "130px" }}
+  >
+    {media && media.type.startsWith("video/") ? (
+      <video
+        src={mediaPreview}
+        controls
+        className="rounded"
+        style={{ width: "100%", height: "100px", objectFit: "cover" }}
+      />
+    ) : (
+      <img
+        src={mediaPreview}
+        alt="media-preview"
+        className="img-fluid rounded"
+        style={{ height: "100px", objectFit: "cover" }}
+      />
+    )}
+
+    <div className="form-check mt-2 text-center">
+      <input
+        className="form-check-input"
+        type="radio"
+        name="primaryMedia"
+        checked={primaryIndex === 4}
+        onChange={() => setPrimaryIndex(4)}
+      />
+      <label className="form-check-label small">Primary</label>
+    </div>
+  </div>
+)}
+
             </div>
           </div>
 
