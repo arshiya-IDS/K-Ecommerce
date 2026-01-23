@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
+
 
 
 const ProductCreate = () => {
@@ -30,8 +32,15 @@ const [subcategories, setSubcategories] = useState([]);
 
 
   // Image & Media States
+  
+
+ 
   const [images, setImages] = useState([null, null, null, null]);
-  const [previewImages, setPreviewImages] = useState(["", "", "", ""]);
+  const [previews, setPreviews] = useState(["", "", "", ""]);
+
+
+
+
   const [media, setMedia] = useState(null);
   const [mediaPreview, setMediaPreview] = useState("");
   const [primaryIndex, setPrimaryIndex] = useState(null);
@@ -40,12 +49,21 @@ const [subcategories, setSubcategories] = useState([]);
   const [message, setMessage] = useState("");
 
   // Fetch Categories
+  
+
   useEffect(() => {
-    fetch("http://ecommerce-admin-backend.i-diligence.com/api/Category")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch(() => console.log("Failed to load categories"));
-  }, []);
+  const loadCategories = async () => {
+    try {
+      const res = await api.get("/Category");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
+
+  loadCategories();
+}, []);
+
 
   // Fetch Subcategories when category changes
   // useEffect(() => {
@@ -57,11 +75,12 @@ const [subcategories, setSubcategories] = useState([]);
   //   }
   // }, [product.category_id]);
 
-  const fetchSubcategories = async (categoryId) => {
+  
+
+const fetchSubcategories = async (categoryId) => {
   try {
-    const res = await fetch(`http://ecommerce-admin-backend.i-diligence.com/api/Category/sub/${categoryId}`);
-    const data = await res.json();
-    setSubcategories(data);
+    const res = await api.get(`/Category/sub/${categoryId}`);
+    setSubcategories(res.data);
   } catch (error) {
     console.error("Failed to fetch subcategories", error);
   }
@@ -137,19 +156,26 @@ const [subcategories, setSubcategories] = useState([]);
   if (!product.product_type)
     newErrors.product_type = "Please select product type";
 
+
+  
+  if (!images.some(img => img)) {
+  newErrors.images = "At least one product image is required";
+}
+
+
   // At least one image
-  if (!images.some(img => img))
-    newErrors.images = "At least one product image is required";
+  
 
   setErrors(newErrors);
 
   return Object.keys(newErrors).length === 0;
 };
 
-  const handleSubmit = async (e) => {
+
+const handleSubmit = async (e) => {
   e.preventDefault();
 
-   if (!validateForm()) {
+  if (!validateForm()) {
     Swal.fire({
       icon: "error",
       title: "Validation Error",
@@ -157,12 +183,17 @@ const [subcategories, setSubcategories] = useState([]);
     });
     return;
   }
-  
-  // Ensure numbers are proper
+
   const actualPrice = Number(product.product_actual_price);
-  const discountedPrice = product.product_discounted_price ? Number(product.product_discounted_price) : null;
-  if (Number.isNaN(actualPrice) || actualPrice <= 0) return alert("Actual price must be a positive number");
-  if (discountedPrice !== null && (Number.isNaN(discountedPrice) || discountedPrice < 0)) return alert("Discounted price must be a valid number");
+  const discountedPrice = product.product_discounted_price
+    ? Number(product.product_discounted_price)
+    : null;
+
+  if (Number.isNaN(actualPrice) || actualPrice <= 0)
+    return alert("Actual price must be a positive number");
+
+  if (discountedPrice !== null && (Number.isNaN(discountedPrice) || discountedPrice < 0))
+    return alert("Discounted price must be a valid number");
 
   setLoading(true);
 
@@ -170,69 +201,51 @@ const [subcategories, setSubcategories] = useState([]);
     const formData = new FormData();
     formData.append("Product_Name", product.product_name);
     formData.append("Product_Description", product.product_description);
-    // Use invariant string formatting for decimals
     formData.append("Product_Actual_Price", actualPrice.toString());
-    formData.append("Product_Discounted_Price", discountedPrice !== null ? discountedPrice.toString() : "");
-    // API expects SubCategory_Id — make sure it is a number string
+    formData.append(
+      "Product_Discounted_Price",
+      discountedPrice !== null ? discountedPrice.toString() : ""
+    );
     formData.append("SubCategory_Id", String(product.subcategory_id));
     formData.append("Product_Type", product.product_type);
 
-    // PrimaryIndex: if null, send -1 (server should tolerate -1 or you can make it nullable)
-    const primary = primaryIndex === null || primaryIndex === undefined ? -1 : primaryIndex;
+    const primary = primaryIndex ?? -1;
     formData.append("PrimaryIndex", String(primary));
 
-    // Append images (multiple entries with the same name)
     images.forEach((img) => {
       if (img) formData.append("Images", img);
     });
 
-    // Attach media if present
     if (media) {
       formData.append("Media", media);
     }
 
-    const res = await fetch("http://ecommerce-admin-backend.i-diligence.com/api/Product/create", {
-      method: "POST",
-      body: formData,
+    await api.post("/Product/create", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
 
-    // IMPORTANT: check response before success
-    if (res.ok) {
-      const json = await res.json().catch(() => null);
-      setLoading(false);
-       Swal.fire({
+    setLoading(false);
+
+    Swal.fire({
       icon: "success",
       title: "Added!",
-      text: "New Product created ",
+      text: "New Product created",
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
-        navigate("/product-list");
-      // optionally clear form here
-    } else {
-      // read error body (could be JSON or text)
-      let errText = "";
-      try {
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          const errJson = await res.json();
-          // If server returned ModelState, it will be contained here — stringify it
-          errText = JSON.stringify(errJson);
-        } else {
-          errText = await res.text();
-        }
-      } catch (ex) {
-        errText = "Unknown server error";
-      }
 
-      setLoading(false);
-      console.error("Server returned 400", errText);
-      alert("Failed to create product: " + (errText || res.statusText));
-    }
-  } catch (networkErr) {
-    console.error("Network error", networkErr);
+    navigate("/product-list");
+
+  } catch (err) {
     setLoading(false);
-    alert("Network error while creating product");
+
+    if (err.response) {
+      console.error("Server error:", err.response.data);
+      alert("Failed to create product: " + JSON.stringify(err.response.data));
+    } else {
+      console.error("Network error:", err);
+      alert("Network error while creating product");
+    }
   }
 };
 
@@ -467,34 +480,37 @@ const [subcategories, setSubcategories] = useState([]);
             </p>
 
             {/* Image Inputs */}
-            <div className="row">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={num} className="col-md-6 mb-3">
-                  <label className="form-label fw-semibold">Image {num}</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="form-control"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (!file) return;
+          <div className="mb-3">
+  <label className="form-label fw-semibold">Product Image</label>
+  {[0,1,2,3].map(i => (
+  <div key={i} className="mb-3">
+    <label>Image {i + 1}</label>
+    <input
+      type="file"
+      accept="image/*"
+      className="form-control"
+      onChange={e => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-                      const updatedImages = [...images];
-                      updatedImages[num - 1] = file;
-                      setImages(updatedImages);
+        const imgs = [...images];
+        const prev = [...previews];
 
-                      const updatedPreviews = [...previewImages];
-                      updatedPreviews[num - 1] = URL.createObjectURL(file);
-                      setPreviewImages(updatedPreviews);
-                    }}
-                  />
-                  {errors.images && (
-  <div className="text-danger small mt-2">{errors.images}</div>
-)}
+        imgs[i] = file;
+        prev[i] = URL.createObjectURL(file);
 
-                </div>
-              ))}
-            </div>
+        setImages(imgs);
+        setPreviews(prev);
+      }}
+    />
+  </div>
+))}
+
+  {errors.images && (
+    <div className="invalid-feedback">{errors.images}</div>
+  )}
+</div>
+
 
             {/* Media Upload */}
             <div className="mb-3">
@@ -516,68 +532,75 @@ const [subcategories, setSubcategories] = useState([]);
             {/* Preview Section */}
             <div className="d-flex flex-wrap mt-3 gap-3">
               {/* Images */}
-              {previewImages.map((src, index) => (
-                <div
-                  key={index}
-                  className={`position-relative border rounded-3 p-2 ${
-                    primaryIndex === index ? "border-success border-3" : ""
-                  }`}
-                  style={{ width: "130px" }}
-                >
-                  <img
-                    src={src}
-                    alt={`preview-${index}`}
-                    className="img-fluid rounded"
-                    style={{ height: "100px", objectFit: "cover" }}
-                  />
-                  <div className="form-check mt-2 text-center">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="primaryMedia"
-                      onChange={() => setPrimaryIndex(index)}
-                      checked={primaryIndex === index}
-                    />
-                    <label className="form-check-label small">Primary</label>
-                  </div>
-                </div>
-              ))}
+                {/* Image Previews */}
+{previews.map((src, index) =>
+  src ? (
+    <div
+      key={index}
+      className={`position-relative border rounded-3 p-2 ${
+        primaryIndex === index ? "border-success border-3" : ""
+      }`}
+      style={{ width: "130px" }}
+    >
+      <img
+        src={src}
+        alt={`preview-${index}`}
+        className="img-fluid rounded"
+        style={{ height: "100px", objectFit: "cover" }}
+      />
+
+      <div className="form-check mt-2 text-center">
+        <input
+          className="form-check-input"
+          type="radio"
+          name="primaryMedia"
+          checked={primaryIndex === index}
+          onChange={() => setPrimaryIndex(index)}
+        />
+        <label className="form-check-label small">Primary</label>
+      </div>
+    </div>
+  ) : null
+)}
+
 
               {/* Media Preview */}
-              {mediaPreview && (
-                <div
-                  className={`position-relative border rounded-3 p-2 ${
-                    primaryIndex === 4 ? "border-success border-3" : ""
-                  }`}
-                  style={{ width: "130px" }}
-                >
-                  {media && media.type.startsWith("video/") ? (
-                    <video
-                      src={mediaPreview}
-                      controls
-                      className="rounded"
-                      style={{ width: "100%", height: "100px", objectFit: "cover" }}
-                    ></video>
-                  ) : (
-                    <img
-                      src={mediaPreview}
-                      alt="media-preview"
-                      className="img-fluid rounded"
-                      style={{ height: "100px", objectFit: "cover" }}
-                    />
-                  )}
-                  <div className="form-check mt-2 text-center">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="primaryMedia"
-                      onChange={() => setPrimaryIndex(4)}
-                      checked={primaryIndex === 4}
-                    />
-                    <label className="form-check-label small">Primary</label>
-                  </div>
-                </div>
-              )}
+           {mediaPreview && (
+  <div
+    className={`position-relative border rounded-3 p-2 ${
+      primaryIndex === 4 ? "border-success border-3" : ""
+    }`}
+    style={{ width: "130px" }}
+  >
+    {media && media.type.startsWith("video/") ? (
+      <video
+        src={mediaPreview}
+        controls
+        className="rounded"
+        style={{ width: "100%", height: "100px", objectFit: "cover" }}
+      />
+    ) : (
+      <img
+        src={mediaPreview}
+        alt="media-preview"
+        className="img-fluid rounded"
+        style={{ height: "100px", objectFit: "cover" }}
+      />
+    )}
+
+    <div className="form-check mt-2 text-center">
+      <input
+        className="form-check-input"
+        type="radio"
+        name="primaryMedia"
+        checked={primaryIndex === 4}
+        onChange={() => setPrimaryIndex(4)}
+      />
+      <label className="form-check-label small">Primary</label>
+    </div>
+  </div>
+)}
+
             </div>
           </div>
 

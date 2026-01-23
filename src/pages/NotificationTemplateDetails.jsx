@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axiosInstance";
 
 const NotificationTemplateDetails = () => {
 const navigate=useNavigate();
@@ -26,8 +27,8 @@ const navigate=useNavigate();
 useEffect(() => {
   const fetchTemplateDetails = async () => {
     try {
-      const res = await axios.get(
-        `http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/details/${id}`
+      const res = await api.get(
+        `/NtfcnTemplate/details/${id}`
       );
 
       const data = res.data;
@@ -77,8 +78,8 @@ const handleEditToggle = async () => {
         order_id: 0
       };
 
-      await axios.put(
-        `http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/edit-User/${id}`,
+      await api.put(
+        `/NtfcnTemplate/edit-User/${id}`,
         payload
       );
 

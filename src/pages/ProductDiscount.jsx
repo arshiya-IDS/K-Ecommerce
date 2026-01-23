@@ -1,6 +1,8 @@
 // ProductDiscount.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import api from "../api/axiosInstance";
+
 
 const ProductDiscount = () => {
   const [categories, setCategories] = useState([]);
@@ -19,8 +21,8 @@ const ProductDiscount = () => {
   // 1) FETCH CATEGORIES
   // ---------------------------
   useEffect(() => {
-    axios
-      .get("http://ecommerce-admin-backend.i-diligence.com/api/Category")   
+    api
+      .get("/Category")   
       .then((res) => setCategories(res.data))
       .catch((err) => console.error("Error loading categories:", err));
   }, []);
@@ -32,8 +34,8 @@ const ProductDiscount = () => {
  
   useEffect(() => {
     if (selectedCategory) {
-      axios
-        .get(`http://ecommerce-admin-backend.i-diligence.com/api/Category/sub/${selectedCategory}`)
+      api
+        .get(`/Category/sub/${selectedCategory}`)
         .then((res) => setSubCategories(res.data))
         .catch((err) => console.error("Error loading subcategories:", err));
     } else {
@@ -49,8 +51,8 @@ const ProductDiscount = () => {
   // ---------------------------
   useEffect(() => {
     if (selectedSubCategory) {
-      axios
-        .get(`http://ecommerce-admin-backend.i-diligence.com/api/Category/products/${selectedSubCategory}`)
+      api
+        .get(`/Category/products/${selectedSubCategory}`)
         .then((res) => setProducts(res.data))
         .catch((err) => console.error("Error loading products:", err));
     } else {
@@ -92,7 +94,7 @@ const ProductDiscount = () => {
 
 
     try {
-      await axios.post("http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount", payload);
+      await api.post("/ProductDiscount", payload);
 
       alert("Discount created successfully!");
 

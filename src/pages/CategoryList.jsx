@@ -20,7 +20,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_CATEGORY = "http://ecommerce-admin-backend.i-diligence.com/api/Category";
+import api from "../api/axiosInstance";
 
 
 
@@ -115,17 +115,21 @@ const [categories, setCategories] = useState([]);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState(null);
 
- const exportCSV = () => {
-    window.open(`${API_CATEGORY}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_CATEGORY}/export?format=pdf`, "_blank");
-  };
+
+
+
+const exportCSV = () => {
+  window.open(`${api.defaults.baseURL}/Category/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/Category/export?format=pdf`, "_blank");
+};
 
 const applyDateFilter = () => {
   setPage(1);
-  fetchCategories(); // instead of fetchProducts
 };
+
 
 const formatDate = (dateStr) => {
   if (!dateStr) return "-";
@@ -154,7 +158,8 @@ const formatDate = (dateStr) => {
 
   const toggleStatusApi = async (id) => {
       try {
-        const resp = await axios.patch(`${API_CATEGORY}/${id}/status`);
+        const resp = await api.patch(`/Category/${id}/status`);
+
         return resp.data;
       } catch (err) {
         console.error("toggleStatusApi:", err);
@@ -185,8 +190,8 @@ const formatDate = (dateStr) => {
       };
     setError(null);
 
-    const response = await axios.get(
-      'http://ecommerce-admin-backend.i-diligence.com/api/Category'
+    const response = await api.get(
+      '/Category'
     );
 
     // Map API response to UI-friendly format
@@ -248,8 +253,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.put(
-      `${API_CATEGORY}/${selectedUser.id}/status`,
+    await api.put(
+      `Category/${selectedUser.id}/status`,
       null,
       { params: { isActive } }
     );
@@ -274,29 +279,61 @@ const handleSubmitStatus = async () => {
   }
 };
 
+ 
 
 
-
+  
 
   const filteredCategories = useMemo(() => {
-    if (!searchTerm) return categories;
-    return categories.filter(
-      (cat) =>
-        cat.categoryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cat.subCategory.toLowerCase().includes(searchTerm.toLowerCase())
+  const term = searchTerm.trim().toLowerCase();
+  if (!term) return categories;
+
+  return categories.filter((cat) => {
+    return (
+      String(cat.id ?? "").toLowerCase().includes(term) ||
+      String(cat.categoryName ?? "").toLowerCase().includes(term) ||
+      String(cat.createdAt ?? "").toLowerCase().includes(term) ||
+      String(cat.updatedAt ?? "").toLowerCase().includes(term)
     );
-  }, [categories, searchTerm]);
+  });
+}, [categories, searchTerm]);
+
+const dateFilteredCategories = useMemo(() => {
+  if (!fromDate && !toDate) return filteredCategories;
+
+  const from = fromDate ? new Date(fromDate) : null;
+  const to = toDate ? new Date(toDate) : null;
+
+  return filteredCategories.filter((cat) => {
+    if (!cat.createdAt) return false;
+
+    const created = new Date(cat.createdAt);
+
+    if (from && created < from) return false;
+    if (to && created > to) return false;
+
+    return true;
+  });
+}, [filteredCategories, fromDate, toDate]);
+
+  
 
   const sortedCategories = useMemo(() => {
-    if (!sortConfig.key) return filteredCategories;
-    return [...filteredCategories].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key])
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      if (a[sortConfig.key] > b[sortConfig.key])
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredCategories, sortConfig]);
+  if (!sortConfig.key) return dateFilteredCategories;
+
+  return [...dateFilteredCategories].sort((a, b) => {
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+}, [dateFilteredCategories, sortConfig]);
+
 
   const handleSort = (key) => {
     let direction = 'asc';
@@ -519,141 +556,84 @@ const gotoPrev = () => setPage((p) => Math.max(1, p - 1));
               {sortedCategories.map((cat) => (
                 <tr key={cat.id}>
                   {/* ✅ Category ID Column */}
-                  {visibleColumns.id && (
-                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <strong>{cat.id}</strong>
-                        
-                    <button
-                className="btn btn-sm p-1"
-                title={copiedField.id === cat.id && copiedField.field === "id" ? "Copied" : "Copy"}
-                onClick={() => copyToClipboard(cat.id, cat.id, "id")}
-              >
-                {copiedField.id === cat.id && copiedField.field === "id" ? (
-                  <img src={checkIcon} alt="Copied" style={{ width: "18px", height: "18px" }} />
-                ) : (
-                  <MdContentCopy size={15} />
+                {visibleColumns.id && (
+                  <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
+                    <div className="d-flex justify-content-between align-items-center">
+                      <strong>{cat.id}</strong>
+                      <button
+                        className="btn btn-sm p-1"
+                        title={copiedField.id === cat.id && copiedField.field === "id" ? "Copied" : "Copy"}
+                        onClick={() => copyToClipboard(cat.id, cat.id, "id")}
+                      >
+                        {copiedField.id === cat.id && copiedField.field === "id" ? (
+                          <img src={checkIcon} alt="Copied" style={{ width: "18px", height: "18px" }} />
+                        ) : (
+                          <MdContentCopy size={15} />
+                        )}
+                      </button>
+                    </div>
+                  </td>
                 )}
-              </button>
-
-                      </div>
-                    </td>
-                  )}
 
                   {/* Category Name */}
-                  {visibleColumns.categoryName && (
-                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <span>{cat.categoryName}</span>
-                        <button
-                          className="btn btn-sm p-1"
-                          title={copiedField.id === cat.id && copiedField.field === "categoryName" ? "Copied" : "Copy"}
-
-                          onClick={() =>
-                            copyToClipboard(cat.categoryName, cat.id, 'categoryName')
-                          }
-                        >
-                          {copiedField.id === cat.id &&
-                          copiedField.field === 'categoryName' ? (
-                            <img
-                              src={checkIcon}
-                              alt="Copied"
-                              style={{ width: '18px', height: '18px' }}
-                            />
-                          ) : (
-                            <MdContentCopy size={15} />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  )}
-
-                  {/* Sub Category */}
-                  {visibleColumns.subCategory && (
-                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <span>{cat.subCategory}</span>
-                        <button
-                          className="btn btn-sm p-1"
-                         title={copiedField.id === cat.id && copiedField.field === "subCategory" ? "Copied" : "Copy"}
-
-                          onClick={() =>
-                            copyToClipboard(cat.subCategory, cat.id, 'subCategory')
-                          }
-                        >
-                          {copiedField.id === cat.id &&
-                          copiedField.field === 'subCategory' ? (
-                            <img
-                              src={checkIcon}
-                              alt="Copied"
-                              style={{ width: '18px', height: '18px' }}
-                            />
-                          ) : (
-                            <MdContentCopy size={15} />
-                          )}
-                        </button>
-
-                     
-
-                      </div>
-                    </td>
-                  )}
+            {visibleColumns.categoryName && (
+                <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>{cat.categoryName}</span>
+                    <button
+                      className="btn btn-sm p-1"
+                      title={copiedField.id === cat.id && copiedField.field === "categoryName" ? "Copied" : "Copy"}
+                      onClick={() => copyToClipboard(cat.categoryName, cat.id, 'categoryName')}
+                    >
+                      {copiedField.id === cat.id && copiedField.field === 'categoryName' ? (
+                        <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
+                      ) : (
+                        <MdContentCopy size={15} />
+                      )}
+                    </button>
+                  </div>
+                </td>
+              )}
 
                   {/* Created At */}
-                  {visibleColumns.createdAt && (
-                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <span>{cat.createdAt}</span>
-                        <button
-                          className="btn btn-sm p-1"
-                          title={copiedField.id === cat.id && copiedField.field === "createdAt" ? "Copied" : "Copy"}
-
-                          onClick={() =>
-                            copyToClipboard(cat.createdAt, cat.id, 'createdAt')
-                          }
-                        >
-                          {copiedField.id === cat.id &&
-                          copiedField.field === 'createdAt' ? (
-                            <img
-                              src={checkIcon}
-                              alt="Copied"
-                              style={{ width: '18px', height: '18px' }}
-                            />
-                          ) : (
-                            <MdContentCopy size={15} />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  )}
+                 {visibleColumns.createdAt && (
+        <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
+          <div className="d-flex justify-content-between align-items-center">
+            <span>{formatDate(cat.createdAt)}</span> {/* ← Updated to use formatDate */}
+            <button
+              className="btn btn-sm p-1"
+              title={copiedField.id === cat.id && copiedField.field === "createdAt" ? "Copied" : "Copy"}
+              onClick={() => copyToClipboard(formatDate(cat.createdAt), cat.id, 'createdAt')} 
+            >
+              {copiedField.id === cat.id && copiedField.field === 'createdAt' ? (
+                <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
+              ) : (
+                <MdContentCopy size={15} />
+              )}
+            </button>
+          </div>
+        </td>
+      )}
 
                   {/* Updated At */}
-                  {visibleColumns.updatedAt && (
-                    <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
-                      <div className="d-flex justify-content-between align-items-center">
-                        <span>{cat.updatedAt}</span>
-                        <button
-                          className="btn btn-sm p-1"
-                          title={copiedField.id === cat.id && copiedField.field === "updatedAt" ? "Copied" : "Copy"}
-
-                          onClick={() =>
-                            copyToClipboard(cat.updatedAt, cat.id, 'updatedAt')
-                          }
-                        >
-                          {copiedField.id === cat.id &&
-                          copiedField.field === 'updatedAt' ? (
-                            <img
-                              src={checkIcon}
-                              alt="Copied"
-                              style={{ width: '18px', height: '18px' }}
-                            />
-                          ) : (
-                            <MdContentCopy size={15} />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  )}
+                 {visibleColumns.updatedAt && (
+                <td style={{ border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <span>{formatDate(cat.updatedAt)}</span> {/* ← Updated to use formatDate */}
+                    <button
+                      className="btn btn-sm p-1"
+                      title={copiedField.id === cat.id && copiedField.field === "updatedAt" ? "Copied" : "Copy"}
+                      onClick={() => copyToClipboard(formatDate(cat.updatedAt), cat.id, 'updatedAt')} 
+                    >
+                      {copiedField.id === cat.id && copiedField.field === 'updatedAt' ? (
+                        <img src={checkIcon} alt="Copied" style={{ width: '18px', height: '18px' }} />
+                      ) : (
+                        <MdContentCopy size={15} />
+                      )}
+                    </button>
+                  </div>
+                </td>
+              )}
 
                   
                                               <td

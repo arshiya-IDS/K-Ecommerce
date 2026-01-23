@@ -4,9 +4,9 @@ import axios from "axios";
 import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
+import api from "../api/axiosInstance";
 
 
-const API_BASE = "http://ecommerce-admin-backend.i-diligence.com/api/Product";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -25,6 +25,8 @@ const ProductDetails = () => {
   const [replaceAllImages, setReplaceAllImages] = useState(false);
   const [replaceImageMap, setReplaceImageMap] = useState({});
 
+    const [isDeactivated, setIsDeactivated] = useState(false);
+
 
 
   useEffect(() => {
@@ -34,7 +36,7 @@ const ProductDetails = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE}/details/${id}`);
+      const res = await api.get(`/Product/details/${id}`);
       setProduct(res.data);
       const images = res.data.images || [];
       setProduct({ ...res.data, images });
@@ -101,7 +103,7 @@ Object.entries(replaceImageMap).forEach(([imageId, file]) => {
     if (primaryImageId) formData.append("PrimaryImageId", primaryImageId);
 
     try {
-      await axios.put(`${API_BASE}/update/${id}`, formData, {
+      await api.put(`/Product/update/${id}`, formData, {
 
         headers: { "Content-Type": "multipart/form-data" }
       });
@@ -151,17 +153,61 @@ const getImagePreviewSrc = (img) => {
 
 
   return (
-    <div className="container my-5">
-      <div className="d-flex justify-content-between align-items-center mb-4"
-        style={{ backgroundColor: "#FEC200", padding: "12px", borderRadius: "8px", color: "white" }}>
-        <h3>Product Details - #{product.product_id}</h3>
-        <div>
-          <button className="btn btn-light me-2" onClick={() => navigate(-1)}>Back</button>
-          <button className="btn btn-warning" onClick={() => setIsEditable(!isEditable)}>
-            <FaEdit /> {isEditable ? "Cancel" : "Edit"}
-          </button>
-        </div>
-      </div>
+    <div className="container my-2">
+     <div
+  className="d-flex align-items-center mb-4"
+  style={{
+    backgroundColor: "#FEC200",
+    padding: "12px",
+    borderRadius: "8px",
+    color: "white"
+  }}
+>
+  {/* Left: Back Button */}
+  <div style={{ flex: 1 }}>
+    <button
+      className="btn btn-light"
+      onClick={() => navigate(-1)}
+    >
+      Back
+    </button>
+  </div>
+
+  {/* Center: Product Details */}
+  <div style={{ flex: 1, textAlign: "center" }}>
+    <h3 className="mb-0">
+      Product Details - #{product.product_id}
+    </h3>
+  </div>
+
+  {/* Right: Edit Button */}
+ 
+ {/* Right: Edit / Submit Buttons */}
+<div style={{ flex: 1, textAlign: "right" }}>
+  {!isEditable ? (
+    <button
+      className="btn btn-light"
+      onClick={() => setIsEditable(true)}
+    >
+      <FaEdit /> Edit
+    </button>
+  ) : (
+    <>
+     
+
+      <button
+        className="btn btn-light"
+        onClick={handleSubmit}
+        disabled={isDeactivated}
+      >
+        Submit
+      </button>
+    </>
+  )}
+</div>
+
+</div>
+
 
       <div className="card shadow p-4">
         <div className="row g-3">
@@ -180,6 +226,14 @@ const getImagePreviewSrc = (img) => {
               {type === "textarea" ? (
                 <textarea
                   className="form-control"
+                   style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                   rows="4"
                   name={key}
                   value={product[key] || ""}
@@ -190,6 +244,14 @@ const getImagePreviewSrc = (img) => {
                 <input
                   type="text"
                   className="form-control"
+                   style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                   name={key}
                   value={product[key] || ""}
                   onChange={handleChange}
@@ -198,13 +260,33 @@ const getImagePreviewSrc = (img) => {
               )}
             </div>
           ))}
-          <div className="col-md-6">
+          <div className="col-md-6"
+          
+          >
             <label className="form-label fw-bold">Created At</label>
-            <input type="text" className="form-control" value={formatDate(product.created_at)} readOnly />
+            <input type="text" className="form-control"
+             style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
+             value={formatDate(product.created_at)} readOnly />
           </div>
           <div className="col-md-6">
             <label className="form-label fw-bold">Status</label>
-            <input type="text" className="form-control" value={product.status} readOnly />
+            <input type="text" className="form-control" 
+             style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
+            value={product.status} readOnly />
           </div>
         </div>
 

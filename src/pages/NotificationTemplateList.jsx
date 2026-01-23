@@ -16,8 +16,9 @@ import checkIcon from "../assets/check.png";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
+import api from "../api/axiosInstance";
 
-const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/Product";
+
 
 
 const NotificationTemplateList = () => {
@@ -59,8 +60,8 @@ useEffect(() => {
 
 const fetchTemplates = async () => {
   try {
-    const res = await axios.get(
-      "http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/list"
+    const res = await api.get(
+      "/Product/NtfcnTemplate/list"
     );
 
     const data = res.data || [];
@@ -90,10 +91,10 @@ const fetchTemplates = async () => {
 };
 
 const exportCSV = () => {
-    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
+    window.open(`/Product/export?format=csv`, "_blank");
   };
   const exportPDF = () => {
-    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
+    window.open(`/Product/export?format=pdf`, "_blank");
   };
 
 const handleView = (row) => {
@@ -151,8 +152,8 @@ const handleView = (row) => {
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.put(
-      `http://ecommerce-admin-backend.i-diligence.com/api/NtfcnTemplate/${selectedUser.template_id}/toggle-status`,
+    await api.put(
+      `/NtfcnTemplate/${selectedUser.template_id}/toggle-status`,
       null,
       { params: { isActive } }
     );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaArrowCircleRight } from 'react-icons/fa';
 import axios from 'axios';
+import api from "../api/axiosInstance";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -19,9 +20,9 @@ const Dashboard = () => {
           currentMonthSaleRes,
           totalOrdersRes
         ] = await Promise.all([
-          axios.get('http://ecommerce-admin-backend.i-diligence.com/api/Auth/total-registrations'),
-          axios.get('http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/CurrentMonthPaidOrderTotal'),
-          axios.get('http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/TotalConfirmedPaidOrderCount')
+          api.get('/Auth/total-registrations'),
+          api.get('/OrderItem/CurrentMonthPaidOrderTotal'),
+          api.get('/OrderItem/TotalConfirmedPaidOrderCount')
         ]);
 
         setDashboardData({

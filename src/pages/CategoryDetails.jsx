@@ -7,6 +7,7 @@ import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import api from "../api/axiosInstance";
 
 const CategoryDetails = () => {
   const navigate=useNavigate();
@@ -63,9 +64,8 @@ const [loading, setLoading] = useState(true);
   catgrs_UpdtdBy: "Admin"
 };
 
-
-    const res = await axios.put(
-      `http://ecommerce-admin-backend.i-diligence.com/api/Category/${category.category_Id}`,
+    const res = await api.put(
+      `/Category/${category.category_Id}`,
       payload,
        {
     headers: {
@@ -112,8 +112,8 @@ const [loading, setLoading] = useState(true);
 
 const fetchCategoryDetails = async () => {
   try {
-    const res = await axios.get(
-      `http://ecommerce-admin-backend.i-diligence.com/api/Category/${categoryId}`
+    const res = await api.get(
+      `/Category/${categoryId}`
     );
 
     setCategory(res.data);
@@ -135,55 +135,51 @@ if (loading) {
 
   return (
     
-    <div className="container my-5">
+    <div className="container my-2">
       
 
       {/* Header */}
-      <div
-        className="d-flex align-items-center justify-content-between px-3 rounded"
-
-        style={{
-          backgroundColor: "#FEC200",
-          color: "black",
-          marginTop: "-40px",
-          height: "50px",
-        }}
-      >
-        <h2 style={{ fontSize: "20px",fontWeight:'normal',marginLeft:'420px' }}>Category Details</h2>
-
-        {/* Center: Search Bar */}
-    {/* <div
-      className="input-group"
-      style={{
-        maxWidth: "350px",
-        width: "100%",
-        justifyContent: "center",
-      }}
+  <div
+  className="d-flex align-items-center mb-4"
+  style={{
+    backgroundColor: "#FEC200",
+    padding: "12px",
+    borderRadius: "8px",
+    color: "white"
+  }}
+>
+  {/* Left: Back Button */}
+  <div style={{ flex: 1 }}>
+    <button
+      className="btn btn-light"
+      onClick={() => navigate(-1)}
     >
-      <input
-        type="search"
-        placeholder="Search by ID, Name, Contact, Email, Location..."
-        className="form-control form-control-sm"
-        style={{
-          height: "30px",
-          fontFamily: "inherit",
-          fontSize: "inherit",
-        }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button
-        type="button"
-        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-        style={{ height: "34px", width: "34px", padding: 0 }}
-        title="Search"
-        onClick={handleSearch}
-      >
-        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-      </button>
-    </div> */}
-  
-      </div>
+      Back
+    </button>
+  </div>
+
+  {/* Center: Product Details */}
+  <div style={{ flex: 1, textAlign: "center" }}>
+    <h3 className="mb-0">
+      Category Details - #{category.category_Id}
+    </h3>
+  </div>
+
+  {/* Right: Edit Button */}
+  <div style={{ flex: 1, textAlign: "right" }}>
+   
+     <button
+            type="button"
+            onClick={handleEditToggle}
+            className="btn btn-light"
+            disabled={isDeactivated}
+          >
+            {isEditable ? "Submit" : "Edit"}
+          </button>
+
+  </div>
+</div>
+
 
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
@@ -201,6 +197,14 @@ if (loading) {
                   type="text"
                   name={key}
                   className="form-control"
+                   style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                   value={
                     ["catgrs_CrtdAt", "catgrs_UpdtdAt"].includes(key) && value
                       ? new Date(value).toLocaleString()
@@ -227,24 +231,9 @@ if (loading) {
         {/* Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
 
-          <Link to="/category-list">
-            <button
-            type="button"
-            className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-          >
-           Back
-          </button>
-          </Link>
+         
 
-          <button
-            type="button"
-            onClick={handleEditToggle}
-            className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-            disabled={isDeactivated}
-          >
-            {isEditable ? "Submit" : "Edit"}
-          </button>
-
+         
          
 
           {/* <button

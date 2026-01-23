@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { FiPlus, FiMinus } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { FaPlus, FaMinus } from "react-icons/fa";
+import api from "../api/axiosInstance";
 
 
   const DashboardLayout = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [productMenuOpen, setProductMenuOpen] = useState(false);
@@ -42,6 +45,19 @@ import { FaPlus, FaMinus } from "react-icons/fa";
   const toggleSidebar = () => {
   setSidebarOpen(prev => !prev);
 };
+
+const handleLogout = async () => {
+  try {
+    await api.post("/Auth/logout");
+
+  } catch (err) {
+    console.warn("Logout API failed, clearing local data anyway");
+  } finally {
+    localStorage.removeItem("auth");
+    navigate("/", { replace: true });
+  }
+};
+
 
 
 
@@ -107,7 +123,7 @@ const closeAllMenus = () => {
 >
 
           {/* Dashboard */}
-          <Link className="logout-item" to="/">
+          <Link className="logout-item" to="/dashboard">
             <div className={`logout mt-0 ${isActiveLink('/dashboard') ? 'active' : ''}`}>
               <img src="/images/icons/dashboard.png" width="20" height="20" alt="Dashboard" className="menu-icon" />
               <span>Dashboard</span>
@@ -356,26 +372,22 @@ const closeAllMenus = () => {
 
 
           {/* Other existing menu items */}
-          {/* <Link className="logout-item" to="/enquiry-dashboard">
-            <div className={`logout ${isActiveLink('/enquiry-dashboard') ? 'active' : ''}`}>
-              <img src="/images/icons/Enquirydashboard.png" width="20" height="20" alt="Enquiry Dashboard" className="menu-icon" />
-              <span>Products Dashboard</span>
-            </div>
-          </Link>
+          
 
-          <Link className="logout-item" to="/misreport">
-            <div className={`logout ${isActiveLink('/misreport') ? 'active' : ''}`}>
-              <img src="/images/icons/report.png" width="20" height="20" alt="MIS Report" className="menu-icon" />
-              <span>MIS Report</span>
-            </div>
-          </Link> */}
+         
 
-          <Link className="logout-item" to="/">
-            <div className="logout">
-              <img src="/images/icons/logout.png" width="20" height="20" alt="Logout" className="menu-icon" />
-              <span>LogOut</span>
-            </div>
-          </Link>
+          <div className="logout-item" onClick={handleLogout} style={{ cursor: "pointer" }}>
+      <div className="logout">
+        <img
+          src="/images/icons/logout.png"
+          width="20"
+          height="20"
+          alt="Logout"
+          className="menu-icon"
+        />
+        <span>LogOut</span>
+      </div>
+    </div>
         </div>
       </div>
 
@@ -388,12 +400,12 @@ const closeAllMenus = () => {
         <nav className="navbar navbar-expand-lg navbar-light bg-light border-bottom dashboard-navbar">
           <div className="container-fluid">
             <button className="btn sidebar-toggle-btn" id="sidebarToggle" onClick={toggleSidebar}>
-              <img src="/images/bars.svg" alt="Toggle Sidebar" width="20" height="20" />
+              {/* <img src="/images/bars.svg" alt="Toggle Sidebar" width="20" height="20" /> */}
             </button>
             <h2 className="admin-title" style={{ marginTop: '20px', marginBottom: '20px',color:'black' }}>
               Welcome to Kaushlya Miniatures eCommerce Admin Dashboard
             </h2>
-            <div className="collapse navbar-collapse" id="navbarSupportedContent">
+             <div className="collapse navbar-collapse" id="navbarSupportedContent">
               <ul className="navbar-nav ms-auto mt-2 mt-lg-0">
                 <li className="nav-item dropdown">
                   <a
@@ -410,16 +422,27 @@ const closeAllMenus = () => {
                   <div className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`} aria-labelledby="navbarDropdownMenuLink">
                     <div className="subscription-icons d-flex">
                       <img src="/images/setting.svg" className="add-icons" alt="Settings" width="20" height="20" />
-                      <Link className="dropdown-item" to="/login">Login</Link>
+                      <Link className="dropdown-item" to="/">Login</Link>
                     </div>
-                    <div className="subscription-icons d-flex">
-                      <img src="/images/log-out.svg" className="add-icons" alt="Logout" width="20" height="20" />
-                      <a className="dropdown-item" href="#">Logout</a>
-                    </div>
+                  <div
+                    className="subscription-icons d-flex"
+                    onClick={handleLogout}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <img
+                      src="/images/log-out.svg"
+                      className="add-icons"
+                      alt="Logout"
+                      width="20"
+                      height="20"
+                    />
+                    <span className="dropdown-item">Logout</span>
+                  </div>
+
                   </div>
                 </li>
               </ul>
-            </div>
+            </div> 
           </div>
         </nav>
 

@@ -9,6 +9,7 @@ import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { useEffect } from "react";
 import axios from "axios";
+import api from "../api/axiosInstance";
 
 
 const Userlist = () => {
@@ -34,7 +35,7 @@ const Userlist = () => {
 
 const fetchUsers = async () => {
   try {
-    const res = await axios.get("http://ecommerce-admin-backend.i-diligence.com/api/users");
+    const res = await api.get("/users");
 
     const mappedUsers = res.data.map((u) => ({
       id: u.userId,
@@ -56,6 +57,9 @@ const [activeStatus, setActiveStatus] = useState({});
 const [showConfirm, setShowConfirm] = useState(false);
 const [selectedUser, setSelectedUser] = useState(null);
 const [statusChoice, setStatusChoice] = useState(null);
+const [fromDate, setFromDate] = useState("");
+const [toDate, setToDate] = useState("");
+
 const protectedProductIds = [1, 2];
 
 const [page, setPage] = useState(1);
@@ -123,34 +127,62 @@ const handleSubmitStatus = () => {
   //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
   // Filter users based on search term
+  
+
   const filteredUsers = useMemo(() => {
-    if (!searchTerm) return users;
-    
-    return users.filter(user => 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phoneNumber.includes(searchTerm) ||
-      user.createdAt.toLowerCase().includes(searchTerm.toLowerCase())
+  const term = searchTerm.trim().toLowerCase();
+  if (!term) return users;
+
+  return users.filter((user) => {
+    return (
+      String(user.id ?? "").toLowerCase().includes(term) ||
+      String(user.name ?? "").toLowerCase().includes(term) ||
+      String(user.email ?? "").toLowerCase().includes(term) ||
+      String(user.phoneNumber ?? "").toLowerCase().includes(term) ||
+      String(user.role ?? "").toLowerCase().includes(term) ||
+      String(user.createdAt ?? "").toLowerCase().includes(term)
     );
-  }, [users, searchTerm]);
+  });
+}, [users, searchTerm]);
+
+const dateFilteredUsers = useMemo(() => {
+  if (!fromDate && !toDate) return filteredUsers;
+
+  const from = fromDate ? new Date(fromDate) : null;
+  const to = toDate ? new Date(toDate) : null;
+
+  return filteredUsers.filter((user) => {
+    if (!user.createdAt) return false;
+
+    const created = new Date(user.createdAt);
+
+    if (from && created < from) return false;
+    if (to && created > to) return false;
+
+    return true;
+  });
+}, [filteredUsers, fromDate, toDate]);
+
 
  
 
   // Sort users based on sort configuration
   const sortedUsers = useMemo(() => {
-    if (!sortConfig.key) return filteredUsers;
-    
-    return [...filteredUsers].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [filteredUsers, sortConfig]);
+  if (!sortConfig.key) return dateFilteredUsers;
+
+  return [...dateFilteredUsers].sort((a, b) => {
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+}, [dateFilteredUsers, sortConfig]);
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -239,13 +271,13 @@ const handleSubmitStatus = () => {
 }
 
     
-    if (visibleColumns.createdAt) {
-      headers.push({
-        key: 'createdAt',
-        label: 'Created At',
-        style: { width: '100px' }
-      });
-    }
+    // if (visibleColumns.createdAt) {
+    //   headers.push({
+    //     key: 'createdAt',
+    //     label: 'Created At',
+    //     style: { width: '100px' }
+    //   });
+    // }
 
    
 
@@ -274,19 +306,21 @@ const handleSubmitStatus = () => {
   {/* Left: From / To Date + Filter */}
   <div className="d-flex align-items-center">
     <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>From:</label>
+   
     <input
-      type="date"
-      className="form-control form-control-sm me-2"
-      style={{ height: '34px', width: '150px', fontFamily: 'inherit', fontSize: 'inherit' }}
-      title='From Date'
-    />
-    <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>To:</label>
-    <input
-      type="date"
-      className="form-control form-control-sm me-2"
-      style={{ height: '34px', width: '150px', fontFamily: 'inherit', fontSize: 'inherit' }}
-      title="To Date"
-    />
+  type="date"
+  className="form-control form-control-sm me-2"
+  value={fromDate}
+  onChange={(e) => setFromDate(e.target.value)}
+/>
+
+<input
+  type="date"
+  className="form-control form-control-sm me-2"
+  value={toDate}
+  onChange={(e) => setToDate(e.target.value)}
+/>
+
     <button
       className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
       style={{ height: '34px', width: '34px', padding: 0 }}
@@ -571,44 +605,7 @@ const handleSubmitStatus = () => {
                             </td>
                           )}
 
-                    {visibleColumns.createdAt && (
-                      <td className="admin-user-option pl-3 p-3" style={{whiteSpace: 'nowrap', border: '1px solid #dee2e6', color: '#645959'}}>{user.createdAt}</td>
-                    )}
-                                 {/* <td
-                            className="admin-user-option pl-3 p-3"
-                            style={{
-                              whiteSpace: 'nowrap',
-                              border: '1px solid #dee2e6',
-                              textAlign: 'center'
-                            }}
-                          > */}
-                            {/* <div
-                              onClick={() => handleToggleClick(user)}
-                              style={{
-                                width: '50px',
-                                height: '26px',
-                                borderRadius: '50px',
-                                backgroundColor: activeStatus[user.id] ? '#4CAF50' : '#f44336',
-                                position: 'relative',
-                                cursor: 'pointer',
-                                transition: 'background-color 0.3s ease'
-                              }}
-                            >
-                              <div
-                                style={{
-                                  width: '22px',
-                                  height: '22px',
-                                  borderRadius: '50%',
-                                  backgroundColor: 'white',
-                                  position: 'absolute',
-                                  top: '2px',
-                                  left: activeStatus[user.id] ? '26px' : '2px',
-                                  transition: 'left 0.3s ease'
-                                }}
-                              ></div>
-                            </div> */}
-                          {/* </td> */}
-
+                 
 
                      {/* ✅ Action Column */}
                                                                                 {/* <td

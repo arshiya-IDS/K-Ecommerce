@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
 
 
 
@@ -49,7 +50,7 @@ useEffect(() => {
 
 const fetchCategories = async () => {
   try {
-    const res = await axios.get("http://ecommerce-admin-backend.i-diligence.com/api/Category");
+    const res = await api.get("/Category");
     setCategories(res.data);
   } catch (error) {
     console.error("Error loading categories", error);
@@ -104,8 +105,8 @@ const validateSubCategoryForm = () => {
       sb_catgrs_CrtdBy: "ADMIN"
     };
 
-    const res = await axios.post(
-      "http://ecommerce-admin-backend.i-diligence.com/api/SubCategory",
+    const res = await api.post(
+      "/SubCategory",
       payload
     );
 
@@ -143,8 +144,7 @@ const validateSubCategoryForm = () => {
         }}
       >
         <h2 style={{ fontSize: "20px", marginTop: "-5px",fontWeight:'normal' }}>
-          Manage Sub-Categories
-        </h2>
+          Add Sub-Categories </h2>
       </div>
 
       {/* CARD */}
@@ -222,7 +222,7 @@ const validateSubCategoryForm = () => {
 
           </div>
 
-          <div className="form-check mb-3">
+          {/* <div className="form-check mb-3">
             <input
               className="form-check-input"
               type="checkbox"
@@ -238,7 +238,7 @@ const validateSubCategoryForm = () => {
             <label className="form-check-label fw-semibold">
               Subcategory Active
             </label>
-          </div>
+          </div> */}
 
           <div className="text-center mt-4">
             <button
@@ -246,7 +246,7 @@ const validateSubCategoryForm = () => {
               className="btn btn-warning text-black fw-bold px-4 py-2 rounded-3 float-end"
               disabled={loading}
             >
-              {loading ? "Saving..." : "Add Subcategory"}
+              {loading ? "Saving..." : "Submit"}
             </button>
           </div>
         </form>

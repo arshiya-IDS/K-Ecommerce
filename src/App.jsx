@@ -37,6 +37,9 @@ import ShippingChargesDetails from './pages/ShippingChargesDetails';
 import CategoryDetails from './pages/CategoryDetails';
 import SubCategoryDetails from './pages/SubCategoryDetails';
 import NotificationTemplateDetails from './pages/NotificationTemplateDetails';
+import ProtectedRoute from "./pages/ProtectedRoute";
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -45,51 +48,67 @@ function App() {
 
         {/* 🔹 Public Login Route */}
        
+  <Route path="/" element={<Login />} />
 
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* 🔹 Dashboard Layout Wrapping All Internal Pages */}
         <Route element={<DashboardLayout />}>
           {/* Dashboard Home */}
-           <Route path="/" element={<Dashboard/>} />
-          <Route path="/login" element={<Login />} />
+         
+       
+           
+
+<Route
+  path="/dashboard"
+  element={
+    
+    <ProtectedRoute><Dashboard /></ProtectedRoute>
+      
+  
+  }
+/>
 
           {/* Main Sections */}
-          <Route path="/category" element={<Category />} />
-          <Route path="/user" element={<User />} />
-          <Route path="/userlist" element={<Userlist />} />
-          <Route path="/product" element={<Product />} />
-          <Route path="/product-create" element={<ProductCreate />} />
-          <Route path="/product-discount" element={<ProductDiscount/>}/>
-          <Route path="/user-discount" element={<UserDiscount/>}/>
-          <Route path="/product-list" element={<ProductList/>}/>
-          <Route path="/orders-list" element={<OrdersList/>}/>
-          <Route path="/category-list" element={<CategoryList/>}/>
-          <Route path="/product-details/:id" element={<ProductDetails />} />
-          <Route path="/notification-list" element={<NotificationTemplateList/>}/>
-          <Route path="/order-details/:id" element={<OrderDetails/>}/>
-          <Route path="/product-discount-details/:id" element={<ProductDiscountDetails/>}/>
-          <Route path="/user-discount-detail/:id"element={<UserDiscountDetails/>}/>
-          <Route path="/notification-template-details/:id" element={<NotificationTemplateDetails/>}/>
+          <Route path="/category" element={ <ProtectedRoute><Category /></ProtectedRoute>} />
+          <Route path="/user" element={ <ProtectedRoute><User /></ProtectedRoute>} />
+          <Route path="/userlist" element={ <ProtectedRoute><Userlist /></ProtectedRoute>} />
+          <Route path="/product" element={ <ProtectedRoute><Product /></ProtectedRoute>} />
+          <Route path="/product-create" element={  <ProtectedRoute><ProductCreate /></ProtectedRoute>} />
+          <Route path="/product-discount" element={<ProtectedRoute><ProductDiscount/></ProtectedRoute>}/>
+          <Route path="/user-discount" element={<ProtectedRoute><UserDiscount/></ProtectedRoute>}/>
+          <Route path="/product-list" element={<ProtectedRoute><ProductList/></ProtectedRoute>}/>
+          <Route path="/orders-list" element={ <ProtectedRoute><OrdersList/></ProtectedRoute>}/>
+          <Route path="/category-list" element={<ProtectedRoute><CategoryList/></ProtectedRoute>}/>
+          <Route path="/product-details/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
+          <Route path="/notification-list" element={<ProtectedRoute><NotificationTemplateList/></ProtectedRoute>}/>
+          <Route path="/order-details/:id" element={<ProtectedRoute><OrderDetails/></ProtectedRoute>}/>
+          <Route path="/product-discount-details/:id" element={<ProtectedRoute><ProductDiscountDetails/></ProtectedRoute>}/>
+          <Route path="/user-discount-detail/:id"element={<ProtectedRoute><UserDiscountDetails/></ProtectedRoute>}/>
+          <Route path="/notification-template-details/:id" element={<ProtectedRoute><NotificationTemplateDetails/></ProtectedRoute>}/>
 
-          <Route path="/shipping-charges-detail/:id" element={<ShippingChargesDetails/>}/>
+          <Route path="/shipping-charges-detail/:id" element={<ProtectedRoute><ShippingChargesDetails/></ProtectedRoute>}/>
 
-          <Route path="/categories/:categoryId" element={<CategoryDetails/>}/>
+          <Route path="/categories/:categoryId" element={<ProtectedRoute><CategoryDetails/></ProtectedRoute>}/>
 
 
-          <Route path="/subcategories/details/:id" element={<SubCategoryDetails/>}/>
+          <Route path="/subcategories/details/:id" element={<ProtectedRoute><SubCategoryDetails/></ProtectedRoute>}/>
           
 
-          <Route path="/subcategories-list" element={<SubCategoryList/>}/>
-          <Route path="/manage-subcategories" element={<ManageSubCategories/>}/>
+          <Route path="/subcategories-list" element={<ProtectedRoute><SubCategoryList/></ProtectedRoute>}/>
+          <Route path="/manage-subcategories" element={<ProtectedRoute><ManageSubCategories/></ProtectedRoute>}/>
           <Route path="/notification-template-create" element={<NotificationTemplateCreate/>}/>
-          <Route path="/manage-categories" element={<ManageCategories/>}/>
-          <Route path="/product-discount-list" element={<ProductDiscountList/>}/>
-          <Route path="/user-discount-list" element={<UserDiscountList/>}/>
-          <Route path="/shipping-charges" element={<ShippingCharges/>}/>
-          <Route path="/shipping-charges-list" element={<ShippingChargesList/>}/>
+          <Route path="/manage-categories" element={<ProtectedRoute><ManageCategories/></ProtectedRoute>}/>
+          <Route path="/product-discount-list" element={<ProtectedRoute><ProductDiscountList/></ProtectedRoute>}/>
+          <Route path="/user-discount-list" element={<ProtectedRoute><UserDiscountList/></ProtectedRoute>}/>
+          <Route path="/shipping-charges" element={<ProtectedRoute><ShippingCharges/></ProtectedRoute>}/>
+          <Route path="/shipping-charges-list" element={<ProtectedRoute><ShippingChargesList/></ProtectedRoute>}/>
+
           <Route path="/auction" element={<Auction />} />
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/content" element={<Content />} />
 
+          
           {/* Enquiry Related */}
           <Route path="/enquiry" element={<Enquiry />} />
           <Route path="/enquiry-dashboard" element={<EnquiryDashboard />} />

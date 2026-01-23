@@ -10,8 +10,8 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { useEffect } from "react";
+import api from "../api/axiosInstance";
 
-const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount";
 
 
 const UserDiscountList = () => {
@@ -20,6 +20,9 @@ const UserDiscountList = () => {
   const navigate = useNavigate();
 const [page, setPage] = useState(1);
 const [pageSize, setPageSize] = useState(10);
+const [fromDate, setFromDate] = useState("");
+const [toDate, setToDate] = useState("");
+
 
 const pageSizeOptions = [10, 20, 30, "All"];
 
@@ -114,8 +117,8 @@ const protectedProductIds = [1, 2];
 
 const fetchUserDiscounts = async () => {
   try {
-     const res = await axios.get(
-        "http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount",
+     const res = await api.get(
+        "/UserDiscount",
        
       );
 
@@ -158,8 +161,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.put(
-      `${API_PRODUCT}/${selectedUser.id}/toggle-status?isActive=${isActive}`
+    await api.put(
+      `/UserDiscount/${selectedUser.id}/toggle-status?isActive=${isActive}`
     );
 
     // ✅ Update toggle UI instantly
@@ -196,12 +199,15 @@ const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString("en-GB");
 };
 
-const exportCSV = () => {
-    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
-  };
+
+  const exportCSV = () => {
+  window.open(`${api.defaults.baseURL}/UserDiscount/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/UserDiscount/export?format=pdf`, "_blank");
+};
+
 
 
 
@@ -216,31 +222,64 @@ const exportCSV = () => {
   //const [copiedField, setCopiedField] = useState({ id: null, field: null });
 
   // Filter users based on search term
-  const filteredUsers = useMemo(() => {
-    if (!searchTerm) return users;
-    
-    return users.filter(user => 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phoneNumber.includes(searchTerm) ||
-      user.createdAt.toLowerCase().includes(searchTerm.toLowerCase())
+ const filteredUsers = useMemo(() => {
+  const term = searchTerm.trim().toLowerCase();
+  if (!term) return users;
+
+  return users.filter((u) => {
+    return (
+      String(u.id ?? "").toLowerCase().includes(term) ||
+      String(u.name ?? "").toLowerCase().includes(term) ||
+      String(u.email ?? "").toLowerCase().includes(term) ||
+      String(u.phoneNumber ?? "").toLowerCase().includes(term) ||
+      String(u.createdAt ?? "").toLowerCase().includes(term) ||
+      String(u.EndDate ?? "").toLowerCase().includes(term) ||
+      String(u.formAttime ?? "").toLowerCase().includes(term)
     );
-  }, [users, searchTerm]);
+  });
+}, [users, searchTerm]);
+
+const dateFilteredUsers = useMemo(() => {
+  if (!fromDate && !toDate) return filteredUsers;
+
+  const from = fromDate ? new Date(fromDate) : null;
+  const to = toDate ? new Date(toDate) : null;
+
+  return filteredUsers.filter((u) => {
+    if (!u.createdAt) return false;
+
+    const created = new Date(u.createdAt.split("/").reverse().join("-"));
+
+    if (from && created < from) return false;
+    if (to && created > to) return false;
+
+    return true;
+  });
+}, [filteredUsers, fromDate, toDate]);
+
+
 
   // Sort users based on sort configuration
-  const sortedUsers = useMemo(() => {
-    if (!sortConfig.key) return filteredUsers;
-    
-    return [...filteredUsers].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  }, [filteredUsers, sortConfig]);
+ const sortedUsers = useMemo(() => {
+  if (!sortConfig.key) return dateFilteredUsers;
+
+  return [...dateFilteredUsers].sort((a, b) => {
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+}, [dateFilteredUsers, sortConfig]);
+
+const applyDateFilter = () => {
+  setPage(1);
+};
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -369,23 +408,26 @@ const exportCSV = () => {
   {/* Left: From / To Date + Filter */}
   <div className="d-flex align-items-center">
     <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>From:</label>
+    
     <input
-      type="date"
-      className="form-control form-control-sm me-2"
-      style={{ height: '34px', width: '150px', fontFamily: 'inherit', fontSize: 'inherit' }}
-      title='From Date'
-    />
-    <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>To:</label>
-    <input
-      type="date"
-      className="form-control form-control-sm me-2"
-      style={{ height: '34px', width: '150px', fontFamily: 'inherit', fontSize: 'inherit' }}
-      title="To Date"
-    />
+  type="date"
+  className="form-control form-control-sm me-2"
+  value={fromDate}
+  onChange={(e) => setFromDate(e.target.value)}
+/>
+
+<input
+  type="date"
+  className="form-control form-control-sm me-2"
+  value={toDate}
+  onChange={(e) => setToDate(e.target.value)}
+/>
+
     <button
       className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
       style={{ height: '34px', width: '34px', padding: 0 }}
       title="Apply Filter"
+        onClick={applyDateFilter}
     >
       <FaTelegramPlane size={14} />
     </button>

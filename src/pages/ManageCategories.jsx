@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
 
 
 const ManageCategories = () => {
@@ -92,8 +93,8 @@ const [errors, setErrors] = useState({});
       category_Is_Active: category.category_is_active,
     };
 
-    const response = await axios.post(
-      "http://ecommerce-admin-backend.i-diligence.com/api/Category",
+    const response = await api.post(
+      "/Category",
       payload
     );
 

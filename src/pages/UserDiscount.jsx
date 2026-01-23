@@ -4,6 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
 
 const UserDiscount = () => {
 
@@ -21,8 +22,8 @@ const UserDiscount = () => {
 
   
   useEffect(() => {
-  axios
-    .get("http://ecommerce-admin-backend.i-diligence.com/api/users")
+  api
+    .get("/users")
     .then((res) => setUsers(res.data))
     .catch(err => console.error("Users API error", err));
 }, []);
@@ -93,8 +94,8 @@ const validateForm = () => {
 };
 
     try {
-      await axios.post(
-  "http://ecommerce-admin-backend.i-diligence.com/api/UserDiscount",
+      await api.post(
+  "/UserDiscount",
   payload
 );
 

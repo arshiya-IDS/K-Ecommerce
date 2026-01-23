@@ -2341,6 +2341,59 @@ i.fa-brands.fa-linkedin:hover {
 
 
 
+.login-page {
+  height: 100vh;
+  background: #ffffff;
+}
+
+.login-left {
+  padding: 60px;
+}
+
+.left-content {
+  max-width: 500px;
+}
+
+.left-content h2 {
+  color: #0b3c8a;
+  font-weight: 700;
+  margin: 40px 0;
+}
+
+.logo {
+  width: 120px;
+}
+
+.illustration {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-card {
+  width: 420px;
+  padding: 40px;
+  background: #f7fbff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.password-eye {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 20px;
+  cursor: pointer;
+}
+
+.forgot-link {
+  color: #0b3c8a;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
 
 
-   
+  

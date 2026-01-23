@@ -7,6 +7,8 @@ import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import {useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import api from "../api/axiosInstance";
+
 const ShippingChargesDetails = () => {
 
   const navigate=useNavigate();
@@ -50,8 +52,8 @@ const ShippingChargesDetails = () => {
         maxAmount: Number(shippingCharge.max_purchase_amount),
       };
 
-      await axios.put(
-        `http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/edit-User/${id}`,
+      await api.put(
+        `/ShippingCharges/edit-User/${id}`,
         payload
       );
 
@@ -80,8 +82,8 @@ const ShippingChargesDetails = () => {
   useEffect(() => {
   if (!id) return;
 
-  axios
-    .get(`http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/details/${id}`)
+  api
+    .get(`/ShippingCharges/details/${id}`)
     .then((res) => {
       const d = res.data;
 
@@ -122,55 +124,48 @@ const ShippingChargesDetails = () => {
 
 
   return (
-    <div className="container my-5">
+    <div className="container my-2">
       {/* Header */}
-      <div
-        className="d-flex align-items-center justify-content-between px-3 rounded"
-        style={{
-          backgroundColor: "#FEC200",
-          color: "black",
-          marginTop: "-35px",
-          height: "45px",
-        }}
-      >
-        <h2 style={{ fontSize: "20px",fontWeight:'normal',marginLeft:'420px' }}>
-          Shipping Charges Details
-        </h2>
-
-          {/* Center: Search Bar */}
-    {/* <div
-      className="input-group"
-      style={{
-        maxWidth: "350px",
-        width: "100%",
-        justifyContent: "center",
-      }}
+        <div
+  className="d-flex align-items-center mb-4"
+  style={{
+    backgroundColor: "#FEC200",
+    padding: "12px",
+    borderRadius: "8px",
+    color: "white"
+  }}
+>
+  {/* Left: Back Button */}
+  <div style={{ flex: 1 }}>
+    <button
+      className="btn btn-light"
+      onClick={() => navigate(-1)}
     >
-      <input
-        type="search"
-        placeholder="Search by ID, Name, Contact, Email, Location..."
-        className="form-control form-control-sm"
-        style={{
-          height: "30px",
-          fontFamily: "inherit",
-          fontSize: "inherit",
-        }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button
-        type="button"
-        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-        style={{ height: "34px", width: "34px", padding: 0 }}
-        title="Search"
-        onClick={handleSearch}
-      >
-        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-      </button>
-    </div> */}
+      Back
+    </button>
+  </div>
 
-      </div>
+  {/* Center: Product Details */}
+  <div style={{ flex: 1, textAlign: "center" }}>
+    <h3 className="mb-0">
+      Shipping Charges Details - #{shippingCharge.charge_id}
+    </h3>
+  </div>
 
+  {/* Right: Edit Button */}
+  <div style={{ flex: 1, textAlign: "right" }}>
+   
+     <button
+            type="button"
+            onClick={handleEditToggle}
+            className="btn btn-light"
+            disabled={isDeactivated}
+          >
+            {isEditable ? "Submit" : "Edit"}
+          </button>
+
+  </div>
+</div>
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
                    style={{marginTop:"6px"}}
@@ -196,23 +191,42 @@ const ShippingChargesDetails = () => {
                 type="text"
                 name={key}
                 className="form-control"
-                 style={{
-                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
-                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
-                        borderRadius: "8px",
-                        padding: "10px",
-                        color: "#212529",
-                        transition: "all 0.3s ease"
-                      }}
+                style={{
+                  backgroundColor:
+                    key === "charge_value"
+                      ? "#fff3cd"            //  highlighted background
+                      : isEditable && !isDeactivated
+                      ? "#fff"
+                      : "#f8f9fa",
+
+                  border:
+                    key === "charge_value"
+                      ? "2px solid #FEC200"  // highlighted border
+                      : isEditable && !isDeactivated
+                      ? "1px solid #80bdff"
+                      : "1px solid #dee2e6",
+
+                  boxShadow:
+                    key === "charge_value"
+                      ? "0 0 8px rgba(254, 194, 0, 0.6)" //  glow effect
+                      : "none",
+
+                  fontWeight: key === "charge_value" ? "600" : "normal",
+                  borderRadius: "8px",
+                  padding: "10px",
+                  color: "#212529",
+                  transition: "all 0.3s ease"
+                }}
                 value={
                   key === "is_active"
                     ? shippingCharge.is_active
                     : shippingCharge[key] ?? ""
                 }
-
                 onChange={handleChange}
                 readOnly={!isEditable || isDeactivated}
               />
+
+           
             </div>
           ))}
         </div>
@@ -243,22 +257,7 @@ const ShippingChargesDetails = () => {
 
         {/* Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
-           <Link to="/shipping-charges-list">
-                                          <button
-                                          type="button"
-                                          className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-                                        >
-                                         Back
-                                        </button>
-                                        </Link>
-          <button
-            type="button"
-            onClick={handleEditToggle}
-            className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-            disabled={isDeactivated}
-          >
-            {isEditable ? "Submit" : "Edit"}
-          </button>
+           
 
           
         </div>

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useParams, useNavigate } from "react-router-dom";
+import api from "../api/axiosInstance";
+
 
 const ProductDiscountDetails = () => {
       const navigate = useNavigate();
@@ -21,8 +23,8 @@ const ProductDiscountDetails = () => {
   // -----------------------------------------
   const fetchDetails = async () => {
     try {
-      const res = await axios.get(
-        `http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/details/${id}`
+      const res = await api.get(
+        `/ProductDiscount/details/${id}`
       );
       const d = res.data.data;
 
@@ -112,8 +114,8 @@ const ProductDiscountDetails = () => {
         isActive: discount.isActive,
       };
 
-      const res = await axios.put(
-        `http://ecommerce-admin-backend.i-diligence.com/api/ProductDiscount/${id}`,
+      const res = await api.put(
+        `/ProductDiscount/${id}`,
         payload
       );
 

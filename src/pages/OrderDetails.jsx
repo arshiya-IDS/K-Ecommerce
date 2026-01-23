@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import jsPDF from "jspdf";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import "sweetalert2/src/sweetalert2.scss";
+import Swal from "sweetalert2/dist/sweetalert2.js";
+import api from "../api/axiosInstance";
+
 
 const OrderDetails = () => {
+
+  const navigate=useNavigate();
 
   const { id } = useParams(); // order_id from URL
 
@@ -25,8 +31,8 @@ useEffect(() => {
 
 const fetchOrderItem = async () => {
   try {
-    const res = await axios.get(
-      `http://ecommerce-admin-backend.i-diligence.com/api/OrderItem/OrderDetails`,
+    const res = await api.get(
+      `/OrderItem/OrderDetails`,
 
       {
         params: { order_id: id }
@@ -35,7 +41,7 @@ const fetchOrderItem = async () => {
 
     const data = res.data;
 
-    // ORDER
+    // ORDER 
     setOrder({
       order_id: data.order.order_id,
       order_total_amount: data.order.order_total_amount,
@@ -86,10 +92,6 @@ const fetchOrderItem = async () => {
 
   
 
-  
-
-  
-
   const [searchTerm, setSearchTerm] = useState('');
   const [message, setMessage] = useState("");
   const [isEditable, setIsEditable] = useState(false);
@@ -117,22 +119,23 @@ const fetchOrderItem = async () => {
     doc.text("Invoice Details", 14, y);
     y += 10;
 
+   
     const data = [
       ["Invoice Number", invoice.invoice_number],
       ["Invoice Date", invoice.invoice_date],
-      ["GST Amount", invoice.gst_amount],
+      ["GST Amount", invoice.total_gst_amount],
       ["Invoice Total", invoice.Invoice_total_amount],
       ["Order ID", order.order_id],
       ["Order Total Amount", order.order_total_amount],
       ["Order Status", order.order_status],
       ["Payment Method", payment.payment_method],
       ["Payment Status", payment.payment_status],
-      ["Discount Name", discount.product_discount_name],
-      ["Discount Value", discount.product_discount_value],
-      ["Shipping Base Charge", shipping.charge_base_amount],
-      ["Applied Shipping Charge", shipping.applied_charge_value],
-      ["Total After Shipping", shipping.total_after_shipping],
-      ["Shipping Address", order.Orders_shipping_address],
+   //   ["Discount Name", discount.product_discount_name],
+     // ["Discount Value", discount.product_discount_value],
+    //  ["Shipping Base Charge", shipping.charge_base_amount],
+    //  ["Applied Shipping Charge", shipping.applied_charge_value],
+    //  ["Total After Shipping", shipping.total_after_shipping],
+    //  ["Shipping Address", order.Orders_shipping_address],
     ];
 
     doc.setFontSize(12);
@@ -146,8 +149,21 @@ const fetchOrderItem = async () => {
       }
     });
 
-    doc.save(`${invoice.invoice_number}.pdf`);
-    setMessage("✅ PDF generated successfully with latest invoice data!");
+  //  doc.save(`${invoice.invoice_number}.pdf`);
+    const fileName = invoice.invoice_number 
+  ? `${invoice.invoice_number}.pdf`
+  : `invoice-${order.order_id || Date.now()}.pdf`;
+
+doc.save(fileName);
+
+     Swal.fire({
+          icon: "success",
+          title: "PDF generated!",
+          text: "with latest invoice data",
+          timer: 1500,
+          showConfirmButton: false
+        });
+            navigate("/orders-list");
   };
 
   // Edit functionality
@@ -164,54 +180,42 @@ const fetchOrderItem = async () => {
   };
 
   return (
-    <div className="container my-5">
+    <div className="container my-2">
       {/* Header */}
-      <div
-        className="d-flex align-items-center justify-content-between px-3 rounded"
-
-        style={{
-          backgroundColor: "#FEC200",
-          color: "black",
-          marginTop: "-35px",
-          height: "45px",
-        }}
-      >
-        <h2 style={{ fontSize: "20px", fontWeight:'normal',marginLeft:'420px' }}>
-          Order Details & Invoice
-        </h2>
-
-          {/* Center: Search Bar */}
-    {/* <div
-      className="input-group"
-      style={{
-        maxWidth: "350px",
-        width: "100%",
-        justifyContent: "center",
-      }}
+   
+       <div
+  className="d-flex align-items-center mb-4"
+  style={{
+    backgroundColor: "#FEC200",
+    padding: "12px",
+    borderRadius: "8px",
+    color: "white"
+  }}
+>
+  {/* Left: Back Button */}
+  <div style={{ flex: 1 }}>
+    <button
+      className="btn btn-light"
+      onClick={() => navigate(-1)}
     >
-      <input
-        type="search"
-        placeholder="Search by ID, Name, Contact, Email, Location..."
-        className="form-control form-control-sm"
-        style={{
-          height: "30px",
-          fontFamily: "inherit",
-          fontSize: "inherit",
-        }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button
-        type="button"
-        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-        style={{ height: "34px", width: "34px", padding: 0 }}
-        title="Search"
-        onClick={handleSearch}
-      >
-        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-      </button>
-    </div> */}
-      </div>
+      Back
+    </button>
+  </div>
+
+  {/* Center: Product Details */}
+  <div style={{ flex: 1, textAlign: "center" }}>
+    <h3 className="mb-0">
+      Order Details - #{order.order_id}
+    </h3>
+  </div>
+
+  {/* Right: Edit Button */}
+  <div style={{ flex: 1, textAlign: "right" }}>
+   
+    
+
+  </div>
+</div>
 
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
 

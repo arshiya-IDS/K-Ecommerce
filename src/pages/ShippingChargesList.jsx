@@ -17,12 +17,13 @@ import { IoMdSettings } from 'react-icons/io';
 import { MdContentCopy, MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import checkIcon from "../assets/check.png";
 import { useNavigate } from 'react-router-dom';
+import api from "../api/axiosInstance";
+
 
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
 
-const API_PRODUCT = "http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges";
 
 const ShippingChargesList = () => {
   const navigate = useNavigate();
@@ -91,6 +92,9 @@ const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [showColumnSettings, setShowColumnSettings] = useState(false);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   const [visibleColumns, setVisibleColumns] = useState({
     shipping_id: true,
     name: true,
@@ -110,8 +114,8 @@ const [rowsPerPage, setRowsPerPage] = useState(10);
 useEffect(() => {
   const fetchShippingCharges = async () => {
     try {
-      const res = await axios.get(
-        "http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/list"
+      const res = await api.get(
+        "/ShippingCharges/list"
       );
 
       const mappedData = res.data.map(item => ({
@@ -144,12 +148,14 @@ setActiveStatus(statusMap);
   fetchShippingCharges();
 }, []);
 
-const exportCSV = () => {
-    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
-  };
+
+  const exportCSV = () => {
+  window.open(`${api.defaults.baseURL}/ShippingCharges/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/ShippingCharges/export?format=pdf`, "_blank");
+};
 
 const handleSubmitStatus = async () => {
   if (!selectedUser || !statusChoice) return;
@@ -157,8 +163,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.put(
-      `http://ecommerce-admin-backend.i-diligence.com/api/ShippingCharges/toggle-status/${selectedUser.shipping_id}?isActive=${isActive}`
+    await api.put(
+      `/ShippingCharges/toggle-status/${selectedUser.shipping_id}?isActive=${isActive}`
     );
 
     // ✅ Update toggle UI correctly
@@ -198,23 +204,57 @@ const handleView = (row) => {
 
   // Filter and sort
   const filteredUsers = useMemo(() => {
-    if (!searchTerm) return users;
-    return users.filter(user =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phoneNumber.includes(searchTerm) ||
-      user.shipping_id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [users, searchTerm]);
+  const term = searchTerm.trim().toLowerCase();
+  if (!term) return users;
 
-  const sortedUsers = useMemo(() => {
-    if (!sortConfig.key) return filteredUsers;
-    return [...filteredUsers].sort((a, b) => {
-      if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredUsers, sortConfig]);
+  return users.filter((u) => {
+    return (
+      String(u.shipping_id ?? "").toLowerCase().includes(term) ||
+      String(u.name ?? "").toLowerCase().includes(term) ||
+      String(u.email ?? "").toLowerCase().includes(term) ||
+      String(u.phoneNumber ?? "").toLowerCase().includes(term) || // ✅ FIXED
+      String(u.createdAt ?? "").toLowerCase().includes(term) ||
+      String(u.formAttime ?? "").toLowerCase().includes(term)
+    );
+  });
+}, [users, searchTerm]);
+
+const dateFilteredUsers = useMemo(() => {
+  if (!fromDate && !toDate) return filteredUsers;
+
+  const from = fromDate ? new Date(fromDate) : null;
+  const to = toDate ? new Date(toDate) : null;
+
+  return filteredUsers.filter((u) => {
+    if (!u.formAttime || u.formAttime === "-") return false;
+
+    // formAttime = locale date → convert safely
+    const created = new Date(u.formAttime.split("/").reverse().join("-"));
+
+    if (from && created < from) return false;
+    if (to && created > to) return false;
+
+    return true;
+  });
+}, [filteredUsers, fromDate, toDate]);
+
+
+ const sortedUsers = useMemo(() => {
+  if (!sortConfig.key) return dateFilteredUsers;
+
+  return [...dateFilteredUsers].sort((a, b) => {
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+}, [dateFilteredUsers, sortConfig]);
+
 
   const handleSearch = (e) => e.preventDefault();
 
@@ -336,15 +376,39 @@ useEffect(() => {
             {/* Left: Date Filter */}
             <div className="d-flex align-items-center">
               <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>From:</label>
-              <input type="date" className="form-control form-control-sm me-2"
-                style={{ height: '34px', width: '150px' }} title='From Date' />
+                <input
+                type="date"
+                className="form-control form-control-sm me-2"
+                style={{ height: '34px', width: '150px' }}
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                title="From Date"
+              />
               <label className="text-white me-2 mb-0" style={{ fontWeight: '500' }}>To:</label>
-              <input type="date" className="form-control form-control-sm me-2"
-                style={{ height: '34px', width: '150px' }} title="To Date" />
-              <button className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
-                style={{ height: '34px', width: '34px', padding: 0 }} title="Apply Filter">
-                <FaTelegramPlane size={14} />
-              </button>
+                        <input
+            type="date"
+            className="form-control form-control-sm me-2"
+            style={{ height: '34px', width: '150px' }}
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            title="To Date"
+          />
+
+              
+
+
+
+             
+
+              <button
+  className="btn btn-light btn-sm d-flex align-items-center justify-content-center"
+  style={{ height: '34px', width: '34px', padding: 0 }}
+  title="Apply Filter"
+  onClick={() => setCurrentPage(1)}
+>
+  <FaTelegramPlane size={14} />
+</button>
+
             </div>
 
             {/* Center: Search Bar */}
