@@ -3,6 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
 
 
 
@@ -49,7 +50,7 @@ useEffect(() => {
 
 const fetchCategories = async () => {
   try {
-    const res = await axios.get("https://localhost:7013/api/Category");
+    const res = await api.get("/Category");
     setCategories(res.data);
   } catch (error) {
     console.error("Error loading categories", error);
@@ -104,8 +105,8 @@ const validateSubCategoryForm = () => {
       sb_catgrs_CrtdBy: "ADMIN"
     };
 
-    const res = await axios.post(
-      "https://localhost:7013/api/SubCategory",
+    const res = await api.post(
+      "/SubCategory",
       payload
     );
 

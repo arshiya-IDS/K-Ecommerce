@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { Link } from "react-router-dom";
+import api from "../api/axiosInstance";
+
 
 
 const SubCategoryDetails = () => {
@@ -47,8 +49,8 @@ const [subCategory, setSubCategory] = useState(null);
       sb_catgrs_UpdtdBy: "System", // or logged-in user
     };
 
-    await axios.put(
-      `https://localhost:7013/api/SubCategory/edit-SubCategory/${subCategory.sub_category_id}`,
+    await api.put(
+      `/SubCategory/edit-SubCategory/${subCategory.sub_category_id}`,
        payload,
   {
     headers: {
@@ -91,8 +93,8 @@ const [subCategory, setSubCategory] = useState(null);
 
 const fetchSubCategoryDetails = async () => {
   try {
-    const res = await axios.get(
-      `https://localhost:7013/api/SubCategory/details/${id}`
+    const res = await api.get(
+      `/SubCategory/details/${id}`
     );
 
     const data = res.data;
@@ -134,52 +136,48 @@ const fetchSubCategoryDetails = async () => {
 
 
   return (
-    <div className="container my-5">
+    <div className="container my-2">
       {/* Header */}
-      <div
-        className="d-flex align-items-center justify-content-between px-3 rounded"
-        style={{
-          backgroundColor: "#FEC200",
-          color: "black",
-          marginTop: "-40px",
-          height: "50px",
-        }}
-      >
-        <h2 style={{ fontSize: "20px",fontWeight:'normal',marginLeft:'420px' }}>
-          Subcategory Details
-        </h2>
-         {/* Center: Search Bar */}
-    {/* <div
-      className="input-group"
-      style={{
-        maxWidth: "350px",
-        width: "100%",
-        justifyContent: "center",
-      }}
+       <div
+  className="d-flex align-items-center mb-4"
+  style={{
+    backgroundColor: "#FEC200",
+    padding: "12px",
+    borderRadius: "8px",
+    color: "white"
+  }}
+>
+  {/* Left: Back Button */}
+  <div style={{ flex: 1 }}>
+    <button
+      className="btn btn-light"
+      onClick={() => navigate(-1)}
     >
-      <input
-        type="search"
-        placeholder="Search by ID, Name, Contact, Email, Location..."
-        className="form-control form-control-sm"
-        style={{
-          height: "30px",
-          fontFamily: "inherit",
-          fontSize: "inherit",
-        }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button
-        type="button"
-        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-        style={{ height: "34px", width: "34px", padding: 0 }}
-        title="Search"
-        onClick={handleSearch}
-      >
-        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-      </button>
-    </div> */}
-      </div>
+      Back
+    </button>
+  </div>
+
+  {/* Center: Product Details */}
+  <div style={{ flex: 1, textAlign: "center" }}>
+    <h3 className="mb-0">
+      Sub-Category Details - #{subCategory.sub_category_id}
+    </h3>
+  </div>
+
+  {/* Right: Edit Button */}
+  <div style={{ flex: 1, textAlign: "right" }}>
+   
+     <button
+            type="button"
+            onClick={handleEditToggle}
+            className="btn btn-light"
+            disabled={isDeactivated}
+          >
+            {isEditable ? "Submit" : "Edit"}
+          </button>
+
+  </div>
+</div>
 
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
@@ -251,22 +249,7 @@ const fetchSubCategoryDetails = async () => {
         {/* Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
 
-          <Link to="/subcategories-list">
-                      <button
-                      type="button"
-                      className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-                    >
-                     Back
-                    </button>
-                    </Link>
-          <button
-            type="button"
-            onClick={handleEditToggle}
-            className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-            disabled={isDeactivated}
-          >
-            {isEditable ? "Submit" : "Edit"}
-          </button>
+       
 
           {/* <button
             type="button"

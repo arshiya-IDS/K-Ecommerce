@@ -6,6 +6,8 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
+import api from "../api/axiosInstance";
+
 
 const OrderDetails = () => {
 
@@ -29,8 +31,8 @@ useEffect(() => {
 
 const fetchOrderItem = async () => {
   try {
-    const res = await axios.get(
-      `https://localhost:7013/api/OrderItem/OrderDetails`,
+    const res = await api.get(
+      `/OrderItem/OrderDetails`,
 
       {
         params: { order_id: id }
@@ -39,7 +41,7 @@ const fetchOrderItem = async () => {
 
     const data = res.data;
 
-    // ORDER
+    // ORDER 
     setOrder({
       order_id: data.order.order_id,
       order_total_amount: data.order.order_total_amount,
@@ -178,54 +180,42 @@ doc.save(fileName);
   };
 
   return (
-    <div className="container my-5">
+    <div className="container my-2">
       {/* Header */}
-      <div
-        className="d-flex align-items-center justify-content-between px-3 rounded"
-
-        style={{
-          backgroundColor: "#FEC200",
-          color: "black",
-          marginTop: "-35px",
-          height: "45px",
-        }}
-      >
-        <h2 style={{ fontSize: "20px", fontWeight:'normal',marginLeft:'420px' }}>
-          Order Details & Invoice
-        </h2>
-
-          {/* Center: Search Bar */}
-    {/* <div
-      className="input-group"
-      style={{
-        maxWidth: "350px",
-        width: "100%",
-        justifyContent: "center",
-      }}
+   
+       <div
+  className="d-flex align-items-center mb-4"
+  style={{
+    backgroundColor: "#FEC200",
+    padding: "12px",
+    borderRadius: "8px",
+    color: "white"
+  }}
+>
+  {/* Left: Back Button */}
+  <div style={{ flex: 1 }}>
+    <button
+      className="btn btn-light"
+      onClick={() => navigate(-1)}
     >
-      <input
-        type="search"
-        placeholder="Search by ID, Name, Contact, Email, Location..."
-        className="form-control form-control-sm"
-        style={{
-          height: "30px",
-          fontFamily: "inherit",
-          fontSize: "inherit",
-        }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button
-        type="button"
-        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-        style={{ height: "34px", width: "34px", padding: 0 }}
-        title="Search"
-        onClick={handleSearch}
-      >
-        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-      </button>
-    </div> */}
-      </div>
+      Back
+    </button>
+  </div>
+
+  {/* Center: Product Details */}
+  <div style={{ flex: 1, textAlign: "center" }}>
+    <h3 className="mb-0">
+      Order Details - #{order.order_id}
+    </h3>
+  </div>
+
+  {/* Right: Edit Button */}
+  <div style={{ flex: 1, textAlign: "right" }}>
+   
+    
+
+  </div>
+</div>
 
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
 

@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { FiPlus, FiMinus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaMinus } from "react-icons/fa";
+import api from "../api/axiosInstance";
 
 
   const DashboardLayout = () => {
@@ -47,7 +48,7 @@ import { FaPlus, FaMinus } from "react-icons/fa";
 
 const handleLogout = async () => {
   try {
-    await axios.post("https://localhost:7013/api/Auth/logout");
+    await api.post("/Auth/logout");
 
   } catch (err) {
     console.warn("Logout API failed, clearing local data anyway");
@@ -419,10 +420,10 @@ const closeAllMenus = () => {
                     <img src="/images/avatar.webp" width="40" height="40" className="rounded-circle user-avatar" alt="User" />
                   </a>
                   <div className={`dropdown-menu ${dropdownOpen ? 'show' : ''}`} aria-labelledby="navbarDropdownMenuLink">
-                    {/* <div className="subscription-icons d-flex">
+                    <div className="subscription-icons d-flex">
                       <img src="/images/setting.svg" className="add-icons" alt="Settings" width="20" height="20" />
                       <Link className="dropdown-item" to="/">Login</Link>
-                    </div> */}
+                    </div>
                   <div
                     className="subscription-icons d-flex"
                     onClick={handleLogout}

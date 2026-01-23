@@ -10,8 +10,8 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import { useEffect } from "react";
+import api from "../api/axiosInstance";
 
-const API_PRODUCT = "https://localhost:7013/api/UserDiscount";
 
 
 const UserDiscountList = () => {
@@ -117,8 +117,8 @@ const protectedProductIds = [1, 2];
 
 const fetchUserDiscounts = async () => {
   try {
-     const res = await axios.get(
-        "https://localhost:7013/api/UserDiscount",
+     const res = await api.get(
+        "/UserDiscount",
        
       );
 
@@ -161,8 +161,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.put(
-      `${API_PRODUCT}/${selectedUser.id}/toggle-status?isActive=${isActive}`
+    await api.put(
+      `/UserDiscount/${selectedUser.id}/toggle-status?isActive=${isActive}`
     );
 
     // ✅ Update toggle UI instantly
@@ -199,12 +199,15 @@ const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString("en-GB");
 };
 
-const exportCSV = () => {
-    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
-  };
+
+  const exportCSV = () => {
+  window.open(`${api.defaults.baseURL}/UserDiscount/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/UserDiscount/export?format=pdf`, "_blank");
+};
+
 
 
 

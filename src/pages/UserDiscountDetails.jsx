@@ -7,6 +7,7 @@ import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import api from "../api/axiosInstance";
 
 
 const UserDiscountDetails = () => {
@@ -36,6 +37,7 @@ const UserDiscountDetails = () => {
 const [discount, setDiscount] = useState({
   user_discount_id: "",
   user_id: "",
+  usr_dscnt_CrtdBy:"",
   user_discount_name: "",
   user_discount_type: "",
   user_discount_value: "",
@@ -73,8 +75,8 @@ const [discount, setDiscount] = useState({
       IsActive: discount.user_discount_is_active,
     };
 
-    await axios.put(
-      `https://localhost:7013/api/UserDiscount/${discount.user_discount_id}`,
+    await api.put(
+      `/UserDiscount/${discount.user_discount_id}`,
       payload,
       { headers: { "Content-Type": "application/json" } }
     );
@@ -102,8 +104,8 @@ useEffect(() => {
 
   const fetchUserDiscount = async () => {
     try {
-      const res = await axios.get(
-        `https://localhost:7013/api/UserDiscount/${id}`
+      const res = await api.get(
+        `/UserDiscount/${id}`
       );
 
       const d = res.data;
@@ -111,6 +113,7 @@ useEffect(() => {
       setDiscount({
         user_discount_id: d.user_discount_id,
         user_id: d.user_id,
+        usr_dscnt_CrtdBy:d.usr_dscnt_CrtdBy,
         user_discount_name: d.user_discount_name,
         user_discount_type: d.user_discount_type,
         user_discount_value: d.user_discount_value,
@@ -139,56 +142,48 @@ useEffect(() => {
   };
 
   return (
-    <div className="container my-5">
+    <div className="container my-2">
       {/* Header */}
-      <div
-        className="d-flex align-items-center justify-content-between px-3 rounded"
-
-        style={{
-          backgroundColor: "#FEC200",
-          color: "black",
-          marginTop: "-35px",
-          height: "45px",
-        }}
-      >
-        <h2 style={{ fontSize: "20px",fontWeight:'normal',marginLeft:'420px' }}>
-          User Discount Details
-        </h2>
-
-          {/* Center: Search Bar */}
-    {/* <div
-      className="input-group"
-      style={{
-        maxWidth: "350px",
-        width: "100%",
-        justifyContent: "center",
-      }}
+       <div
+  className="d-flex align-items-center mb-4"
+  style={{
+    backgroundColor: "#FEC200",
+    padding: "12px",
+    borderRadius: "8px",
+    color: "white"
+  }}
+>
+  {/* Left: Back Button */}
+  <div style={{ flex: 1 }}>
+    <button
+      className="btn btn-light"
+      onClick={() => navigate(-1)}
     >
-      <input
-        type="search"
-        placeholder="Search by ID, Name, Contact, Email, Location..."
-        className="form-control form-control-sm"
-        style={{
-          height: "30px",
-          fontFamily: "inherit",
-          fontSize: "inherit",
-        }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button
-        type="button"
-        className="btn btn-light btn-sm ms-2 d-flex align-items-center justify-content-center"
-        style={{ height: "34px", width: "34px", padding: 0 }}
-        title="Search"
-        onClick={handleSearch}
-      >
-        <i className="fas fa-search" style={{ fontSize: "13px" }}></i>
-      </button>
-    </div> */}
+      Back
+    </button>
+  </div>
 
-      </div>
+  {/* Center: Product Details */}
+  <div style={{ flex: 1, textAlign: "center" }}>
+    <h3 className="mb-0">
+      User Discount Details - #{discount.user_discount_id}
+    </h3>
+  </div>
 
+  {/* Right: Edit Button */}
+  <div style={{ flex: 1, textAlign: "right" }}>
+   
+     <button
+            type="button"
+            onClick={handleEditToggle}
+            className="btn btn-light"
+            disabled={isDeactivated}
+          >
+            {isEditable ? "Submit" : "Edit"}
+          </button>
+
+  </div>
+</div>
       {/* Card */}
       <div className={`card shadow-sm p-4 ${isDeactivated ? "opacity-50" : ""}`}
 
@@ -199,7 +194,8 @@ useEffect(() => {
         <div className="row">
                     {[
               ["user_discount_id", "Discount ID"],
-              ["user_id", "User ID"],
+             // ["user_id", "User ID"],
+              ["usr_dscnt_CrtdBy", "User Name"],
               ["user_discount_name", "Discount Name"],
               ["user_discount_type", "Discount Type"],
               ["user_discount_value", "Discount Value"],
@@ -213,13 +209,24 @@ useEffect(() => {
                   type="text"
                   name={key}
                   className="form-control"
+                   style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
                   value={
                     key === "user_discount_is_active"
                       ? discount[key] ? "Active" : "Inactive"
                       : discount[key] ?? ""
                   }
-                  onChange={handleChange}
-                  readOnly={!isEditable || isDeactivated}
+                   onChange={handleChange}
+                readOnly={
+                  key === "usr_dscnt_CrtdBy" || !isEditable || isDeactivated
+                }
+                 
                 />
               </div>
             ))}
@@ -258,22 +265,7 @@ useEffect(() => {
 
         {/* Buttons */}
         <div className="text-center mt-4 d-flex justify-content-end gap-3">
-          <Link to="/user-discount-list">
-                                <button
-                                type="button"
-                                className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-                              >
-                               Back
-                              </button>
-                              </Link>
-          <button
-            type="button"
-            onClick={handleEditToggle}
-            className="btn btn-primary fw-bold px-4 py-2 rounded-3"
-            disabled={isDeactivated}
-          >
-            {isEditable ? "Submit" : "Edit"}
-          </button>
+         
 
          
         </div>

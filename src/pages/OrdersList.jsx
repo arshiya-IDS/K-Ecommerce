@@ -3,7 +3,8 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
-const API_PRODUCT = "https://localhost:7013/api/OrderItem";
+import api from "../api/axiosInstance";
+
 
 
 
@@ -110,9 +111,12 @@ useEffect(() => {
 
 const fetchOrders = async () => {
   try {
-    const res = await axios.get(
-      "https://localhost:7013/api/OrderItem/list"
+    const res = await api.get(
+      "/OrderItem/list"
     );
+
+   
+
 
     // If API returns single object → convert to array
     const data = Array.isArray(res.data) ? res.data : [res.data];
@@ -161,12 +165,15 @@ const protectedProductIds = [1, 2];
   setShowConfirm(true);
 };
 
+
 const exportCSV = () => {
-    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
+    window.open(`${api.defaults.baseURL}/OrderItem/export?format=csv`, "_blank");
   };
   const exportPDF = () => {
-    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
+    window.open(`${api.defaults.baseURL}/OrderItem/export?format=pdf`, "_blank");
   };
+
+ 
 
 const handleView = (row) => {
   // Navigate to dynamic route with product ID
@@ -182,8 +189,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === "activate";
 
   try {
-    const res = await axios.put(
-      `https://localhost:7013/api/OrderItem/toggle-status/${orderId}?isActive=${isActive}`
+    const res = await api.put(
+      `/OrderItem/toggle-status/${orderId}?isActive=${isActive}`
     );
 
     // ✅ Update UI from known state

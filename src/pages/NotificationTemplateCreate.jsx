@@ -3,6 +3,8 @@ import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
+
 
 const NotificationTemplateCreate = () => {
   const navigate = useNavigate();
@@ -43,8 +45,8 @@ const NotificationTemplateCreate = () => {
       is_active: template.is_active,
     };
 
-    await axios.post(
-      "https://localhost:7013/api/NtfcnTemplate/create",
+    await api.post(
+      "/NtfcnTemplate/create",
       payload
     );
 

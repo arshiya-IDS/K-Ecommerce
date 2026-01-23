@@ -17,11 +17,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
 
 
-const API_CATEGORY = "https://localhost:7013/api/Category";
-const API_SUBCATEGORY = "https://localhost:7013/api/Category/sub";
-const API_PRODUCT = "https://localhost:7013/api/Product";
+
+
 
 const ProductList = () => {
   const navigate = useNavigate();
@@ -79,8 +79,8 @@ const formatDate = (dateStr) => {
   // --- fetch categories once ---
   useEffect(() => {
     let mounted = true;
-    axios
-      .get(API_CATEGORY)
+    api
+      .get("/Category")
       .then((res) => {
         if (!mounted) return;
         setCategories(Array.isArray(res.data) ? res.data : []);
@@ -103,7 +103,7 @@ const formatDate = (dateStr) => {
         sortDir: sortConfig.direction,
       };
 
-      const res = await axios.get(API_PRODUCT, { params });
+      const res = await api.get("/Product", { params });
       // Expect response: { total, page, pageSize, items }
       const data = res.data || {};
       const items = Array.isArray(data.items) ? data.items : Array.isArray(data) ? data : [];
@@ -150,24 +150,28 @@ const formatDate = (dateStr) => {
       setSubCategories([]);
       return;
     }
-    axios
-      .get(`${API_SUBCATEGORY}/${categoryId}`)
+    api
+      .get(`/Category/sub/${categoryId}`)
       .then((res) => setSubCategories(Array.isArray(res.data) ? res.data : []))
       .catch((err) => console.log("Subcategory Error:", err));
   };
 
   // --- exports ---
+  // --- exports ---
+  
   const exportCSV = () => {
-    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
-  };
+  window.open(`${api.defaults.baseURL}/Product/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/Product/export?format=pdf`, "_blank");
+};
+
 
   // --- toggle status (calls backend) ---
   const toggleStatus = async (id, currentStatus) => {
     try {
-      await axios.patch(`${API_PRODUCT}/${id}/status`, null, { params: { active: !currentStatus } });
+      await api.patch(`/Product/${id}/status`, null, { params: { active: !currentStatus } });
       // reload page data
       fetchProducts();
     } catch (err) {
@@ -181,8 +185,8 @@ const formatDate = (dateStr) => {
    
   const handleDuplicate = async (productId) => {
   try {
-    const res = await axios.post(
-      `${API_PRODUCT}/${productId}/duplicate`
+    const res = await api.post(
+      `/Product/${productId}/duplicate`
     );
 
     const newId = res.data.newProductId;

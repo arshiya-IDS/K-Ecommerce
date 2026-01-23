@@ -17,12 +17,13 @@ import { IoMdSettings } from 'react-icons/io';
 import { MdContentCopy, MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 import checkIcon from "../assets/check.png";
 import { useNavigate } from 'react-router-dom';
+import api from "../api/axiosInstance";
+
 
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
 
-const API_PRODUCT = "https://localhost:7013/api/ShippingCharges";
 
 const ShippingChargesList = () => {
   const navigate = useNavigate();
@@ -113,8 +114,8 @@ const [rowsPerPage, setRowsPerPage] = useState(10);
 useEffect(() => {
   const fetchShippingCharges = async () => {
     try {
-      const res = await axios.get(
-        "https://localhost:7013/api/ShippingCharges/list"
+      const res = await api.get(
+        "/ShippingCharges/list"
       );
 
       const mappedData = res.data.map(item => ({
@@ -147,12 +148,14 @@ setActiveStatus(statusMap);
   fetchShippingCharges();
 }, []);
 
-const exportCSV = () => {
-    window.open(`${API_PRODUCT}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_PRODUCT}/export?format=pdf`, "_blank");
-  };
+
+  const exportCSV = () => {
+  window.open(`${api.defaults.baseURL}/ShippingCharges/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/ShippingCharges/export?format=pdf`, "_blank");
+};
 
 const handleSubmitStatus = async () => {
   if (!selectedUser || !statusChoice) return;
@@ -160,8 +163,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.put(
-      `https://localhost:7013/api/ShippingCharges/toggle-status/${selectedUser.shipping_id}?isActive=${isActive}`
+    await api.put(
+      `/ShippingCharges/toggle-status/${selectedUser.shipping_id}?isActive=${isActive}`
     );
 
     // ✅ Update toggle UI correctly

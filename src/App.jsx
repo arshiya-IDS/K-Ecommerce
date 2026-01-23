@@ -38,6 +38,8 @@ import CategoryDetails from './pages/CategoryDetails';
 import SubCategoryDetails from './pages/SubCategoryDetails';
 import NotificationTemplateDetails from './pages/NotificationTemplateDetails';
 import ProtectedRoute from "./pages/ProtectedRoute";
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -47,11 +49,14 @@ function App() {
         {/* 🔹 Public Login Route */}
        
   <Route path="/" element={<Login />} />
+
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* 🔹 Dashboard Layout Wrapping All Internal Pages */}
         <Route element={<DashboardLayout />}>
           {/* Dashboard Home */}
          
-        
+       
            
 
 <Route
@@ -103,6 +108,7 @@ function App() {
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/content" element={<Content />} />
 
+          
           {/* Enquiry Related */}
           <Route path="/enquiry" element={<Enquiry />} />
           <Route path="/enquiry-dashboard" element={<EnquiryDashboard />} />

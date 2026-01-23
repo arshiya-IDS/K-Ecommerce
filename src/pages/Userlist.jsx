@@ -9,6 +9,7 @@ import { MdKeyboardArrowLeft } from "react-icons/md";
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { useEffect } from "react";
 import axios from "axios";
+import api from "../api/axiosInstance";
 
 
 const Userlist = () => {
@@ -34,7 +35,7 @@ const Userlist = () => {
 
 const fetchUsers = async () => {
   try {
-    const res = await axios.get("https://localhost:7013/api/users");
+    const res = await api.get("/users");
 
     const mappedUsers = res.data.map((u) => ({
       id: u.userId,

@@ -4,6 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
 
 const ShippingCharges = () => {
    const navigate = useNavigate();
@@ -88,8 +89,8 @@ const validateForm = () => {
 };
 
     try {
-      await axios.post(
-  "https://localhost:7013/api/ShippingCharges/Create",
+      await api.post(
+  "/ShippingCharges/Create",
   payload
 );
 
@@ -155,7 +156,7 @@ const validateForm = () => {
 
           {/* Minimum Purchase Amount */}
           <div className="mb-3">
-            <label className="form-label fw-semibold">Minimum Purchase Amount ($)</label>
+            <label className="form-label fw-semibold">Minimum Purchase Amount (₹)</label>
             
                     
                       <input
@@ -178,7 +179,7 @@ const validateForm = () => {
           </div>
 
             <div className="mb-3">
-            <label className="form-label fw-semibold">Maximum Purchase Amount ($)</label>
+            <label className="form-label fw-semibold">Maximum Purchase Amount (₹)</label>
               
           
             <input
@@ -208,7 +209,7 @@ const validateForm = () => {
             >
             
 
-              <option value="fixed">Fixed Amount ($)</option>
+              <option value="fixed">Fixed Amount (₹)</option>
               <option value="percentage">Percentage (%)</option>
             </select>
           </div>
@@ -223,7 +224,7 @@ const validateForm = () => {
               value={chargeValue}
               min="0"
                           placeholder={`Enter charge value in ${
-                            chargeType === "percentage" ? "%" : "$"
+                            chargeType === "percentage" ? "%" : "₹"
                           }`}
               onChange={(e) => {
                 setChargeValue(e.target.value);

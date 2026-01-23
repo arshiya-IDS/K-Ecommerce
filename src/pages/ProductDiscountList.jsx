@@ -18,6 +18,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import api from "../api/axiosInstance";
+
 
 /**
  * ProductDiscountList
@@ -78,7 +80,7 @@ const handleView = (row) => {
   const fetchDiscounts = async () => {
     try {
       setLoading(true);
-      const resp = await axios.get("https://localhost:7013/api/ProductDiscount/list");
+      const resp = await api.get("/ProductDiscount/list");
       if (resp?.data?.success) {
         // map to expected camelCase if backend uses different casing
         const data = (resp.data.data || []).map((d) => ({
@@ -113,7 +115,7 @@ const handleView = (row) => {
   // ---------------------------
   const toggleStatusApi = async (id) => {
     try {
-      const resp = await axios.put(`https://localhost:7013/api/ProductDiscount/toggle-status/${id}`);
+      const resp = await api.put(`/ProductDiscount/toggle-status/${id}`);
       return resp.data;
 
       
@@ -145,8 +147,8 @@ const handleSubmitStatus = async () => {
   }
 
   try {
-    await axios.put(
-      `https://localhost:7013/api/ProductDiscount/toggle-status/${discountId}?isActive=${isActive}`
+    await api.put(
+      `/ProductDiscount/toggle-status/${discountId}?isActive=${isActive}`
     );
 
     // ✅ UPDATE THE SAME STATE USED BY UI

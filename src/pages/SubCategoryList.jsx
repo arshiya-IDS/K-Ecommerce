@@ -16,8 +16,9 @@ import checkIcon from '../assets/check.png';
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useMemo, useEffect } from 'react';
 import axios from 'axios';
+import api from "../api/axiosInstance";
 
-const API_CATEGORY = "https://localhost:7013/api/SubCategory";
+
 
 const SubCategoryList = () => {
   const navigate = useNavigate();
@@ -115,11 +116,14 @@ const formatDate = (dateStr) => {
 };
 
 const exportCSV = () => {
-    window.open(`${API_CATEGORY}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_CATEGORY}/export?format=pdf`, "_blank");
-  };
+  window.open(`${api.defaults.baseURL}/SubCategory/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/SubCategory/export?format=pdf`, "_blank");
+};
+
+
 
   const handleView = (category) => {
     navigate(`/subcategories/details/${category.subCategoryId}`, {
@@ -141,7 +145,7 @@ const exportCSV = () => {
         sortDir: sortConfig.direction,
       };
 
-      const res = await axios.get('https://localhost:7013/api/SubCategory/list');
+      const res = await api.get('/SubCategory/list');
 
       // 🔹 Map table data
       const mappedData = res.data.map((item) => ({
@@ -184,8 +188,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === 'activate';
 
   try {
-    await axios.put(
-      `https://localhost:7013/api/SubCategory/toggle-status/${selectedUser.id}?isActive=${isActive}`
+    await api.put(
+      `/SubCategory/toggle-status/${selectedUser.id}?isActive=${isActive}`
     );
 
     // ✅ Update UI instantly

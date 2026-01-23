@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useParams, useNavigate } from "react-router-dom";
 import "sweetalert2/src/sweetalert2.scss";
+import api from "../api/axiosInstance";
+
 
 
 const ProductCreate = () => {
@@ -47,12 +49,21 @@ const [subcategories, setSubcategories] = useState([]);
   const [message, setMessage] = useState("");
 
   // Fetch Categories
+  
+
   useEffect(() => {
-    fetch("https://localhost:7013/api/Category")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch(() => console.log("Failed to load categories"));
-  }, []);
+  const loadCategories = async () => {
+    try {
+      const res = await api.get("/Category");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  };
+
+  loadCategories();
+}, []);
+
 
   // Fetch Subcategories when category changes
   // useEffect(() => {
@@ -64,11 +75,12 @@ const [subcategories, setSubcategories] = useState([]);
   //   }
   // }, [product.category_id]);
 
-  const fetchSubcategories = async (categoryId) => {
+  
+
+const fetchSubcategories = async (categoryId) => {
   try {
-    const res = await fetch(`https://localhost:7013/api/Category/sub/${categoryId}`);
-    const data = await res.json();
-    setSubcategories(data);
+    const res = await api.get(`/Category/sub/${categoryId}`);
+    setSubcategories(res.data);
   } catch (error) {
     console.error("Failed to fetch subcategories", error);
   }
@@ -159,10 +171,11 @@ const [subcategories, setSubcategories] = useState([]);
   return Object.keys(newErrors).length === 0;
 };
 
-  const handleSubmit = async (e) => {
+
+const handleSubmit = async (e) => {
   e.preventDefault();
 
-   if (!validateForm()) {
+  if (!validateForm()) {
     Swal.fire({
       icon: "error",
       title: "Validation Error",
@@ -170,12 +183,17 @@ const [subcategories, setSubcategories] = useState([]);
     });
     return;
   }
-  
-  // Ensure numbers are proper
+
   const actualPrice = Number(product.product_actual_price);
-  const discountedPrice = product.product_discounted_price ? Number(product.product_discounted_price) : null;
-  if (Number.isNaN(actualPrice) || actualPrice <= 0) return alert("Actual price must be a positive number");
-  if (discountedPrice !== null && (Number.isNaN(discountedPrice) || discountedPrice < 0)) return alert("Discounted price must be a valid number");
+  const discountedPrice = product.product_discounted_price
+    ? Number(product.product_discounted_price)
+    : null;
+
+  if (Number.isNaN(actualPrice) || actualPrice <= 0)
+    return alert("Actual price must be a positive number");
+
+  if (discountedPrice !== null && (Number.isNaN(discountedPrice) || discountedPrice < 0))
+    return alert("Discounted price must be a valid number");
 
   setLoading(true);
 
@@ -183,77 +201,51 @@ const [subcategories, setSubcategories] = useState([]);
     const formData = new FormData();
     formData.append("Product_Name", product.product_name);
     formData.append("Product_Description", product.product_description);
-    // Use invariant string formatting for decimals
     formData.append("Product_Actual_Price", actualPrice.toString());
-    formData.append("Product_Discounted_Price", discountedPrice !== null ? discountedPrice.toString() : "");
-    // API expects SubCategory_Id — make sure it is a number string
+    formData.append(
+      "Product_Discounted_Price",
+      discountedPrice !== null ? discountedPrice.toString() : ""
+    );
     formData.append("SubCategory_Id", String(product.subcategory_id));
     formData.append("Product_Type", product.product_type);
 
-    // PrimaryIndex: if null, send -1 (server should tolerate -1 or you can make it nullable)
-    const primary = primaryIndex === null || primaryIndex === undefined ? -1 : primaryIndex;
+    const primary = primaryIndex ?? -1;
     formData.append("PrimaryIndex", String(primary));
 
-
-  
-
-    // Append images (multiple entries with the same name)
-    // images.forEach((img) => {
-    //   if (img) formData.append("Images", img);
-    // });
-
-    images.forEach(img => {
-  if (img) formData.append("Images", img);
-});
-
-if (media) {
-  formData.append("Media", media);
-}
-
-    
-
-    const res = await fetch("https://localhost:7013/api/Product/create", {
-      method: "POST",
-      body: formData,
+    images.forEach((img) => {
+      if (img) formData.append("Images", img);
     });
 
-    // IMPORTANT: check response before success
-    if (res.ok) {
-      const json = await res.json().catch(() => null);
-      setLoading(false);
-       Swal.fire({
+    if (media) {
+      formData.append("Media", media);
+    }
+
+    await api.post("/Product/create", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    setLoading(false);
+
+    Swal.fire({
       icon: "success",
       title: "Added!",
-      text: "New Product created ",
+      text: "New Product created",
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
-        navigate("/product-list");
-      // optionally clear form here
-    } else {
-      // read error body (could be JSON or text)
-      let errText = "";
-      try {
-        const contentType = res.headers.get("content-type") || "";
-        if (contentType.includes("application/json")) {
-          const errJson = await res.json();
-          // If server returned ModelState, it will be contained here — stringify it
-          errText = JSON.stringify(errJson);
-        } else {
-          errText = await res.text();
-        }
-      } catch (ex) {
-        errText = "Unknown server error";
-      }
 
-      setLoading(false);
-      console.error("Server returned 400", errText);
-      alert("Failed to create product: " + (errText || res.statusText));
-    }
-  } catch (networkErr) {
-    console.error("Network error", networkErr);
+    navigate("/product-list");
+
+  } catch (err) {
     setLoading(false);
-    alert("Network error while creating product");
+
+    if (err.response) {
+      console.error("Server error:", err.response.data);
+      alert("Failed to create product: " + JSON.stringify(err.response.data));
+    } else {
+      console.error("Network error:", err);
+      alert("Network error while creating product");
+    }
   }
 };
 

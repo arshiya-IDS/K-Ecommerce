@@ -20,7 +20,7 @@ import axios from 'axios';
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_CATEGORY = "https://localhost:7013/api/Category";
+import api from "../api/axiosInstance";
 
 
 
@@ -115,14 +115,16 @@ const [categories, setCategories] = useState([]);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState(null);
 
- const exportCSV = () => {
-    window.open(`${API_CATEGORY}/export?format=csv`, "_blank");
-  };
-  const exportPDF = () => {
-    window.open(`${API_CATEGORY}/export?format=pdf`, "_blank");
-  };
 
 
+
+const exportCSV = () => {
+  window.open(`${api.defaults.baseURL}/Category/export?format=csv`, "_blank");
+};
+
+const exportPDF = () => {
+  window.open(`${api.defaults.baseURL}/Category/export?format=pdf`, "_blank");
+};
 
 const applyDateFilter = () => {
   setPage(1);
@@ -156,7 +158,8 @@ const formatDate = (dateStr) => {
 
   const toggleStatusApi = async (id) => {
       try {
-        const resp = await axios.patch(`${API_CATEGORY}/${id}/status`);
+        const resp = await api.patch(`/Category/${id}/status`);
+
         return resp.data;
       } catch (err) {
         console.error("toggleStatusApi:", err);
@@ -187,8 +190,8 @@ const formatDate = (dateStr) => {
       };
     setError(null);
 
-    const response = await axios.get(
-      'https://localhost:7013/api/Category'
+    const response = await api.get(
+      '/Category'
     );
 
     // Map API response to UI-friendly format
@@ -250,8 +253,8 @@ const handleSubmitStatus = async () => {
   const isActive = statusChoice === "activate";
 
   try {
-    await axios.put(
-      `${API_CATEGORY}/${selectedUser.id}/status`,
+    await api.put(
+      `Category/${selectedUser.id}/status`,
       null,
       { params: { isActive } }
     );
