@@ -8,10 +8,15 @@ import Swal from "sweetalert2/dist/sweetalert2.js";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import api from "../api/axiosInstance";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 const CategoryDetails = () => {
   const navigate=useNavigate();
   // Hardcoded category details
+
+
+  
   const [category, setCategory] = useState({
     category_id: 1,
     category_name: "Artistic Grey",
@@ -32,6 +37,27 @@ const CategoryDetails = () => {
   const { categoryId } = useParams();
 const [loading, setLoading] = useState(true);
 
+const [newImage, setNewImage] = useState(null);
+const [previewImage, setPreviewImage] = useState("");
+const [removeImage, setRemoveImage] = useState(false);
+
+
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+
+  if (file) {
+    setImageFile(file);
+    setRemoveImage(false); // 🔑 important
+  }
+};
+
+const handleRemoveImage = () => {
+  setImageFile(null);
+  setRemoveImage(true);
+};
+
+
+
 
   // Handle Input Change
   const handleChange = (e) => {
@@ -41,57 +67,79 @@ const [loading, setLoading] = useState(true);
 
   // Toggle Edit Mode
  const handleEditToggle = async () => {
-  // ENTER EDIT MODE
   if (!isEditable) {
     setIsEditable(true);
     setMessage("✏️ Edit mode enabled.");
     return;
   }
 
-  // SUBMIT (SAVE)
-  try {
-   const payload = {
-  category_Id: Number(category.category_Id),
-  category_Name: category.category_Name || "",
-  category_Description: category.category_Description || "",
-  parent_Category_Id: category.parent_Category_Id
-    ? Number(category.parent_Category_Id)
-    : 0, // API-safe fallback
-  category_Type: category.category_Type || "",
-  category_Is_Active:
-    category.category_Is_Active === true ||
-    category.category_Is_Active === "Active",
-  catgrs_UpdtdBy: "Admin"
-};
+  // ── Prepare FormData ───────────────────────────────────────
+  const formData = new FormData();
 
-    const res = await api.put(
-      `/Category/${category.category_Id}`,
-      payload,
-       {
+  
+  
+   
+
+  // Use correct casing — must match DTO property names exactly
+  formData.append("Category_Id",       category.category_Id);
+  formData.append("Category_Name",     category.category_Name);
+  formData.append("Category_Description", category.category_Description);
+  formData.append("Parent_Category_Id", Number(category.parent_Category_Id));
+ formData.append("Category_Type", category.category_Type);
+ // formData.append("Category_Is_Active", true);    
+//   formData.append("RemoveImage", removeImage ? "true" : "false");
+formData.append("Category_Is_Active", "true");           // or category.category_Is_Active
+  formData.append("catgrs_UpdtdBy",    "Admin");
+
+  // Image handling
+
+ if (removeImage === true) {
+  formData.append("RemoveImage", "true");
+}
+
+
+else if (newImage) {
+  formData.append("RemoveImage", "false");
+  formData.append("ImageFile", newImage);
+}
+
+  
+  
+  try {
+    const response = await api.put(
+  `/Category/${category.category_Id}`,
+  formData,
+  {
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "multipart/form-data"
     }
   }
-    );
+);
 
-    // Update UI with response
-    setCategory(res.data.category);
-    setIsEditable(false);
-      Swal.fire({
-    icon: "success",
-    title: "Updated!",
-    text: "Category Updated",
-    timer: 1500,
-    showConfirmButton: false
-  }).then(() => {
-    navigate("/category-list");
-  });
+
+
+
+    Swal.fire({
+      icon: "success",
+      title: "Updated!",
+      text: "Category updated successfully",
+      timer: 1500,
+      showConfirmButton: false
+    }).then(() => {
+      navigate("/category-list");
+    });
 
   } catch (error) {
-    console.error("Update failed", error);
-    setMessage("❌ Failed to update category");
+    console.error("Update error:", error?.response?.data || error);
+    Swal.fire({
+      icon: "error",
+      title: "Update failed",
+      text: error?.response?.data?.message || "Something went wrong",
+    });
   }
 };
+
+
 
 
    const handleSearch = (e) => {
@@ -106,23 +154,49 @@ const [loading, setLoading] = useState(true);
     setCategory({ ...category, is_active: "Inactive" });
     setMessage("⚠️ This category has been deactivated successfully!");
   };
+
+
   useEffect(() => {
   fetchCategoryDetails();
 }, [categoryId]);
 
 const fetchCategoryDetails = async () => {
   try {
-    const res = await api.get(
-      `/Category/${categoryId}`
-    );
+    setLoading(true);
+    const res = await api.get(`/Category/${categoryId}`);
 
-    setCategory(res.data);
-  } catch (error) {
-    console.error("Failed to fetch category details", error);
+    const data = res.data;
+
+    // Normalize keys to camelCase (makes form easier to work with)
+    setCategory({
+      category_Id:          data.category_Id,
+      category_Name:        data.category_Name,
+      category_Description: data.category_Description,
+      parent_Category_Id:   data.parent_Category_Id,
+      category_Type:        data.category_Type,
+      category_Is_Active:   data.category_Is_Active,
+      catgrs_CrtdAt:        data.catgrs_CrtdAt,
+      catgrs_UpdtdAt:       data.catgrs_UpdtdAt,
+      catgrs_UpdtdBy:       data.catgrs_UpdtdBy,
+      category_Image_Url:   data.category_Image_Url,
+    });
+
+    // Image preview  
+    let imageUrl = data.category_Image_Url;
+    if (imageUrl && !imageUrl.startsWith("http")) {
+      imageUrl = `https://admin-backend.kaushalyagroup.com/${imageUrl}`; // ← adjust port/host if needed
+    }
+
+    
+    setPreviewImage(imageUrl || "");
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Could not load category", "error");
   } finally {
     setLoading(false);
   }
 };
+
 
 if (loading) {
   return (
@@ -188,6 +262,69 @@ if (loading) {
         {/* <h5 className="fw mb-3">Category Information</h5> */}
 
        <div className="row">
+
+        {/* CATEGORY IMAGE SECTION */}
+<div className="mb-4">
+  <label className="form-label fw-bold">Category Image</label>
+
+  <div className="d-flex align-items-center gap-4">
+    {/* Image Preview */}
+    <div
+      style={{
+        width: "180px",
+        height: "180px",
+        borderRadius: "12px",
+        overflow: "hidden",
+        border: "1px solid #dee2e6",
+        backgroundColor: "#f8f9fa"
+      }}
+    >
+      <img
+        src={
+          removeImage
+            ? "/assets/Images/default.jpg"
+            : previewImage || "/assets/Images/default.jpg"
+        }
+        alt="Category"
+        className="w-100 h-100 object-fit-cover"
+      />
+    </div>
+
+    {/* Edit Controls */}
+    {isEditable && (
+      <div className="d-flex flex-column gap-2">
+        {/* Upload */}
+        <input
+          type="file"
+          accept="image/*"
+          className="form-control"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            if (file) {
+              setNewImage(file);
+              setPreviewImage(URL.createObjectURL(file));
+              setRemoveImage(false);
+            }
+          }}
+        />
+
+        {/* Delete */}
+        <button
+          type="button"
+          className="btn btn-outline-danger"
+          onClick={() => {
+            setNewImage(null);
+            setPreviewImage("");
+            setRemoveImage(true);
+          }}
+        >
+          Delete Image
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
             {Object.entries(category).map(([key, value]) => (
               <div className="col-md-6 mb-3" key={key}>
                 <label className="form-label text-capitalize">

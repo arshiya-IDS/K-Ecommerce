@@ -10,6 +10,8 @@ const ManageCategories = () => {
   // ✅ Category state
 const [errors, setErrors] = useState({});
 
+const [imageFile, setImageFile] = useState(null);
+
   const navigate = useNavigate();
   const [category, setCategory] = useState({
     category_name: "",
@@ -81,23 +83,33 @@ const [errors, setErrors] = useState({});
   setLoading(true);
   setMessage("");
 
-  try {
-    const payload = {
-      category_Name: category.category_name,
-      category_Description: category.category_description,
-      parent_Category_Id:
-        category.parent_category_id === ""
-          ? 0
-          : Number(category.parent_category_id),
-      category_Type: category.category_type,
-      category_Is_Active: category.category_is_active,
-    };
+  // try {
+  //   const payload = {
+  //     category_Name: category.category_name,
+  //     category_Description: category.category_description,
+  //     parent_Category_Id:
+  //       category.parent_category_id === ""
+  //         ? 0
+  //         : Number(category.parent_category_id),
+  //     category_Type: category.category_type,
+  //     category_Is_Active: category.category_is_active,
+  //   };
+try {
+      const formData = new FormData(); // New: Use FormData for multipart
+      formData.append("Category_Name", category.category_name);
+      formData.append("Category_Description", category.category_description);
+      formData.append("Parent_Category_Id", category.parent_category_id === "" ? 0 : Number(category.parent_category_id));
+      formData.append("Category_Type", category.category_type);
+      formData.append("Category_Is_Active", category.category_is_active);
+      if (imageFile) {
+        formData.append("imageFile", imageFile); // Matches API param
+      }
 
-    const response = await api.post(
-      "/Category",
-      payload
-    );
+      const response = await api.post("/Category", formData, {
+        headers: { "Content-Type": "multipart/form-data" } // Required
+      });
 
+    
 
      Swal.fire({
       icon: "success",
@@ -116,6 +128,7 @@ const [errors, setErrors] = useState({});
       category_type: "",
       category_is_active: true,
     });
+    setImageFile(null);
   } catch (error) {
     console.error(error);
     setMessage("❌ Failed to add category");
@@ -230,6 +243,17 @@ const [errors, setErrors] = useState({});
             <label className="form-check-label fw-semibold">
               Category Active
             </label>
+          </div>
+
+          <div className="mb-3"> {/* New: Image upload field */}
+            <label className="form-label fw-semibold">Category Image</label>
+            <input
+              type="file"
+              className="form-control"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files[0])}
+            />
+            <small className="form-text text-muted">Optional: JPG, PNG, etc. Max 5MB.</small>
           </div>
 
           <div className="text-center mt-4">
