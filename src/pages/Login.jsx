@@ -299,7 +299,7 @@ useEffect(() => {
   // ────────────────────────────────────────────────
 
   
-   <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-white">
+   <div className="container-fluid min-vh-100 d-flex flex-column justify-content-center align-items-center bg-[#FEC200]">
      {/* <div className="d-flex justify-content-center w-100">
        <img src="/images/logo/Admin-Login-Page.png" alt="Logo" className="mb-4" style={{ width: '200px', height: 'auto', marginRight: '45px' }} />
      </div> */}
@@ -311,7 +311,7 @@ useEffect(() => {
 
      >
        <img src="/images/logo/Logo_K.jpg" alt="Logo" className="mb-4" style={{width:"240px",height:"80px",marginLeft:"3px",marginTop:"60px",marginBottom:"20px"}} />
-       <h2 className="text-right mb-1 fw-bold mt-20" style={{ color: "black",marginLeft:"120px" }}>
+       <h2 className="text-right mb-1 fw-bold mt-5" style={{ color: "black",marginLeft:"120px" }}>
          Welcome To Kaushlya Miniatures eCommerce
        </h2>
       

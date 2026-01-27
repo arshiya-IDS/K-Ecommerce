@@ -28,14 +28,22 @@ const ProductList = () => {
 
   // --- paging / filters / sorting ---
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
+
+  const gotoFirst = () => setPage(1);
+  const gotoLast = () => {
+  const allCount = total || displayedProducts.length;
+  setPage(1);
+  setPageSize(allCount);
+};
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const pageSizeOptions = [10, 15, 20, 25, 30, "All"];
+  const pageSizeOptions = [50, 60, 70, 80, 90, "All"];
 
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -341,10 +349,21 @@ const exportPDF = () => {
     }
 
     // If not protected, call backend
-    if (selectedUser && statusChoice) {
+    // if (selectedUser && statusChoice) {
+    //   const shouldBeActive = statusChoice === "activate";
+    //   try {
+    //     await axios.patch(`${API_PRODUCT}/${selectedUser.id}/status`, null, { params: { active: shouldBeActive } });
+    //     fetchProducts();
+    //   } catch (err) {
+    //     console.error("Status change failed:", err);
+    //     alert("Failed to update status");
+    //   }
+    // }
+
+      if (selectedUser && statusChoice) {
       const shouldBeActive = statusChoice === "activate";
       try {
-        await axios.patch(`${API_PRODUCT}/${selectedUser.id}/status`, null, { params: { active: shouldBeActive } });
+        await api.patch(`/Product/${selectedUser.id}/status`, null, { params: { active: shouldBeActive } });
         fetchProducts();
       } catch (err) {
         console.error("Status change failed:", err);
@@ -723,10 +742,9 @@ const exportPDF = () => {
                 className="form-select form-select-sm"
                 style={{ width: "90px" }}
                 value={
-                  pageSize >= (total || displayedProducts.length)
-                    ? "All"
-                    : pageSize
+                 pageSize === total ? "All" : pageSize
                 }
+                
                 onChange={handlePageSizeChange}
               >
                 {pageSizeOptions.map((size) => (
@@ -747,26 +765,55 @@ const exportPDF = () => {
 
             <div className="col-md-6">
               <nav aria-label="Page navigation">
-                <ul className="pagination justify-content-end">
-                  <li className="page-item">
-                    <button className="page-link" onClick={gotoPrev} disabled={page <= 1} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px" }}>
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px" }} />
-                      <MdKeyboardArrowLeft style={{ fontSize: "20px",marginLeft:"-18px" }} />
-                      Previous
-                    </button>
-                  </li>
-                  
-                  <li className="page-item active">
-                    <span className="page-link">{page}</span>
-                  </li>
-                  <li className="page-item">
-                    <button className="page-link" onClick={gotoNext} disabled={page >= totalPages} style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "15px" }}>
-                      Next
-                      <MdKeyboardArrowRight style={{ fontSize: "20px" }} />
-                      <MdKeyboardArrowRight style={{ fontSize: "20px", marginLeft: "-18px" }} />
-                    </button>
-                  </li>
-                </ul>
+               <ul className="pagination justify-content-end">
+
+  {/* First */}
+  
+
+  {/* Previous */}
+  <li className="page-item">
+    <button
+      className="page-link"
+      onClick={gotoPrev}
+      disabled={page <= 1}
+      style={{ display: "flex", alignItems: "center", gap: "4px" }}
+    >
+      <MdKeyboardArrowLeft />
+      Previous
+    </button>
+  </li>
+
+  {/* Current Page */}
+  <li className="page-item active">
+    <span className="page-link">{page}</span>
+  </li>
+
+  {/* Next */}
+  <li className="page-item">
+    <button
+      className="page-link"
+      onClick={gotoNext}
+      disabled={page >= totalPages}
+      style={{ display: "flex", alignItems: "center", gap: "4px" }}
+    >
+      Next
+      <MdKeyboardArrowRight />
+    </button>
+  </li>
+
+  {/* Last */}
+  <li className="page-item">
+    <button
+      className="page-link"
+      onClick={gotoLast}
+      disabled={page === totalPages}
+    >
+      Last
+    </button>
+  </li>
+
+</ul>
+
               </nav>
             </div>
           </div>

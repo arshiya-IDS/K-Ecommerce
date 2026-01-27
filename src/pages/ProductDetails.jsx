@@ -5,6 +5,7 @@ import { FaEdit, FaTrash, FaStar } from "react-icons/fa";
 import "sweetalert2/src/sweetalert2.scss";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import api from "../api/axiosInstance";
+import heic2any from "heic2any";
 
 
 
@@ -24,6 +25,8 @@ const ProductDetails = () => {
   const [primaryImageId, setPrimaryImageId] = useState(null);
   const [replaceAllImages, setReplaceAllImages] = useState(false);
   const [replaceImageMap, setReplaceImageMap] = useState({});
+  const [heicPreviews, setHeicPreviews] = useState({});
+
 
     const [isDeactivated, setIsDeactivated] = useState(false);
 
@@ -67,6 +70,8 @@ const ProductDetails = () => {
   };
 
   const handleSubmit = async () => {
+    const [heicPreviews, setHeicPreviews] = useState({});
+
     const formData = new FormData();
     formData.append("Product_ID", product.product_id);
     formData.append("Product_Name", product.product_name);
@@ -134,23 +139,45 @@ Object.entries(replaceImageMap).forEach(([imageId, file]) => {
   if (loading) return <div className="text-center py-5"><h4>Loading...</h4></div>;
   if (!product) return <div className="text-center text-danger">Product not found</div>;
 
-  const handleReplaceSingleImage = (imageId, file) => {
+  
+  const handleReplaceSingleImage = async (imageId, file) => {
   setReplaceImageMap(prev => ({
     ...prev,
     [imageId]: file
   }));
+
+  // If HEIC → convert to JPG for preview
+  if (file && (file.type === "image/heic" || file.name.endsWith(".heic"))) {
+    const convertedBlob = await heic2any({
+      blob: file,
+      toType: "image/jpeg",
+      quality: 0.8
+    });
+
+    const previewUrl = URL.createObjectURL(convertedBlob);
+    setHeicPreviews(prev => ({
+      ...prev,
+      [imageId]: previewUrl
+    }));
+  }
 };
+
+
 
 const getImagePreviewSrc = (img) => {
-  // If this image is marked for replacement, show local preview
-  if (replaceImageMap[img.id]) {
-    return URL.createObjectURL(replaceImageMap[img.id]);
+  const file = replaceImageMap[img.id];
+
+  // No replacement → show server image
+  if (!file) return img.url;
+
+  // HEIC preview fix
+  if (file.type === "image/heic" || file.name.toLowerCase().endsWith(".heic")) {
+    return ""; // handled separately
   }
 
-  // Otherwise show existing image from server
-  return img.url;
+  // Normal images
+  return URL.createObjectURL(file);
 };
-
 
   return (
     <div className="container my-2">
@@ -200,7 +227,7 @@ const getImagePreviewSrc = (img) => {
         onClick={handleSubmit}
         disabled={isDeactivated}
       >
-        Submit
+        Save
       </button>
     </>
   )}
@@ -303,12 +330,19 @@ const getImagePreviewSrc = (img) => {
         style={{ width: "160px" }}
       >
         
-                <img
+                {/* <img
           src={getImagePreviewSrc(img)}
           alt="Product"
           className="img-fluid rounded"
           style={{ height: "120px", objectFit: "cover" }}
-        />
+        /> */}
+
+          <img
+            src={heicPreviews[img.id] || getImagePreviewSrc(img)}
+            alt="Product"
+            className="img-fluid rounded"
+            style={{ height: "120px", objectFit: "cover" }}
+          />
 
 
         {img.isPrimary && (
