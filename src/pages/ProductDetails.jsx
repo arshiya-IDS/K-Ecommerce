@@ -17,6 +17,9 @@ const ProductDetails = () => {
   images: []
 });
 
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [isEditable, setIsEditable] = useState(false);
   const [message, setMessage] = useState("");
@@ -36,11 +39,20 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
+  const fetchSubcategories = async (categoryId) => {
+  const res = await api.get(`/Category/sub/${categoryId}`);
+  setSubcategories(res.data);
+};
+
+
   const fetchProduct = async () => {
     try {
       setLoading(true);
       const res = await api.get(`/Product/details/${id}`);
       setProduct(res.data);
+       if (res.data.category_id) {
+    fetchSubcategories(res.data.category_id);
+  }
       const images = res.data.images || [];
       setProduct({ ...res.data, images });
       setPrimaryImageId(images.find(img => img.isPrimary)?.id || null);
@@ -51,6 +63,16 @@ const ProductDetails = () => {
       setLoading(false);
     }
   };
+
+  
+
+  useEffect(() => {
+  const loadCategories = async () => {
+    const res = await api.get("/Category");
+    setCategories(res.data);
+  };
+  loadCategories();
+}, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,8 +91,14 @@ const ProductDetails = () => {
     );
   };
 
+  const getNewImagePreview = (index) => {
+  if (!newImages[index]) return null;
+  return URL.createObjectURL(newImages[index]);
+};
+
+
   const handleSubmit = async () => {
-    const [heicPreviews, setHeicPreviews] = useState({});
+    
 
     const formData = new FormData();
     formData.append("Product_ID", product.product_id);
@@ -80,7 +108,6 @@ const ProductDetails = () => {
     if (product.product_discounted_price)
       formData.append("Product_Discounted_Price", product.product_discounted_price);
     formData.append("SubCategory_Id", product.subcategory_id);
-    formData.append("Product_Type", product.product_type);
 
     // Replace individual images
 Object.entries(replaceImageMap).forEach(([imageId, file]) => {
@@ -179,6 +206,15 @@ const getImagePreviewSrc = (img) => {
   return URL.createObjectURL(file);
 };
 
+const inputStyle = {
+  backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+  border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+  borderRadius: "8px",
+  padding: "10px",
+  color: "#212529",
+  transition: "all 0.3s ease"
+};
+
   return (
     <div className="container my-2">
      <div
@@ -241,12 +277,10 @@ const getImagePreviewSrc = (img) => {
           {[
             ["product_id", "Product ID"],
             ["product_name", "Product Name"],
-            ["product_description", "Description", "textarea"],
             ["product_actual_price", "Actual Price (₹)"],
             ["product_discounted_price", "Discounted Price (₹)"],
-            ["category_name", "Category (Read-only)"],
-            ["subcategory_name", "Subcategory (Read-only)"],
-            ["product_type", "Product Type"],
+           
+
           ].map(([key, label, type]) => (
             <div className="col-md-6" key={key}>
               <label className="form-label fw-bold">{label}</label>
@@ -282,11 +316,94 @@ const getImagePreviewSrc = (img) => {
                   name={key}
                   value={product[key] || ""}
                   onChange={handleChange}
-                  readOnly={!isEditable || ["category_name", "subcategory_name"].includes(key)}
                 />
               )}
             </div>
           ))}
+
+{/* DESCRIPTION + STATUS */}
+<div className="col-md-8">
+  <label className="form-label fw-bold">Description</label>
+  <textarea
+    className="form-control"
+    rows="4"
+    name="product_description"
+    value={product.product_description || ""}
+    onChange={handleChange}
+    readOnly={!isEditable}
+    style={inputStyle}
+  />
+</div>
+
+
+
+          {/* CATEGORY */}
+<div className="col-md-6">
+  <label className="form-label fw-bold">Category</label>
+  <select
+    className="form-select"
+    disabled={!isEditable}
+    value={product.category_id || ""}
+    onChange={(e) => {
+      setProduct(prev => ({
+        ...prev,
+        category_id: e.target.value,
+        subcategory_id: ""
+      }));
+      fetchSubcategories(e.target.value);
+    }}
+     style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
+  >
+    <option value="">Select Category</option>
+    {categories.map(cat => (
+      <option key={cat.category_Id} value={cat.category_Id}>
+        {cat.category_Name}
+      </option>
+    ))}
+  </select>
+</div>
+
+{/* SUBCATEGORY */}
+<div className="col-md-6">
+  <label className="form-label fw-bold">Subcategory</label>
+  <select
+    className="form-select"
+    disabled={!isEditable}
+    value={product.subcategory_id || ""}
+    onChange={(e) =>
+      setProduct(prev => ({
+        ...prev,
+        subcategory_id: e.target.value
+      }))
+    }
+     style={{
+                        backgroundColor: isEditable && !isDeactivated ? "#fff" : "#f8f9fa",
+                        border: isEditable && !isDeactivated ? "1px solid #80bdff" : "1px solid #dee2e6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: "#212529",
+                        transition: "all 0.3s ease"
+                      }}
+  >
+    <option value="">Select Subcategory</option>
+    {subcategories.map(sub => (
+      <option
+        key={sub.sub_category_Id}
+        value={sub.sub_category_Id}
+      >
+        {sub.sub_category_Name}
+      </option>
+    ))}
+  </select>
+</div>
+
           <div className="col-md-6"
           
           >
@@ -321,89 +438,133 @@ const getImagePreviewSrc = (img) => {
 
         <h5>Product Images</h5>
 
-<div className="d-flex flex-wrap gap-3">
+<div className="d-flex gap-2">
   {product.images && product.images.length > 0 ? (
     product.images.map(img => (
       <div
         key={img.id}
         className="position-relative border rounded p-2"
-        style={{ width: "160px" }}
+        style={{ width: "18%" }}
       >
-        
-                {/* <img
-          src={getImagePreviewSrc(img)}
+        <img
+          src={heicPreviews[img.id] || getImagePreviewSrc(img)}
           alt="Product"
           className="img-fluid rounded"
           style={{ height: "120px", objectFit: "cover" }}
-        /> */}
-
-          <img
-            src={heicPreviews[img.id] || getImagePreviewSrc(img)}
-            alt="Product"
-            className="img-fluid rounded"
-            style={{ height: "120px", objectFit: "cover" }}
-          />
-
-
+        />
+  
         {img.isPrimary && (
           <FaStar className="text-warning position-absolute top-0 end-0 m-2" />
         )}
-
-      {isEditable && (
-  <>
-
- 
-    <button
-      className="btn btn-sm btn-danger position-absolute top-0 start-0 m-2"
-      onClick={() => toggleDeleteImage(img.id)}
-    >
-      <FaTrash />
-    </button>
-
- <button
-      className={`btn btn-sm position-absolute bottom-0 start-0 m-2 ${
-        primaryImageId === img.id
-          ? "btn-warning"
-          : "btn-outline-secondary"
-      }`}
-      onClick={() => setPrimaryImageId(img.id)}
-    >
-      Primary
-    </button>
-    
-
-    {/* 🔽 REPLACE SINGLE IMAGE */}
- 
-   <div className="mt-10">
-      <input
-        type="file"
-        accept="image/*"
-        className="form-control form-control-sm"
-        onChange={(e) =>
-          handleReplaceSingleImage(img.id, e.target.files[0])
-        }
-      />
-      {replaceImageMap[img.id] && (
-        <small className="text-warning">Image will be replaced</small>
-      )}
-    </div>
-   
-  </>
-)}
-
-
-
-
+  
+        {isEditable && (
+          <>
+            <button
+              className="btn btn-sm btn-danger position-absolute top-0 start-0 m-2"
+              onClick={() => toggleDeleteImage(img.id)}
+            >
+              <FaTrash />
+            </button>
+  
+            <button
+              className={`btn btn-sm position-absolute bottom-0 start-0 m-2 ${
+                primaryImageId === img.id
+                  ? "btn-warning"
+                  : "btn-outline-secondary"
+              }`}
+              onClick={() => setPrimaryImageId(img.id)}
+            >
+              Primary
+            </button>
+  
+            <input
+              type="file"
+              accept="image/*"
+              className="form-control form-control-sm mt-2"
+              onChange={(e) =>
+                handleReplaceSingleImage(img.id, e.target.files[0])
+              }
+            />
+          </>
+        )}
+  
         {deleteImageIds.includes(img.id) && (
           <div className="bg-danger text-white text-center small mt-1">
             Will be deleted
           </div>
         )}
       </div>
-      
     ))
   ) : (
-    <div className="text-muted">No images available</div>
+  
+  <>
+    <div className="text-muted mb-2"
+    >No images available</div>
+
+  
+    {isEditable && (
+        <div
+    className="d-flex gap-3"
+    style={{
+      flexWrap: "nowrap",
+      overflowX: "auto",
+      paddingBottom: "10px"
+    }}
+  >
+  
+        {[0, 1, 2, 3].map((index) => (
+            <div
+    key={index}
+    style={{ minWidth: "160px", flex: "0 0 auto" }}
+  >
+  
+            <div className="border rounded p-2 text-center h-100">
+              {/* IMAGE PREVIEW */}
+              {getNewImagePreview(index) ? (
+                <img
+                  src={getNewImagePreview(index)}
+                  alt={`Preview ${index + 1}`}
+                  className="img-fluid rounded mb-2"
+                  style={{ height: "90px", objectFit: "cover" }}
+                />
+              ) : (
+                <div
+                  className="d-flex align-items-center justify-content-center bg-light rounded mb-2"
+                  style={{ height: "90px", fontSize: "12px", color: "#999" }}
+                >
+                  No Image
+                </div>
+              )}
+  
+              <input
+                type="file"
+                accept="image/*"
+                className="form-control form-control-sm"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+  
+                  setReplaceAllImages(true);
+  
+                  setNewImages((prev) => {
+                    const updated = [...prev];
+                    updated[index] = file;
+                    return updated.slice(0, 4);
+                  });
+                }}
+              />
+  
+              <small className="text-muted">Image {index + 1}</small>
+            </div>
+          
+          </div>
+        ))}
+      </div>
+  
+    )}
+  </>
+  
+  
   )}
 </div>
 
@@ -436,13 +597,9 @@ const getImagePreviewSrc = (img) => {
 )} */}
 
 
-        {isEditable && (
-          <div className="text-end mt-4">
-            <button className="btn btn-success btn-lg px-5" onClick={handleSubmit}>
-              Save Changes
-            </button>
-          </div>
-        )}
+      
+
+        
 
         {message && <div className={`alert mt-3 ${message.includes("success") ? "alert-success" : "alert-danger"}`}>{message}</div>}
       </div>

@@ -4,10 +4,6 @@ import { MdKeyboardArrowLeft } from "react-icons/md";
 import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
 import api from "../api/axiosInstance";
-
-
-
-
 import {
   FaEdit, 
   FaEye, 

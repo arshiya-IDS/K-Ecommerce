@@ -20,7 +20,6 @@ const [errors, setErrors] = useState({});
     product_discounted_price: "",
     category_id: "",
     subcategory_id: "",
-    product_type: "",
   });
 
   // Dynamic Categories / Subcategories
@@ -153,10 +152,7 @@ const fetchSubcategories = async (categoryId) => {
   if (!product.subcategory_id)
     newErrors.subcategory_id = "Please select a subcategory";
 
-  if (!product.product_type)
-    newErrors.product_type = "Please select product type";
-
-
+  
   
   if (!images.some(img => img)) {
   newErrors.images = "At least one product image is required";
@@ -207,7 +203,6 @@ const handleSubmit = async (e) => {
       discountedPrice !== null ? discountedPrice.toString() : ""
     );
     formData.append("SubCategory_Id", String(product.subcategory_id));
-    formData.append("Product_Type", product.product_type);
 
     const primary = primaryIndex ?? -1;
     formData.append("PrimaryIndex", String(primary));
@@ -449,26 +444,7 @@ const handleSubmit = async (e) => {
 
             </div>
 
-            {/* PRODUCT TYPE */}
-            <div className="col-md-6 mb-3">
-              <label className="form-label fw-semibold">Product Type</label>
-              <select
-                name="product_type"
-                className={`form-select ${errors.product_type ? "is-invalid" : ""}`}
-                value={product.product_type}
-                onChange={handleChange}
-                required
-              >
-                {errors.product_type && (
-  <div className="invalid-feedback">{errors.product_type}</div>
-)}
-
-                <option value="">Select type</option>
-                <option value="Physical">Physical</option>
-                <option value="Digital">Digital</option>
-                <option value="Service">Service</option>
-              </select>
-            </div>
+          
           </div>
 
           {/* Image & Media Upload */}

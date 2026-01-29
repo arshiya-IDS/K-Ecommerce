@@ -32,18 +32,20 @@ const ProductList = () => {
   const [total, setTotal] = useState(0);
 
   const gotoFirst = () => setPage(1);
+
   const gotoLast = () => {
-  const allCount = total || displayedProducts.length;
-  setPage(1);
-  setPageSize(allCount);
+  const lastPage = Math.ceil((total || 0) / pageSize);
+  setPage(lastPage);
 };
+
+  
 
 
   const [searchTerm, setSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  const pageSizeOptions = [50, 60, 70, 80, 90, "All"];
+  const pageSizeOptions = [50, "All"];
 
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
@@ -274,19 +276,8 @@ const exportPDF = () => {
   const columnHeaders = getColumnHeaders();
 
   // --- search & sort operate on mappedRows (client-side over server items) ---
-  const filteredRows = useMemo(() => {
-    if (!searchTerm) return mappedRows;
-    const q = searchTerm.toLowerCase();
-    return mappedRows.filter((r) => {
-      return (
-        String(r.productName ?? "").toLowerCase().includes(q) ||
-        String(r.price ?? "").toLowerCase().includes(q) ||
-        String(r.category ?? "").toLowerCase().includes(q) ||
-        String(r.subCategory ?? "").toLowerCase().includes(q) ||
-        String(r.createdAt ?? "").toLowerCase().includes(q)
-      );
-    });
-  }, [mappedRows, searchTerm]);
+ const filteredRows = mappedRows;
+
 
   
   const sortedRows = useMemo(() => {
@@ -302,8 +293,10 @@ const exportPDF = () => {
   }, [filteredRows, sortConfig]);
 
   // pagination helpers (Design B shows client-side counts but we also read server total)
-  const displayedProducts = sortedRows;
-  const totalPages = Math.max(1, Math.ceil((total || displayedProducts.length) / pageSize));
+  const displayedProducts = mappedRows;
+
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
   const gotoNext = () => setPage((p) => Math.min(totalPages, p + 1));
   const gotoPrev = () => setPage((p) => Math.max(1, p - 1));
 
@@ -768,7 +761,19 @@ const exportPDF = () => {
                <ul className="pagination justify-content-end">
 
   {/* First */}
-  
+  <li className="page-item">
+    
+    <button
+  className="page-link"
+  onClick={gotoFirst}
+  disabled={page === 1}
+  style={{ display: "flex", alignItems: "center", gap: "4px" }}
+>
+  <MdKeyboardArrowLeft />
+  First
+</button>
+
+  </li>
 
   {/* Previous */}
   <li className="page-item">
